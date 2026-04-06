@@ -51,28 +51,7 @@ class TradingViewWebSocket:
         self.send_message("set_auth_token", ["unauthorized_user_token"])
         self.send_message("chart_create_session", [chart_session, ""])
         self.send_message("quote_create_session", [quote_session])
-        args = [
-            quote_session, "base-currency-logoid", "logo", "ch", "chp"
-            "currency-logoid", "currency_code", "currency_id","base_currency_id",
-            "current_session", "description", "exchange", "format", "fractional",
-            "is_tradable", "language", "local_description", "listed_exchange",
-            "logoid", "lp", "lp_time", "minmov", "minmove2",
-            "pricescale", "pro_name", "short_name", "type", "typespecs",
-            "update_mode", "volume", "variable_tick_size", "value_unit_id", 
-            "unit_id", "measure"
-        ]
-        self.send_message("quote_set_fields", args)
-
-        symbol_data = {
-            "adjustment": "splits",
-            "currency-id": "XTVCUSDT",
-            "session": "regular",
-            "settlement-as-close": False,
-            "symbol": f"BYBIT:{symbol}"
-        }
-        args = "=" + json.dumps(symbol_data)
-
-        self.send_message("quote_add_symbols", [quote_session, args])
+        self.send_message("quote_set_fields", [quote_session])
 
         symbol_data2 = {
             "adjustment": "splits",
@@ -104,7 +83,7 @@ class TradingViewWebSocket:
             if any(msg.get("m") == "series_loading" for msg in messages):
                 break
             
-        with open("Минимум.json", "w", encoding="utf-8") as f:
+        with open("Без_quote_add_symbols.json", "w", encoding="utf-8") as f:
             json.dump(messages, f, indent=4, ensure_ascii=False)
 
 
