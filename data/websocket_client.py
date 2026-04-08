@@ -3,9 +3,16 @@ import string
 import json
 import re
 import time
+import logging
 from enum import Enum
 from typing import TypedDict
 from websocket import create_connection
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(levelname)s] - %(message)s"
+)
 
 
 class Timeframe(Enum):
@@ -23,6 +30,9 @@ class OHLC(TypedDict):
 
 
 class TradingViewWebSocket:
+    """
+    Класс для подключения к WebSocket TradingView и получения исторических данных.
+    """
     def __init__(self):
         self._ws = None
         self._chart_session = None
@@ -43,11 +53,13 @@ class TradingViewWebSocket:
         symbol: str = "BTCUSDT.P",
         timeframe: Timeframe = Timeframe.H1
     ) -> list[OHLC] | None:
-        
+        """
+        Получает исторические данные (OHLC) для указанного символа и таймфрейма.
+        """
         self._request_historical_data(symbol, timeframe)
         self._i += 1
 
-        msg = self._wait_for_historical_data()
+        msg = self._wait_for_historical_data(symbol)
         if not msg:
             return None
         
@@ -88,6 +100,9 @@ class TradingViewWebSocket:
         self._send_message("quote_set_fields", [self._quote_session])
 
     def _request_historical_data(self, symbol: str, timeframe: Timeframe = Timeframe.H1):
+        """
+        Отпраявляет сообщения для получения исторических данных.
+        """
         symbol_string = "=" + json.dumps({"symbol": f"BYBIT:{symbol}"})
 
         self._send_message("resolve_symbol", [self._chart_session, f"sds_sym_{self._i}", symbol_string])
@@ -103,7 +118,10 @@ class TradingViewWebSocket:
                 [self._chart_session, "sds_1", "s1", "sds_sym_1", timeframe.value, 300, ""]
             )
 
-    def _wait_for_historical_data(self) -> list[dict] | None:
+    def _wait_for_historical_data(self, symbol: str) -> list[dict] | None:
+        """
+        Ожидает получение исторических данных от сервера TradingView.
+        """
         timeout = 3
         start = time.time()
 
@@ -119,12 +137,17 @@ class TradingViewWebSocket:
                 series_dict = msg["p"][1]
                 for series_data in series_dict.values():
                     if series_data.get("s"):
+                        logger.info(f"Ценовые данные успешно получены: {symbol}")
                         return series_data.get("s")
-                
+                    
+        logger.warning(f"Не удалось получить ценовые данные: {symbol}")
         return None
 
     @staticmethod
     def _extract_price_bars(s_list: list[dict]) -> list[OHLC]:
+        """
+        Преобразует сырые данные TradingView в список OHLC баров.
+        """
         ohlc: list[OHLC] = [
             {
                 "open": float(item["v"][1]),
@@ -136,6 +159,7 @@ class TradingViewWebSocket:
         ]
 
         return ohlc
+
 
 if __name__ == "__main__":
     with TradingViewWebSocket() as ws:
