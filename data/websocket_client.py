@@ -16,6 +16,8 @@ logging.basicConfig(
 
 
 class Timeframe(Enum):
+    M5 = "5"
+    M15 = "15"
     M30 = "30"
     H1 = "60"
     H4 = "240"
@@ -76,7 +78,7 @@ class TradingViewWebSocket:
             'Connection': 'Upgrade',
             'Host': 'data.tradingview.com',
             'Origin': 'https://data.tradingview.com',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36 Edg/83.0.478.56',
+            'User-Agent': 'Mozilla/5.0',
             'Upgrade': 'websocket'
         }
 
@@ -84,15 +86,18 @@ class TradingViewWebSocket:
 
     def _reconnect(self):
         logger.info("Переподключение к TradingView WebSocket...")
-        try:
+        for _ in range(3):
             if self._ws:
-                self._ws.close()
-        except Exception:
-            pass
+                try:
+                    self._ws.close()
+                except Exception as e:
+                    logger.warning(f"Ошибка при переподключении: {e}.")
+                    continue
 
-        self._connect()
-        self._setup_sessions()
-        self._i = 1
+            self._connect()
+            self._setup_sessions()
+            self._i = 1
+            break
 
     @staticmethod
     def _generate_string_session(prefix):
