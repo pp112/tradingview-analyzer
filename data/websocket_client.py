@@ -22,7 +22,8 @@ class Timeframe(Enum):
     D1 = "1D"
 
 
-class OHLC(TypedDict):
+class TOHLC(TypedDict):
+    timestamp: int
     open: float
     high: float
     low: float
@@ -37,6 +38,7 @@ class TradingViewWebSocket:
         self._ws = None
         self._chart_session = None
         self._quote_session = None
+        self._i_total = 1
         self._i = 1
 
     def __enter__(self):
@@ -52,14 +54,18 @@ class TradingViewWebSocket:
         self,
         symbol: str = "BTCUSDT.P",
         timeframe: Timeframe = Timeframe.H1
-    ) -> list[OHLC] | None:
+    ) -> list[TOHLC] | None:
         """
-        Получает исторические данные (OHLC) для указанного символа и таймфрейма.
+        Получает исторические данные (TOHLC) для указанного символа и таймфрейма.
         """
+        if self._i > 100:
+            self._reconnect()
+
         self._request_historical_data(symbol, timeframe)
-        self._i += 1
 
         msg = self._wait_for_historical_data(symbol)
+        self._i += 1
+        self._i_total += 1
         if not msg:
             return None
         
@@ -75,6 +81,18 @@ class TradingViewWebSocket:
         }
 
         self._ws = create_connection("wss://data.tradingview.com/socket.io/websocket", headers=headers)
+
+    def _reconnect(self):
+        logger.info("Переподключение к TradingView WebSocket...")
+        try:
+            if self._ws:
+                self._ws.close()
+        except Exception:
+            pass
+
+        self._connect()
+        self._setup_sessions()
+        self._i = 1
 
     @staticmethod
     def _generate_string_session(prefix):
@@ -128,7 +146,11 @@ class TradingViewWebSocket:
         while time.time() - start < timeout:
             result = self._ws.recv()
             data = re.split(r"~m~\d+~m~", result)
-            data = [json.loads(part) for part in data if part]
+
+            try:
+                data = [json.loads(part) for part in data if part]
+            except json.JSONDecodeError:
+                continue
 
             for msg in data:
                 if msg.get("m") != "timescale_update":
@@ -137,19 +159,20 @@ class TradingViewWebSocket:
                 series_dict = msg["p"][1]
                 for series_data in series_dict.values():
                     if series_data.get("s"):
-                        logger.info(f"Ценовые данные успешно получены: {symbol}")
+                        logger.info(f"({self._i_total}) Ценовые данные успешно получены: {symbol}")
                         return series_data.get("s")
                     
         logger.warning(f"Не удалось получить ценовые данные: {symbol}")
         return None
 
     @staticmethod
-    def _extract_price_bars(s_list: list[dict]) -> list[OHLC]:
+    def _extract_price_bars(s_list: list[dict]) -> list[TOHLC]:
         """
-        Преобразует сырые данные TradingView в список OHLC баров.
+        Преобразует сырые данные TradingView в список TOHLC баров.
         """
-        ohlc: list[OHLC] = [
+        ohlc: list[TOHLC] = [
             {
+                "timestamp": int(item["v"][0]),
                 "open": float(item["v"][1]),
                 "high": float(item["v"][2]),
                 "low": float(item["v"][3]),
