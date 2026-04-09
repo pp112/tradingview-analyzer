@@ -1,9 +1,13 @@
 import os
+import logging
 import json
 import pandas as pd
 
-from http_client import TradingViewHttpClient
-from websocket_client import TradingViewWebSocket, Timeframe, TOHLC
+from data.http_client import TradingViewHttpClient
+from data.websocket_client import TradingViewWebSocket, Timeframe, TOHLC
+
+logger = logging.getLogger(__name__)
+
 
 class MarketDataClient:
     def __init__(self):
@@ -35,7 +39,7 @@ class MarketDataClient:
         all_data = {}
 
         with self.ws_client as ws:
-            for symbol in tickers:
+            for symbol in tickers[:10]:
                 series = ws.get_historical_bars(symbol, timeframe)
                 if series:
                     all_data[symbol] = series
@@ -76,7 +80,3 @@ if __name__ == "__main__":
     start = time.time()
     data = market_client.get_all_historical_ohlc()
     print(f"Затрачено: {time.time() - start}")
-
-    import json
-    with open("data/result.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)

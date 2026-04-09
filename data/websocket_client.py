@@ -9,10 +9,6 @@ from typing import TypedDict
 from websocket import create_connection
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(levelname)s] - %(message)s"
-)
 
 
 class Timeframe(Enum):
@@ -24,11 +20,11 @@ class Timeframe(Enum):
 
 
 class TOHLC(TypedDict):
-    timestamp: int
-    open: float
-    high: float
-    low: float
-    close: float
+    Timestamp: int
+    Open: float
+    High: float
+    Low: float
+    lose: float
 
 
 class TradingViewWebSocket:
@@ -176,11 +172,11 @@ class TradingViewWebSocket:
         """
         ohlc: list[TOHLC] = [
             {
-                "timestamp": int(item["v"][0]),
-                "open": float(item["v"][1]),
-                "high": float(item["v"][2]),
-                "low": float(item["v"][3]),
-                "close": float(item["v"][4])
+                "Timestamp": int(item["v"][0]),
+                "Open": float(item["v"][1]),
+                "High": float(item["v"][2]),
+                "Low": float(item["v"][3]),
+                "Close": float(item["v"][4])
             }
             for item in s_list
         ]
