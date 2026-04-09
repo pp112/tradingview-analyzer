@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class TradingViewHttpClient:
     """
-    Класс для получения всех тикеров с биржи ByBit, которые есть на TradingView
+    Класс для получения всех тикеров с биржи ByBit, которые есть на TradingView.
     """
     def __init__(self):
         with open("data/scanner_payload.json", encoding="utf-8") as f:

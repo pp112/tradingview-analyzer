@@ -10,6 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 class MarketDataClient:
+    """
+    Класс для получения исторических данных и сохранения их в json и parquet.
+
+    Объединяет работу TradingViewHttpClient и TradingViewWebSocket
+    """
     def __init__(self):
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()

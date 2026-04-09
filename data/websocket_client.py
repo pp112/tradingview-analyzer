@@ -133,7 +133,7 @@ class TradingViewWebSocket:
         else:
             self._send_message(
                 "create_series", 
-                [self._chart_session, "sds_1", "s1", "sds_sym_1", timeframe.value, 300, ""]
+                [self._chart_session, "sds_1", "s1", "sds_sym_1", timeframe.value, 600, ""]
             )
 
     def _wait_for_historical_data(self, symbol: str) -> list[dict] | None:
@@ -176,7 +176,8 @@ class TradingViewWebSocket:
                 "Open": float(item["v"][1]),
                 "High": float(item["v"][2]),
                 "Low": float(item["v"][3]),
-                "Close": float(item["v"][4])
+                "Close": float(item["v"][4]),
+                "Volume": float(item["v"][5])
             }
             for item in s_list
         ]
