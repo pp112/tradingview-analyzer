@@ -1,3 +1,7 @@
+import os
+import json
+import pandas as pd
+
 from http_client import TradingViewHttpClient
 from websocket_client import TradingViewWebSocket, Timeframe, TOHLC
 
@@ -36,26 +40,35 @@ class MarketDataClient:
                 if series:
                     all_data[symbol] = series
         
+        self._save_to_files(all_data, timeframe)
         return all_data
     
-    def get_top_n_historical_ohlc(
+    def _save_to_files(
         self, 
-        n: int = 10, 
-        timeframe: Timeframe = Timeframe.H1
-    ) -> dict[str, list[dict]] | None:
-        """
-        Получить исторические TOHLC-бары для топ N тикеров.
-        """
-        tickers = self.get_tickers()[:n]
-        top_data = {}
+        all_data: dict[str, list[dict]],
+        timeframe: Timeframe
+    ):
+        save_path = "data/results"
+        filename = f"historical_data_{timeframe.value}"
 
-        with self.ws_client as ws:
-            for symbol in tickers:
-                series = ws.get_historical_bars(symbol=symbol, timeframe=timeframe)
-                if series:
-                    top_data[symbol] = series
+        os.makedirs(save_path, exist_ok=True)
 
-        return top_data
+        df_list = []
+        for symbol, series in all_data.items():
+            df = pd.DataFrame(series)
+            df["symbol"] = symbol
+            df_list.append(df)
+
+        if df_list:
+            full_df = pd.concat(df_list, ignore_index=True)
+            full_df.to_parquet(
+                f"{save_path}/{filename}.parquet",
+                engine="pyarrow"
+            )
+
+        with open(f"{save_path}/{filename}.json", "w", encoding="utf-8") as f:
+            json.dump(all_data, f, indent=4, ensure_ascii=False)
+    
     
 if __name__ == "__main__":
     market_client = MarketDataClient()
