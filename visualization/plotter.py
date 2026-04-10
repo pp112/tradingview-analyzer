@@ -6,6 +6,7 @@ import pandas as pd
 import mplfinance as mpf
 
 from data.websocket_client import Timeframe
+from utils import load_data, get_periods_ema_sma, get_symbol_df
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,10 @@ class MarketPlotter:
         rsi: bool = False,
         macd: bool = False
     ) -> str:
+        """
+        Строит свечной график криптовалютного инструмента с возможностью добавления
+        технических индикаторов и сохраняет его в файл.
+        """
         df = self._prepare_data(symbol, timeframe)
         if df is None:
             logger.error(f"Нет данных для {symbol}")
@@ -62,16 +67,12 @@ class MarketPlotter:
         logger.info(f"График {symbol}_{timeframe.value} успешно сохранен в {save_path}")
         return save_path
     
-    def _load_data(self, timeframe: Timeframe) -> pd.DataFrame:
-        data_path = f"data/results/historical_data_{timeframe.value}.parquet"
-        return pd.read_parquet(data_path)
-    
     def _prepare_data(self, symbol: str, timeframe: Timeframe) -> pd.DataFrame:
         """
         Фильтрует данные по символу и подготавливает их для построения графика.
         """
-        df = self._load_data(timeframe)
-        df = df[df["symbol"] == symbol].copy()
+        df = load_data(timeframe)
+        df = get_symbol_df(symbol, df)
 
         if df.empty:
             return None
@@ -82,14 +83,7 @@ class MarketPlotter:
         return df
     
     def _add_ema_sma(self, addplots: list, df: pd.DataFrame, timeframe: Timeframe) -> list:
-        periods = {
-            Timeframe.M15: (9, 21),
-            Timeframe.M30: (12, 50),
-            Timeframe.H1: (21, 50),
-            Timeframe.H4: (21, 100),
-            Timeframe.D1: (50, 200),
-        }
-        ema_period, sma_period = periods.get(timeframe)
+        ema_period, sma_period = get_periods_ema_sma(timeframe)
 
         ema = df["Close"].ewm(span=ema_period, adjust=False).mean()
         addplots.append(mpf.make_addplot(ema, width=1, color="orange"))
@@ -100,7 +94,6 @@ class MarketPlotter:
         return addplots
     
     def _add_rsi(self, addplots: list, df: pd.DataFrame) -> list:
-        # Считаем RSI
         delta = df["Close"].diff()
         gain = delta.clip(lower=0)
         loss = -delta.clip(upper=0)
