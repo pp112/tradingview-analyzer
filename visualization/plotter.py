@@ -55,8 +55,8 @@ class MarketPlotter:
                 title=symbol, 
                 volume=False,
                 addplot=addplots,
-                figsize=(23, 10),
-                savefig=dict(fname=save_path, dpi=300)
+                figsize=(16, 9),
+                savefig=dict(fname=save_path, dpi=500)
             )
         
         logger.info(f"График {symbol}_{timeframe.value} успешно сохранен в {save_path}")
@@ -144,6 +144,8 @@ class MarketPlotter:
     
 
 if __name__ == "__main__":
+    import time
+    start = time.time()
     plotter = MarketPlotter()
-    img = plotter.plot_candles(ema_sma=True, rsi=True, macd=True, fvg=True)
- 
+    img = plotter.plot_candles(ema_sma=True, rsi=True, macd=True)
+    print(time.time() - start)
