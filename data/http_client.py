@@ -1,5 +1,5 @@
 import json
-import requests
+import aiohttp
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,22 +20,24 @@ class TradingViewHttpClient:
             "Referer": "https://www.tradingview.com/"
         }
 
-    def get_all_tickers(self) -> list[str]:
-
+    async def get_all_tickers(self) -> list[str]:
         url = "https://scanner.tradingview.com/crypto/scan?label-product=popup-screener-crypto-cex"
 
-        response = requests.post(url=url, headers=self.headers, json=self.payload)
-        response.raise_for_status()
-        data_response = response.json()
-        
-        all_tickers = [
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=self.payload) as r:
+                r.raise_for_status()
+                data = await r.json()
+
+        tickers = [
             d.get("s").split(":")[1] 
-            for d in data_response["data"]
+            for d in data["data"]
         ]
 
-        logger.info(f"Успешно получено тикеров: {len(all_tickers)}")
-        return all_tickers
+        logger.info(f"Успешно получено тикеров: {len(tickers)}")
+        return tickers
 
 
 if __name__ == "__main__":
-    print(TradingViewHttpClient().get_all_tickers())
+    import asyncio
+    tickers = asyncio.run(TradingViewHttpClient().get_all_tickers())
+    print(tickers)
