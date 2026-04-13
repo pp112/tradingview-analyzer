@@ -2,11 +2,12 @@ import random
 import string
 import json
 import re
-import time
 import logging
+import asyncio
 from enum import Enum
 from typing import TypedDict
-from websocket import create_connection
+
+import websockets
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class TOHLC(TypedDict):
     Open: float
     High: float
     Low: float
-    lose: float
+    Close: float
 
 
 class TradingViewWebSocket:
@@ -35,117 +36,95 @@ class TradingViewWebSocket:
         self._ws = None
         self._chart_session = None
         self._quote_session = None
-        self._i_total = 1
         self._i = 1
 
-    def __enter__(self):
-        self._connect()
-        self._setup_sessions()
+    async def __aenter__(self):
+        await self._connect()
+        await self._setup_sessions()
         return self
 
-    def __exit__(self, exc_type, exc, tb):
-        self._ws.close()
-        return False
+    async def __aexit__(self, exc_type, exc, tb):
+        await self._ws.close()
 
-    def get_historical_bars(
+    async def get_historical_batch(
+        self,
+        symbols: list[str],
+        timeframe: Timeframe = Timeframe.H1
+    ) -> dict[str, list[TOHLC]]:
+        results = {}
+
+        for symbol in symbols:
+            data = await self._get_historical_bars(symbol, timeframe)
+            if data:
+                results[symbol] = data
+
+        return results
+    
+    async def _get_historical_bars(
         self,
         symbol: str = "BTCUSDT.P",
         timeframe: Timeframe = Timeframe.H1
     ) -> list[TOHLC] | None:
-        """
-        Получает исторические данные (TOHLC) для указанного символа и таймфрейма.
-        """
-        if self._i > 100:
-            self._reconnect()
-
-        self._request_historical_data(symbol, timeframe)
-
-        msg = self._wait_for_historical_data(symbol)
-        self._i += 1
-        self._i_total += 1
-        if not msg:
-            return None
+        await self._request_historical_data(symbol, timeframe)
+        result = await self._receive_historical_bars(symbol)
         
-        return self._extract_price_bars(msg)
-
-    def _connect(self):
+        self._i += 1
+        
+        return result
+        
+    async def _connect(self):
         headers = {
-            'Connection': 'Upgrade',
-            'Host': 'data.tradingview.com',
             'Origin': 'https://data.tradingview.com',
             'User-Agent': 'Mozilla/5.0',
-            'Upgrade': 'websocket'
         }
-
-        self._ws = create_connection("wss://data.tradingview.com/socket.io/websocket", headers=headers)
-
-    def _reconnect(self):
-        logger.info("Переподключение к TradingView WebSocket...")
-        for _ in range(3):
-            if self._ws:
-                try:
-                    self._ws.close()
-                except Exception as e:
-                    logger.warning(f"Ошибка при переподключении: {e}.")
-                    continue
-
-            self._connect()
-            self._setup_sessions()
-            self._i = 1
-            break
-
-    @staticmethod
-    def _generate_string_session(prefix):
-        random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
-        return prefix + random_string
+        self._ws = await websockets.connect(
+            "wss://data.tradingview.com/socket.io/websocket", 
+            additional_headers=headers
+        )
     
-    @staticmethod
-    def _create_message(func: str, param_list: list):
-        message = json.dumps({"m": func, "p": param_list}, separators=(',', ':'))
-        return f"~m~{len(message)}~m~{message}"
-    
-    def _send_message(self, func: str, args: list):
-        message = self._create_message(func, args)
-        self._ws.send(message)
+    async def _send_message(self, func: str, params: list):
+        msg = json.dumps({"m": func, "p": params}, separators=(",", ":"))
+        msg = f"~m~{len(msg)}~m~{msg}"
+        await self._ws.send(msg)
 
-    def _setup_sessions(self):
+    async def _setup_sessions(self):
         self._chart_session = self._generate_string_session("cs_")
         self._quote_session = self._generate_string_session("qs_")
 
-        self._send_message("set_auth_token", ["unauthorized_user_token"])
-        self._send_message("chart_create_session", [self._chart_session, ""])
-        self._send_message("quote_create_session", [self._quote_session])
-        self._send_message("quote_set_fields", [self._quote_session])
+        await self._send_message("set_auth_token", ["unauthorized_user_token"])
+        await self._send_message("chart_create_session", [self._chart_session, ""])
+        await self._send_message("quote_create_session", [self._quote_session])
+        await self._send_message("quote_set_fields", [self._quote_session])
 
-    def _request_historical_data(self, symbol: str, timeframe: Timeframe = Timeframe.H1):
+    async def _request_historical_data(self, symbol: str, timeframe: Timeframe = Timeframe.H1):
         """
         Отпраявляет сообщения для получения исторических данных.
         """
         symbol_string = "=" + json.dumps({"symbol": f"BYBIT:{symbol}"})
 
-        self._send_message("resolve_symbol", [self._chart_session, f"sds_sym_{self._i}", symbol_string])
+        await self._send_message("resolve_symbol", [self._chart_session, f"sds_sym_{self._i}", symbol_string])
 
         if self._i > 1:
-            self._send_message(
+            await self._send_message(
                 "modify_series", 
                 [self._chart_session, "sds_1", f"s{self._i}", f"sds_sym_{self._i}", timeframe.value, ""]
             )
         else:
-            self._send_message(
+            await self._send_message(
                 "create_series", 
                 [self._chart_session, "sds_1", "s1", "sds_sym_1", timeframe.value, 600, ""]
             )
 
-    def _wait_for_historical_data(self, symbol: str) -> list[dict] | None:
+    async def _receive_historical_bars(self, symbol: str) -> list[dict] | None:
         """
         Ожидает получение исторических данных от сервера TradingView.
         """
-        timeout = 3
-        start = time.time()
+        timeout = 2
+        start = asyncio.get_event_loop().time()
 
-        while time.time() - start < timeout:
-            result = self._ws.recv()
-            data = re.split(r"~m~\d+~m~", result)
+        while asyncio.get_event_loop().time() - start < timeout:
+            msg = await self._ws.recv()
+            data = re.split(r"~m~\d+~m~", msg)
 
             try:
                 data = [json.loads(part) for part in data if part]
@@ -157,16 +136,17 @@ class TradingViewWebSocket:
                     continue
 
                 series_dict = msg["p"][1]
+
                 for series_data in series_dict.values():
                     if series_data.get("s"):
-                        logger.info(f"({self._i_total}) Ценовые данные успешно получены: {symbol}")
-                        return series_data.get("s")
+                        logger.info(f"({self._i}) Ценовые данные успешно получены: {symbol}")
+                        return self._parse_price_bars(series_data["s"])
                     
         logger.warning(f"Не удалось получить ценовые данные: {symbol}")
         return None
 
     @staticmethod
-    def _extract_price_bars(s_list: list[dict]) -> list[TOHLC]:
+    def _parse_price_bars(s_list: list[dict]) -> list[TOHLC]:
         """
         Преобразует сырые данные TradingView в список TOHLC баров.
         """
@@ -176,13 +156,17 @@ class TradingViewWebSocket:
                 "Open": float(item["v"][1]),
                 "High": float(item["v"][2]),
                 "Low": float(item["v"][3]),
-                "Close": float(item["v"][4]),
-                "Volume": float(item["v"][5])
+                "Close": float(item["v"][4])
             }
             for item in s_list
         ]
 
         return ohlc
+    
+    @staticmethod
+    def _generate_string_session(prefix):
+        random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
+        return prefix + random_string
 
 
 if __name__ == "__main__":
