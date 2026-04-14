@@ -25,32 +25,34 @@ def correlation(df: pd.DataFrame, symbol: str) -> float:
     return round(corr, 2)
 
 def moving_average(
-    df: pd.DataFrame,
-    symbol: str,
+    symbol_df: pd.DataFrame,
     timeframe: Timeframe,
     ma_type: Literal["ema", "sma"]
-) -> list[float]:
-    df_symbol = get_symbol_df(symbol, df)
+) -> tuple[float, float]:
     periods = get_periods_ema_sma(timeframe)
 
     if ma_type == "ema":
-        result = df_symbol["Close"].ewm(span=periods[0], adjust=False).mean()
+        result = symbol_df["Close"].ewm(span=periods[0], adjust=False).mean()
     elif ma_type == "sma":
-        result = df_symbol["Close"].rolling(window=periods[1]).mean()
+        result = symbol_df["Close"].rolling(window=periods[1]).mean()
+    
+    result = result.dropna()
+    
+    if len(result) < 2:
+        return None
+    
+    prev, curr = result.iloc[-2], result.iloc[-1]
 
-    return result[-3:].to_list()
+    return prev, curr
 
 def macd(
-    df: pd.DataFrame,
-    symbol: str  
+    symbol_df: pd.DataFrame,
 ) -> tuple[
     tuple[float, float], 
     tuple[float, float]
 ]:
-    df_symbol = get_symbol_df(symbol, df)
-
-    ema_fast = df_symbol["Close"].ewm(span=12, adjust=False).mean()
-    ema_slow = df_symbol["Close"].ewm(span=26, adjust=False).mean()
+    ema_fast = symbol_df["Close"].ewm(span=12, adjust=False).mean()
+    ema_slow = symbol_df["Close"].ewm(span=26, adjust=False).mean()
 
     macd = ema_fast - ema_slow
     signal_line = macd.ewm(span=9, adjust=False).mean()
@@ -58,16 +60,17 @@ def macd(
     result = pd.DataFrame({
         "MACD": macd,
         "MACD_signal": signal_line
-    }).dropna().tail(2)
+    }).dropna()
 
-    prev, curr = result.iloc[0], result.iloc[1]
+    if len(result) < 2:
+        return None, None
+
+    prev, curr = result.iloc[-2], result.iloc[-1]
 
     return prev, curr
 
-def rsi(df: pd.DataFrame, symbol: str) -> float:
-    df_symbol = get_symbol_df(symbol, df)
-
-    delta = df_symbol["Close"].diff()
+def rsi(symbol_df: pd.DataFrame) -> float:
+    delta = symbol_df["Close"].diff()
     gain = delta.clip(lower=0)
     loss = -delta.clip(upper=0)
     avg_gain = gain.rolling(14).mean()
