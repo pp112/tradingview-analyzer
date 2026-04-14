@@ -87,7 +87,7 @@ class MarketDataClient:
         all_data: dict[str, list[dict]],
         timeframe: Timeframe
     ):
-        save_path = "data/results"
+        save_path = "data/historical_data"
         filename = f"historical_data_{timeframe.value}"
 
         os.makedirs(save_path, exist_ok=True)

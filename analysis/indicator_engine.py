@@ -1,8 +1,9 @@
 import logging
 import json
 
-from indicators import rsi, macd, moving_average
-from utils import load_data, get_symbol_df
+from indicators import rsi, macd, moving_average, correlation
+from utils import get_symbol_df, sort_correlations, filter_low_correlations, load_data
+from data.websocket_client import Timeframe
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -12,13 +13,21 @@ logging.basicConfig(
 
 
 class IndicatorEngine:
-    def __init__(self, upper_threshold_rsi = 70, lower_threshold_rsi = 30):
+    INDICATORS_DIR = "data/indicators"
+
+    def __init__(
+        self, 
+        upper_threshold_rsi = 70, 
+        lower_threshold_rsi = 30, 
+        corrs_threshold = 0.5
+    ):
         self.upper_threshold_rsi = upper_threshold_rsi
         self.lower_threshold_rsi = lower_threshold_rsi
+        self.corrs_threshold = corrs_threshold
 
-    def check_signals(self, timeframe):
+    def check_signals(self, df, timeframe):
         signals = []
-        result_indicators = self._calculate(timeframe)
+        result_indicators = self._calculate(df, timeframe)
         
         for symbol, values in result_indicators.items():
             
@@ -83,12 +92,25 @@ class IndicatorEngine:
                 })
                 logger.info(f"EMA_SMA: сигнал ВНИЗ для {symbol} на таймфрейме {timeframe.value}")
         
-        self._save_to_files(result_indicators, signals)
+        self._save_ind_and_sig(result_indicators, signals, timeframe)
 
-    def _calculate(self, timeframe) -> dict[str, dict]:
+    def check_correlations(self):
+        ticker_corrs = {}
+
+        df = load_data(Timeframe.H1)
+        symbols = df['symbol']
+
+        for symbol in symbols:
+            ticker_corrs[symbol] = correlation(df, symbol)
+        
+        ticker_corrs = filter_low_correlations(ticker_corrs, self.corrs_threshold)
+        ticker_corrs = sort_correlations(ticker_corrs, "desc")
+
+        self._save_corrs(ticker_corrs)
+
+    def _calculate(self, df, timeframe) -> dict[str, dict]:
         result = {}
 
-        df = load_data(timeframe)
         symbols = df['symbol']
 
         for symbol in symbols:
@@ -103,14 +125,17 @@ class IndicatorEngine:
         
         return result
     
-    def _save_to_files(self, indicators, signals, timeframe):
-        save_dir = "data/indicators"
-
-        with open(f"{save_dir}/indicators_{timeframe.value}.json", "w", encoding="utf-8") as f:
+    def _save_ind_and_sig(self, indicators, signals, timeframe):
+        with open(f"{self.INDICATORS_DIR}/values_{timeframe.value}.json", "w", encoding="utf-8") as f:
             json.dump(indicators, f, indent=4, ensure_ascii=False)
 
-        with open(f"{save_dir}/signals_{timeframe.value}.json", "w", encoding="utf-8") as f:
+        with open(f"{self.INDICATORS_DIR}/signals_{timeframe.value}.json", "w", encoding="utf-8") as f:
             json.dump(signals, f, indent=4, ensure_ascii=False)
 
-        logger.info("Результаты indicators и signals успешно сохранены ")
+        logger.info("Результаты индикаторов и сигналов успешно сохранены")
         
+    def _save_corrs(self, ticker_corrs):
+        with open(f"{self.INDICATORS_DIR}/correlations.json", "w", encoding="utf-8") as f:
+            json.dump(ticker_corrs, f, indent=4, ensure_ascii=False)
+        
+        logger.info("Результаты корреляции успешно сохранены")

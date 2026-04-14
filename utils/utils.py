@@ -1,3 +1,4 @@
+from typing import Literal
 import pandas as pd
 from data.websocket_client import Timeframe
 
@@ -18,3 +19,19 @@ def get_periods_ema_sma(timeframe: Timeframe) -> tuple[int, int]:
 
 def get_symbol_df(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
     return df[df["symbol"] == symbol]
+
+def sort_correlations(tickers_correlations: dict, sort_order: Literal["asc", "desc"]):
+    return dict(
+        sorted(
+            tickers_correlations.items(),
+            key=lambda item: item[1],
+            reverse=(sort_order == "desc")
+        )
+    )
+    
+def filter_low_correlations(tickers_correlations: dict, threshold: float):
+    return {
+        ticker: corr 
+        for ticker, corr in tickers_correlations.items() 
+        if corr <= threshold
+    }
