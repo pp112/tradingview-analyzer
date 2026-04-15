@@ -53,7 +53,7 @@ class StateManager:
         Записывает время обновления таймфрейма
         """
         now = datetime.now().replace(second=0, microsecond=0)
-        self.state[timeframe.value] = now
+        self.state[timeframe.value] = now.isoformat()
         self._save_state()
 
         logger.info(f"Сохранено время обновления {timeframe.value}: {now}")
@@ -77,4 +77,4 @@ class StateManager:
         if not value:
             return None
 
-        return value
+        return datetime.fromisoformat(value)

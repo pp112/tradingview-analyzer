@@ -98,7 +98,7 @@ class IndicatorEngine:
     def update_correlations(self, df: DataFrame):
         ticker_corrs = {}
 
-        symbols = df['symbol']
+        symbols = df['symbol'].unique()
 
         for symbol in symbols:
             ticker_corrs[symbol] = correlation(df, symbol)
@@ -111,10 +111,10 @@ class IndicatorEngine:
     def _calculate(self, df, timeframe) -> dict[str, dict]:
         result = {}
 
-        symbols = df['symbol']
+        symbols = df['symbol'].unique()
 
         for symbol in symbols:
-            symbol_df = get_symbol_df(symbol)
+            symbol_df = get_symbol_df(symbol, df)
 
             result[symbol] = {
                 "rsi": rsi(symbol_df),

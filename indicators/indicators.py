@@ -6,7 +6,7 @@ from utils import get_periods_ema_sma, get_symbol_df
 
 
 def correlation(df: pd.DataFrame, symbol: str) -> float:
-    df_btc = get_symbol_df("BTCUSDT.P")
+    df_btc = get_symbol_df("BTCUSDT.P", df)
     df_alt = get_symbol_df(symbol, df)
     
     df_btc["Date"] = pd.to_datetime(df_btc["Timestamp"], unit="s")
