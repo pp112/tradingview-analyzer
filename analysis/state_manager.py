@@ -8,7 +8,7 @@ from data.timeframe import Timeframe
 logger = logging.getLogger(__name__)
 
 
-class Scheduler:
+class StateManager:
     """
     Хранит и проверяет время последнего обновления таймфреймов.
     """
@@ -25,16 +25,6 @@ class Scheduler:
 
     def __init__(self):
         self.state = self._load_state()
-
-    def set_updated(self, timeframe: Timeframe):
-        """
-        Записывает время обновления таймфрейма
-        """
-        now = datetime.now().replace(second=0, microsecond=0)
-        self.state[timeframe.value] = now
-        self._save_state()
-
-        logger.info(f"Сохранено время обновления {timeframe.value}: {now}")
 
     def get_timeframes_to_update(self) -> list[Timeframe]:
         """
@@ -57,6 +47,16 @@ class Scheduler:
                 to_update.append(tf)
 
         return to_update
+    
+    def set_updated(self, timeframe: Timeframe):
+        """
+        Записывает время обновления таймфрейма
+        """
+        now = datetime.now().replace(second=0, microsecond=0)
+        self.state[timeframe.value] = now
+        self._save_state()
+
+        logger.info(f"Сохранено время обновления {timeframe.value}: {now}")
 
     def _load_state(self) -> dict:
         if not os.path.exists(self.STATE_FILE):
