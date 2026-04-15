@@ -1,9 +1,9 @@
 import logging
 import json
+from pandas import DataFrame
 
 from indicators import rsi, macd, moving_average, correlation
-from utils import get_symbol_df, sort_correlations, filter_low_correlations, load_data
-from data.timeframe import Timeframe
+from utils import get_symbol_df, sort_correlations, filter_low_correlations
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -13,6 +13,7 @@ logging.basicConfig(
 
 
 class IndicatorEngine:
+
     INDICATORS_DIR = "data/indicators"
 
     def __init__(
@@ -94,10 +95,9 @@ class IndicatorEngine:
         
         self._save_ind_and_sig(result_indicators, signals, timeframe)
 
-    def check_correlations(self):
+    def update_correlations(self, df: DataFrame):
         ticker_corrs = {}
 
-        df = load_data(Timeframe.H1)
         symbols = df['symbol']
 
         for symbol in symbols:
@@ -132,10 +132,10 @@ class IndicatorEngine:
         with open(f"{self.INDICATORS_DIR}/signals_{timeframe.value}.json", "w", encoding="utf-8") as f:
             json.dump(signals, f, indent=4, ensure_ascii=False)
 
-        logger.info("Результаты индикаторов и сигналов успешно сохранены")
+        logger.info(f"Результаты индикаторов и сигналов успешно сохранены в {self.INDICATORS_DIR}")
         
     def _save_corrs(self, ticker_corrs):
         with open(f"{self.INDICATORS_DIR}/correlations.json", "w", encoding="utf-8") as f:
             json.dump(ticker_corrs, f, indent=4, ensure_ascii=False)
         
-        logger.info("Результаты корреляции успешно сохранены")
+        logger.info(f"Результаты корреляции успешно сохранены в {self.INDICATORS_DIR}")
