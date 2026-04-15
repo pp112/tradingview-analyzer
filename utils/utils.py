@@ -1,10 +1,10 @@
 from typing import Literal
 import pandas as pd
-from data.websocket_client import Timeframe
+from data.timeframe import Timeframe
 
 
 def load_data(timeframe: Timeframe) -> pd.DataFrame:
-    data_path = f"data/results/historical_data_{timeframe.value}.parquet"
+    data_path = f"data/historical_data/historical_data_{timeframe.value}.parquet"
     return pd.read_parquet(data_path)
 
 def get_periods_ema_sma(timeframe: Timeframe) -> tuple[int, int]:

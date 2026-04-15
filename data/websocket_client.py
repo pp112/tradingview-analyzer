@@ -4,20 +4,12 @@ import json
 import re
 import logging
 import asyncio
-from enum import Enum
+from data.timeframe import Timeframe
 from typing import TypedDict
 
 import websockets
 
 logger = logging.getLogger(__name__)
-
-
-class Timeframe(Enum):
-    M15 = "15"
-    M30 = "30"
-    H1 = "60"
-    H4 = "240"
-    D1 = "1D"
 
 
 class TOHLC(TypedDict):

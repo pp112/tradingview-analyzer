@@ -1,7 +1,7 @@
 from typing import Literal
 import pandas as pd
 
-from data.websocket_client import Timeframe
+from data.timeframe import Timeframe
 from utils import get_periods_ema_sma, get_symbol_df
 
 

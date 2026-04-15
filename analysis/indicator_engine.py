@@ -3,7 +3,7 @@ import json
 
 from indicators import rsi, macd, moving_average, correlation
 from utils import get_symbol_df, sort_correlations, filter_low_correlations, load_data
-from data.websocket_client import Timeframe
+from data.timeframe import Timeframe
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
