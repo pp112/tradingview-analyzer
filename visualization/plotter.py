@@ -5,7 +5,7 @@ import warnings
 import pandas as pd
 import mplfinance as mpf
 
-from data.timeframe import Timeframe
+from models.timeframe import Timeframe
 from utils import load_data, get_periods_ema_sma, get_symbol_df
 
 logger = logging.getLogger(__name__)

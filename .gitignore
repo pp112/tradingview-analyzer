@@ -1,8 +1,8 @@
 .venv/
 __pycache__/
-data/historical_data/
-data/value/
-data/state/
-data/reports
-data/indicator_signals.txt
-visualization/plots/
+data/historical_data/*
+data/value/indicators/*
+data/value/signals/*
+data/reports/*
+data/state/*
+visualization/plots/*

@@ -4,20 +4,12 @@ import json
 import re
 import logging
 import asyncio
-from data.timeframe import Timeframe
-from typing import TypedDict
+from models.timeframe import Timeframe
+from models.tohlc import TOHLC
 
 import websockets
 
 logger = logging.getLogger(__name__)
-
-
-class TOHLC(TypedDict):
-    Timestamp: int
-    Open: float
-    High: float
-    Low: float
-    Close: float
 
 
 class TradingViewWebSocket:
@@ -47,7 +39,7 @@ class TradingViewWebSocket:
         timeframe: Timeframe = Timeframe.H1,
     ) -> dict[str, list[TOHLC]]:
         """
-        Получает исторические OHLC данные сразу для группы символов.
+        Получает исторические TOHLC данные сразу для группы символов.
         """
         results = {}
 
@@ -157,7 +149,7 @@ class TradingViewWebSocket:
     @staticmethod
     def _parse_price_bars(s_list: list[dict]) -> list[TOHLC]:
         """
-        Преобразует сырой формат TradingView в список OHLC свечей.
+        Преобразует сырой формат TradingView в список TOHLC свечей.
         """
         tohlc: list[TOHLC] = [
             {
