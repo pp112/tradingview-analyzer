@@ -1,7 +1,7 @@
 import logging
 
-from analysis.state_manager import StateManager
-from core.update_timeframe import TimeframeUpdater
+from processing.state_manager import StateManager
+from app.updater import TimeframeUpdater
 
 logger = logging.getLogger(__name__)
 

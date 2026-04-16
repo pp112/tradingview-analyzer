@@ -3,7 +3,7 @@ from typing import Literal
 import pandas as pd
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
 
-from data.timeframe import Timeframe
+from models.timeframe import Timeframe
 
 
 def load_data(timeframe: Timeframe) -> pd.DataFrame:

@@ -2,8 +2,8 @@ import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from data.timeframe import Timeframe
-from core.update_timeframe import TimeframeUpdater
+from models.timeframe import Timeframe
+from app.updater import TimeframeUpdater
 
 logger = logging.getLogger(__name__)
 

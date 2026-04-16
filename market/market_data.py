@@ -5,9 +5,9 @@ import asyncio
 
 import pandas as pd
 
-from data.http_client import TradingViewHttpClient
-from data.websocket_client import TradingViewWebSocket, TOHLC
-from data.timeframe import Timeframe
+from market import TradingViewHttpClient, TradingViewWebSocket
+from models.timeframe import Timeframe
+from models.tohlc import TOHLC
 from utils import get_progress
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class MarketDataClient:
 
     Объединяет:
     - HTTP получение тикеров
-    - WebSocket загрузку OHLC данных
+    - WebSocket загрузку TOHLC данных
     - сохранение в parquet/json
     """
     def __init__(self):

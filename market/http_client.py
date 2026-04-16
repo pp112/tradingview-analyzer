@@ -10,7 +10,7 @@ class TradingViewHttpClient:
     HTTP клиент для получения списка доступных тикеров с TradingView.
     """
     def __init__(self):
-        with open("data/scanner_payload.json", encoding="utf-8") as f:
+        with open("market/payloads/scanner.json", encoding="utf-8") as f:
             self.payload = json.load(f)
 
         self.headers = {

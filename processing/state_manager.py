@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 
-from data.timeframe import Timeframe
+from models.timeframe import Timeframe
 
 logger = logging.getLogger(__name__)
 

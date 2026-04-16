@@ -3,8 +3,8 @@ import signal
 import logging
 
 from config import setup_logging
-from core.startup_updater import StartupUpdater
-from core.scheduler import Scheduler
+from app.startup import StartupUpdater
+from app.scheduler import Scheduler
 
 logger = logging.getLogger(__name__)
 

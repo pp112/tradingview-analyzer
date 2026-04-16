@@ -1,8 +1,8 @@
 import logging
 
-from data.timeframe import Timeframe
-from data.market_data import MarketDataClient
-from analysis.indicator_engine import IndicatorEngine
+from models.timeframe import Timeframe
+from market import MarketDataClient
+from processing import IndicatorEngine
 from utils import load_data
 
 logger = logging.getLogger(__name__)

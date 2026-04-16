@@ -4,9 +4,9 @@ import json
 
 from pandas import DataFrame
 
-from indicators import rsi, macd, moving_average, correlation
+from processing import rsi, macd, moving_average, correlation
 from utils import get_symbol_df, sort_correlations, filter_low_correlations
-from data.timeframe import Timeframe
+from models.timeframe import Timeframe
 
 logger = logging.getLogger(__name__)
 
