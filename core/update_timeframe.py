@@ -10,19 +10,27 @@ logger = logging.getLogger(__name__)
 
 class TimeframeUpdater:
     """
-    Пайплайн обновления таймфрейма:
-    - Обновление исторических данных
-    - Расчет индикаторов и проверка сигналов
-    """
+    Пайплайн обновления данных для конкретного таймфрейма.
 
+    Выполняет:
+    - загрузку исторических TOHLC данных
+    - пересчёт индикаторов
+    - проверку торговых сигналов
+    """
     def __init__(self):
         self.market_client = MarketDataClient()
         self.indicators = IndicatorEngine()
 
     async def update(self, timeframe: Timeframe):
+        """
+        Асинхронно обновляет данные для указанного таймфрейма:
+        1. Загружает исторические данные
+        2. Обновляет корреляции (для H1)
+        3. Пересчитывает индикаторы и сигналы
+        """
         logger.info(f"Начинаем обновление таймфрейма: {timeframe.label}")
 
-        await self.market_client.get_all_historical_ohlc(timeframe)
+        await self.market_client.get_all_historical_tohlc(timeframe)
 
         df = load_data(timeframe)
         

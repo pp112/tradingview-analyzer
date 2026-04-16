@@ -10,9 +10,11 @@ logger = logging.getLogger(__name__)
 
 class StateManager:
     """
-    Хранит и проверяет время последнего обновления таймфреймов.
-    """
+    Управляет состоянием обновлений таймфреймов.
 
+    Хранит время последнего обновления и определяет,
+    какие таймфреймы требуют обновления.
+    """
     STATE_FILE = "data/state/last_updates.json"
 
     TIMEFRAME_INTERVALS = {
@@ -28,7 +30,7 @@ class StateManager:
 
     def get_timeframes_to_update(self) -> list[Timeframe]:
         """
-        Возвращает список таймфреймов, которые нужно обновить.
+        Возвращает список таймфреймов, которые требуют обновления.
         """
         now = datetime.now()
         to_update = []
@@ -53,7 +55,7 @@ class StateManager:
     
     def set_updated(self, timeframe: Timeframe):
         """
-        Записывает время обновления таймфрейма
+        Обновляет время последнего обновления таймфрейма.
         """
         now = datetime.now().replace(second=0, microsecond=0)
         self.state[timeframe.value] = now.isoformat()

@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class TradingViewHttpClient:
     """
-    Класс для получения всех тикеров с биржи ByBit, которые есть на TradingView.
+    HTTP клиент для получения списка доступных тикеров с TradingView.
     """
     def __init__(self):
         with open("data/scanner_payload.json", encoding="utf-8") as f:
@@ -21,6 +21,9 @@ class TradingViewHttpClient:
         }
 
     async def get_all_tickers(self) -> list[str]:
+        """
+        Возвращает список всех доступных крипто-тикеров с TradingView (ByBit).
+        """
         url = "https://scanner.tradingview.com/crypto/scan?label-product=popup-screener-crypto-cex"
 
         async with aiohttp.ClientSession() as session:

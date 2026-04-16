@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+
 from pandas import DataFrame
 
 from indicators import rsi, macd, moving_average, correlation
@@ -11,7 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 class IndicatorEngine:
+    """
+    Расчёт индикаторов, сигналов и корреляций.
 
+    Формирует:
+    - RSI / MACD / MA сигналы
+    - торговые алерты
+    - корреляции между активами
+    - отчёты и файлы результатов
+    """
     INDICATORS_DIR = "data/value/indicators"
     SIGNALS_DIR = "data/value/signals"
     CORRELATIONS_DIR = "data/value/correlations"
@@ -28,6 +37,10 @@ class IndicatorEngine:
         self.corrs_threshold = corrs_threshold
 
     def check_signals(self, df, timeframe: Timeframe):
+        """
+        Проверяет торговые сигналы по всем символам:
+        RSI, MACD, EMA/SMA пересечения.
+        """
         reports = []
         value_signals = []
         value_indicators = self._calculate(df, timeframe)
@@ -99,6 +112,9 @@ class IndicatorEngine:
         self._save_reports(reports, timeframe)
 
     def update_correlations(self, df: DataFrame):
+        """
+        Пересчитывает корреляции всех символов относительно BTC.
+        """
         ticker_corrs = {}
 
         symbols = df['symbol'].unique()
@@ -112,6 +128,9 @@ class IndicatorEngine:
         self._save_corrs(ticker_corrs)
 
     def _calculate(self, df, timeframe) -> dict[str, dict]:
+        """
+        Рассчитывает все индикаторы для каждого символа.
+        """
         result = {}
 
         symbols = df['symbol'].unique()

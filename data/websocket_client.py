@@ -22,7 +22,9 @@ class TOHLC(TypedDict):
 
 class TradingViewWebSocket:
     """
-    Класс для подключения к WebSocket TradingView и получения исторических данных.
+    WebSocket клиент TradingView.
+
+    Используется для получения исторических TOHLC данных.
     """
     def __init__(self):
         self._ws = None
@@ -44,6 +46,9 @@ class TradingViewWebSocket:
         symbols: list[str],
         timeframe: Timeframe = Timeframe.H1,
     ) -> dict[str, list[TOHLC]]:
+        """
+        Получает исторические OHLC данные сразу для группы символов.
+        """
         results = {}
 
         for symbol in symbols:
@@ -60,6 +65,9 @@ class TradingViewWebSocket:
         symbol: str = "BTCUSDT.P",
         timeframe: Timeframe = Timeframe.H1
     ) -> list[TOHLC] | None:
+        """
+        Запрашивает и получает исторические свечи для одного символа.
+        """
         await self._request_historical_data(symbol, timeframe)
         result = await self._receive_historical_bars(symbol)
         
@@ -68,6 +76,9 @@ class TradingViewWebSocket:
         return result
         
     async def _connect(self):
+        """
+        Устанавливает WebSocket соединение с TradingView.
+        """        
         headers = {
             'Origin': 'https://data.tradingview.com',
             'User-Agent': 'Mozilla/5.0',
@@ -83,6 +94,9 @@ class TradingViewWebSocket:
         await self._ws.send(msg)
 
     async def _setup_sessions(self):
+        """
+        Настройки сессии TradingView.
+        """
         self._chart_session = self._generate_string_session("cs_")
         self._quote_session = self._generate_string_session("qs_")
 
@@ -112,7 +126,7 @@ class TradingViewWebSocket:
 
     async def _receive_historical_bars(self, symbol: str) -> list[dict] | None:
         """
-        Ожидает получение исторических данных от сервера TradingView.
+        Ожидает и парсит ответ TradingView с историческими данными.
         """
         timeout = 2
         start = asyncio.get_event_loop().time()
@@ -143,9 +157,9 @@ class TradingViewWebSocket:
     @staticmethod
     def _parse_price_bars(s_list: list[dict]) -> list[TOHLC]:
         """
-        Преобразует сырые данные TradingView в список TOHLC баров.
+        Преобразует сырой формат TradingView в список OHLC свечей.
         """
-        ohlc: list[TOHLC] = [
+        tohlc: list[TOHLC] = [
             {
                 "Timestamp": int(item["v"][0]),
                 "Open": float(item["v"][1]),
@@ -156,7 +170,7 @@ class TradingViewWebSocket:
             for item in s_list
         ]
 
-        return ohlc
+        return tohlc
     
     @staticmethod
     def _generate_string_session(prefix):
@@ -168,6 +182,6 @@ if __name__ == "__main__":
     with TradingViewWebSocket() as ws:
         symbols = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P", "HYPEUSDT.P"]
         for symbol in symbols:
-            ohlc = ws.get_historical_bars(symbol)
+            tohlc = ws.get_historical_bars(symbol)
             with open(f"{symbol}.json", "w", encoding="utf-8") as f:
-                json.dump(ohlc, f, indent=4, ensure_ascii=False)
+                json.dump(tohlc, f, indent=4, ensure_ascii=False)

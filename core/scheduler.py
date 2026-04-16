@@ -1,4 +1,5 @@
 import logging
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from data.timeframe import Timeframe
@@ -9,11 +10,10 @@ logger = logging.getLogger(__name__)
 
 class Scheduler:
     """
-    Планировщик:
+    Асинхронный планировщик задач обновления данных:
     - следит за временем обновлений
     - запускает задачи обновлений
     """
-
     def __init__(self):
         self.scheduler = AsyncIOScheduler()
         self.updater = TimeframeUpdater()
@@ -31,6 +31,10 @@ class Scheduler:
         logger.info("Планировщик успешно запущен. Контроль передан ему.")
 
     async def _run_update(self, timeframe: Timeframe):
+        """
+        Запускает обновление данных для заданного таймфрейма.
+        Вызывается планировщиком.
+        """
         logger.info(f"SCHEDULER: Обновление {timeframe.value}")
         await self.updater.update(timeframe)
 

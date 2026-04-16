@@ -2,6 +2,7 @@ import os
 import logging
 import json
 import asyncio
+
 import pandas as pd
 
 from data.http_client import TradingViewHttpClient
@@ -14,19 +15,24 @@ logger = logging.getLogger(__name__)
 
 class MarketDataClient:
     """
-    Класс для получения исторических данных и сохранения их в json и parquet.
+    Комбинированный клиент для загрузки исторических данных.
 
-    Объединяет работу TradingViewHttpClient и TradingViewWebSocket
+    Объединяет:
+    - HTTP получение тикеров
+    - WebSocket загрузку OHLC данных
+    - сохранение в parquet/json
     """
-
     def __init__(self):
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()
         
-    async def get_all_historical_ohlc(
+    async def get_all_historical_tohlc(
         self,
         timeframe: Timeframe = Timeframe.H1
     ) -> None:
+        """
+        Загружает исторические данные для всех тикеров и сохраняет их локально.
+        """
         chunk_size = 20
 
         tickers = await self.http_client.get_all_tickers()
@@ -43,6 +49,9 @@ class MarketDataClient:
         total: int,
         timeframe: Timeframe
     ) -> dict[str, list[TOHLC]]:
+        """
+        Параллельно запускает WebSocket воркеры для загрузки данных.
+        """
         worker_count = 15
         max_concurrent_ws = 12
 
@@ -100,6 +109,9 @@ class MarketDataClient:
         all_data: dict[str, list[dict]],
         timeframe: Timeframe
     ):
+        """
+        Сохраняет исторические данные в parquet и json форматах.
+        """
         save_path = "data/historical_data"
         filename = f"historical_data_{timeframe.value}"
 
@@ -133,5 +145,5 @@ if __name__ == "__main__":
     market_client = MarketDataClient()
     import time
     start = time.time()
-    data = asyncio.run(market_client.get_all_historical_ohlc())
+    data = asyncio.run(market_client.get_all_historical_tohlc())
     print(f"Затрачено: {time.time() - start}")

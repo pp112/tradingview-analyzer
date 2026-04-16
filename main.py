@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
+    """
+    Точка входа приложения:
+
+    - настройка логирования
+    - запуск стартового обновления данных
+    - запуск планировщика
+    - ожидание завершения (SIGINT/SIGTERM)
+    """
     setup_logging()
 
     stop_event = asyncio.Event()

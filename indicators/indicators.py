@@ -1,4 +1,5 @@
 from typing import Literal
+
 import pandas as pd
 
 from data.timeframe import Timeframe
@@ -6,6 +7,9 @@ from utils import get_periods_ema_sma, get_symbol_df
 
 
 def correlation(df: pd.DataFrame, symbol: str) -> float:
+    """
+    Рассчитывает корреляцию между BTC и указанным активом.
+    """
     df_btc = get_symbol_df("BTCUSDT.P", df)
     df_alt = get_symbol_df(symbol, df)
     
@@ -29,6 +33,9 @@ def moving_average(
     timeframe: Timeframe,
     ma_type: Literal["ema", "sma"]
 ) -> tuple[float, float]:
+    """
+    Возвращает предыдущие и текущие значения EMA или SMA.
+    """
     periods = get_periods_ema_sma(timeframe)
 
     if ma_type == "ema":
@@ -52,6 +59,9 @@ def macd(
     tuple[float, float], 
     tuple[float, float]
 ]:
+    """
+    Возвращает предыдущие и текущие значения MACD и signal line.
+    """
     ema_fast = symbol_df["Close"].ewm(span=12, adjust=False).mean()
     ema_slow = symbol_df["Close"].ewm(span=26, adjust=False).mean()
 
@@ -81,6 +91,9 @@ def macd(
     return prev, curr
 
 def rsi(symbol_df: pd.DataFrame) -> float:
+    """
+    Рассчитывает RSI и взвращает последнее значение.
+    """
     delta = symbol_df["Close"].diff()
     gain = delta.clip(lower=0)
     loss = -delta.clip(upper=0)

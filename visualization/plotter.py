@@ -69,7 +69,8 @@ class MarketPlotter:
     
     def _prepare_data(self, symbol: str, timeframe: Timeframe) -> pd.DataFrame:
         """
-        Фильтрует данные по символу и подготавливает их для построения графика.
+        Загружает исторические данные и фильтрует их по символу.
+        Преобразует timestamp в datetime индекс для mplfinance.
         """
         df = load_data(timeframe)
         df = get_symbol_df(symbol, df)
@@ -83,6 +84,9 @@ class MarketPlotter:
         return df
     
     def _add_ema_sma(self, addplots: list, df: pd.DataFrame, timeframe: Timeframe) -> list:
+        """
+        Добавляет на график EMA и SMA линии для заданного таймфрейма.
+        """
         ema_period, sma_period = get_periods_ema_sma(timeframe)
 
         ema = df["Close"].ewm(span=ema_period, adjust=False).mean()
@@ -94,6 +98,10 @@ class MarketPlotter:
         return addplots
     
     def _add_rsi(self, addplots: list, df: pd.DataFrame) -> list:
+        """
+        Рассчитывает RSI и добавляет его на отдельную панель графика.
+        Также добавляет уровни перекупленности и перепроданности.
+        """
         delta = df["Close"].diff()
         gain = delta.clip(lower=0)
         loss = -delta.clip(upper=0)
@@ -116,6 +124,10 @@ class MarketPlotter:
         return addplots
     
     def _add_macd(self, addplots: list, df: pd.DataFrame, p) -> list:
+        """
+        Рассчитывает MACD, сигнальную линию и гистограмму.
+        Добавляет их на отдельную панель графика.
+        """
         ema12 = df["Close"].ewm(span=12, adjust=False).mean()
         ema26 = df["Close"].ewm(span=26, adjust=False).mean()
 
