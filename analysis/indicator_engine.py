@@ -1,4 +1,5 @@
 import logging
+import os
 import json
 from pandas import DataFrame
 
@@ -6,15 +7,11 @@ from indicators import rsi, macd, moving_average, correlation
 from utils import get_symbol_df, sort_correlations, filter_low_correlations
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-        level=logging.INFO,
-        format="[%(levelname)s] - %(message)s",
-    )
 
 
 class IndicatorEngine:
 
-    INDICATORS_DIR = "data/indicators"
+    INDICATORS_DIR = "data/value_indicators"
 
     def __init__(
         self, 
@@ -43,7 +40,7 @@ class IndicatorEngine:
                     "signal": "RSI_OVERBOUGHT",
                     "timeframe": timeframe.value
                 })
-                logger.info(f"RSI: сигнал ВНИЗ для {symbol} на таймфрейме {timeframe.value}")
+                logger.info(f"{symbol}: сигнал ВНИЗ, RSI, таймфрейм {timeframe.value}")
             
             elif rsi_val < self.lower_threshold_rsi:
                 signals.append({
@@ -51,7 +48,7 @@ class IndicatorEngine:
                     "signal": "RSI_OVERSOLD",
                     "timeframe": timeframe.value
                 })
-                logger.info(f"RSI: сигнал ВВЕРХ для {symbol} на таймфрейме {timeframe.value}")
+                logger.info(f"{symbol}: сигнал ВВЕРХ, RSI, таймфрейм {timeframe.value}")
             
             if (
                 macd_prev["MACD"] < macd_prev["MACD_signal"]
@@ -63,7 +60,7 @@ class IndicatorEngine:
                     "signal": "MACD_BULLISH",
                     "timeframe": timeframe.value
                 })
-                logger.info(f"MACD: сигнал ВВЕРХ для {symbol} на таймфрейме {timeframe.value}")
+                logger.info(f"{symbol}: сигнал ВВЕРХ, MACD, таймфрейм {timeframe.value}")
 
             elif (
                 macd_prev["MACD"] > macd_prev["MACD_signal"]
@@ -75,7 +72,7 @@ class IndicatorEngine:
                     "signal": "MACD_BEARISH",
                     "timeframe": timeframe.value
                 })
-                logger.info(f"MACD: сигнал ВНИЗ для {symbol} на таймфрейме {timeframe.value}")
+                logger.info(f"{symbol}: сигнал ВНИЗ, MACD, таймфрейм {timeframe.value}")
 
             if ema_prev < sma_prev and ema_curr > sma_curr:
                 signals.append({
@@ -83,7 +80,7 @@ class IndicatorEngine:
                     "signal": "EMA_SMA_BULLISH",
                     "timeframe": timeframe.value
                 })
-                logger.info(f"EMA_SMA: сигнал ВВЕРХ для {symbol} на таймфрейме {timeframe.value}")
+                logger.info(f"{symbol}: сигнал ВВЕРХ, EMA_SMA, таймфрейм {timeframe.value}")
 
             elif ema_prev > sma_prev and ema_curr < sma_curr:
                 signals.append({
@@ -91,7 +88,7 @@ class IndicatorEngine:
                     "signal": "EMA_SMA_BEARISH",
                     "timeframe": timeframe.value
                 })
-                logger.info(f"EMA_SMA: сигнал ВНИЗ для {symbol} на таймфрейме {timeframe.value}")
+                logger.info(f"{symbol}: сигнал ВНИЗ, EMA_SMA, таймфрейм {timeframe.value}")
         
         self._save_ind_and_sig(result_indicators, signals, timeframe)
 
@@ -126,6 +123,8 @@ class IndicatorEngine:
         return result
     
     def _save_ind_and_sig(self, indicators, signals, timeframe):
+        self._ensure_dir()
+
         with open(f"{self.INDICATORS_DIR}/values_{timeframe.value}.json", "w", encoding="utf-8") as f:
             json.dump(indicators, f, indent=4, ensure_ascii=False)
 
@@ -135,7 +134,12 @@ class IndicatorEngine:
         logger.info(f"Результаты индикаторов и сигналов успешно сохранены в {self.INDICATORS_DIR}")
         
     def _save_corrs(self, ticker_corrs):
+        self._ensure_dir()
+
         with open(f"{self.INDICATORS_DIR}/correlations.json", "w", encoding="utf-8") as f:
             json.dump(ticker_corrs, f, indent=4, ensure_ascii=False)
         
         logger.info(f"Результаты корреляции успешно сохранены в {self.INDICATORS_DIR}")
+
+    def _ensure_dir(self):
+        os.makedirs(self.INDICATORS_DIR, exist_ok=True)

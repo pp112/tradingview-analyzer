@@ -3,12 +3,11 @@ import logging
 import json
 import asyncio
 import pandas as pd
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(levelname)s] - %(message)s",
-)
+
 from data.http_client import TradingViewHttpClient
-from data.websocket_client import TradingViewWebSocket, Timeframe, TOHLC
+from data.websocket_client import TradingViewWebSocket, TOHLC
+from data.timeframe import Timeframe
+from utils import get_progress
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +18,7 @@ class MarketDataClient:
 
     Объединяет работу TradingViewHttpClient и TradingViewWebSocket
     """
+
     def __init__(self):
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()
@@ -31,18 +31,20 @@ class MarketDataClient:
 
         tickers = await self.http_client.get_all_tickers()
         chunks = self._chunk_list(tickers, chunk_size)
+        total = len(tickers)
 
-        results = await self._run_ws_pool(chunks, timeframe)
+        results = await self._run_ws_pool(chunks, total, timeframe)
 
         self._save_to_files(results, timeframe)
 
     async def _run_ws_pool(
         self,
         chunks: list[list[str]],
+        total: int,
         timeframe: Timeframe
     ) -> dict[str, list[TOHLC]]:
         worker_count = 15
-        max_concurrent_ws = 15
+        max_concurrent_ws = 12
 
         queue = asyncio.Queue()
         for chunk in chunks:
@@ -52,6 +54,12 @@ class MarketDataClient:
 
         results: dict[str, list[TOHLC]] = {}
         lock = asyncio.Lock()
+
+        progress = get_progress()
+        task_id = progress.add_task(
+            f"[cyan]Загрузка данных ({timeframe.value})",
+            total=total
+        )
 
         async def worker(worker_id: int):
             while True:
@@ -65,20 +73,25 @@ class MarketDataClient:
                 async with semaphore:
                     try:
                         async with TradingViewWebSocket() as ws:
-                            data = await ws.get_historical_batch(chunk, timeframe)
+
+                            def update_progress():
+                                progress.update(task_id, advance=1)
+
+                            data = await ws.get_historical_batch(update_progress, chunk, timeframe)
 
                             async with lock:
                                 results.update(data)
 
                     except Exception as e:
                         logger.error(f"Ошибка в WS worker {worker_id}: {e}")
-
+        
         workers = [
             asyncio.create_task(worker(i))
             for i in range(worker_count)
         ]
 
-        await asyncio.gather(*workers)
+        with progress:
+            await asyncio.gather(*workers)
 
         return results
     

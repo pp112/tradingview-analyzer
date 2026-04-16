@@ -40,8 +40,9 @@ class TradingViewWebSocket:
 
     async def get_historical_batch(
         self,
+        f_update_progress,
         symbols: list[str],
-        timeframe: Timeframe = Timeframe.H1
+        timeframe: Timeframe = Timeframe.H1,
     ) -> dict[str, list[TOHLC]]:
         results = {}
 
@@ -49,6 +50,8 @@ class TradingViewWebSocket:
             data = await self._get_historical_bars(symbol, timeframe)
             if data:
                 results[symbol] = data
+            
+            f_update_progress()
 
         return results
     

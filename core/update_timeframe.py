@@ -6,10 +6,6 @@ from analysis.indicator_engine import IndicatorEngine
 from utils import load_data
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-        level=logging.INFO,
-        format="[%(levelname)s] - %(message)s",
-    )
 
 
 class TimeframeUpdater:

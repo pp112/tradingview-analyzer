@@ -37,6 +37,7 @@ class StateManager:
             last_update = self._get_last_update(tf)
 
             if last_update is None:
+                logger.info(f"Нужно обновить {tf.value}. (нет данных последнего обновления)")
                 to_update.append(tf)
                 continue
 

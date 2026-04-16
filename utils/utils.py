@@ -1,6 +1,7 @@
 from typing import Literal
 import pandas as pd
 from data.timeframe import Timeframe
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
 
 
 def load_data(timeframe: Timeframe) -> pd.DataFrame:
@@ -35,3 +36,13 @@ def filter_low_correlations(tickers_correlations: dict, threshold: float):
         for ticker, corr in tickers_correlations.items() 
         if corr <= threshold
     }
+
+def get_progress():
+    return Progress(
+        SpinnerColumn(),
+        TextColumn("[cyan]{task.description}"),
+        BarColumn(complete_style="green", finished_style="bright_green"),
+        TextColumn("[bright_green]{task.completed}[/bright_green]/[yellow]{task.total}[/yellow]"),
+        TextColumn("[bright_green]{task.percentage:>3.0f}%[/bright_green]"),
+        TimeRemainingColumn()
+    )
