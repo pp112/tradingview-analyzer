@@ -21,11 +21,11 @@ class Scheduler:
     def start(self):
         logger.info("Запуск планировщика...")
 
-        self.scheduler.add_job(self._run_update, "cron", minute="*/15", args=[Timeframe.M15])
-        self.scheduler.add_job(self._run_update, "cron", minute="*/30", args=[Timeframe.M30])
-        self.scheduler.add_job(self._run_update, "cron", minute=0, args=[Timeframe.H1])
-        self.scheduler.add_job(self._run_update, "cron", hour="*/4", minute=0, args=[Timeframe.H4])
-        self.scheduler.add_job(self._run_update, "cron", hour=0, minute=0, args=[Timeframe.D1])
+        self.scheduler.add_job(self._run_update, "cron", minute="1,16,31,46", args=[Timeframe.M15])
+        self.scheduler.add_job(self._run_update, "cron", minute="1,31", args=[Timeframe.M30])
+        self.scheduler.add_job(self._run_update, "cron", minute=1, args=[Timeframe.H1])
+        self.scheduler.add_job(self._run_update, "cron", hour="*/4", minute=1, args=[Timeframe.H4])
+        self.scheduler.add_job(self._run_update, "cron", hour=0, minute=1, args=[Timeframe.D1])
 
         self.scheduler.start()
         logger.info("Планировщик успешно запущен. Контроль передан ему.")
