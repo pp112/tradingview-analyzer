@@ -57,7 +57,7 @@ class MarketDataClient:
 
         progress = get_progress()
         task_id = progress.add_task(
-            f"[cyan]Загрузка данных ({timeframe.value})",
+            f"[cyan]Загрузка данных ({timeframe.label})",
             total=total
         )
 

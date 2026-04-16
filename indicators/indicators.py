@@ -41,7 +41,8 @@ def moving_average(
     if len(result) < 2:
         return None
     
-    prev, curr = result.iloc[-2], result.iloc[-1]
+    prev = round(float(result.iloc[-2]), 2)
+    curr = round(float(result.iloc[-1]), 2)
 
     return prev, curr
 
@@ -57,15 +58,25 @@ def macd(
     macd = ema_fast - ema_slow
     signal_line = macd.ewm(span=9, adjust=False).mean()
 
-    result = pd.DataFrame({
+    macd_df = pd.DataFrame({
         "MACD": macd,
         "MACD_signal": signal_line
     }).dropna()
 
-    if len(result) < 2:
+    if len(macd_df) < 2:
         return None, None
 
-    prev, curr = result.iloc[-2], result.iloc[-1]
+    prev_df, curr_df = macd_df.iloc[-2], macd_df.iloc[-1]
+    
+    prev = {
+        "MACD": round(prev_df["MACD"], 2),
+        "MACD_signal": round(prev_df["MACD_signal"], 2)
+    }
+
+    curr = {
+        "MACD": round(curr_df["MACD"], 2),
+        "MACD_signal": round(curr_df["MACD_signal"], 2)
+    }
 
     return prev, curr
 
@@ -78,5 +89,7 @@ def rsi(symbol_df: pd.DataFrame) -> float:
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
 
-    return rsi.iloc[-1]
+    value = round(rsi.iloc[-1], 2)
+
+    return value
     

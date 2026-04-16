@@ -20,17 +20,17 @@ class TimeframeUpdater:
         self.indicators = IndicatorEngine()
 
     async def update(self, timeframe: Timeframe):
-        logger.info(f"Начинаем обновление таймфрейма {timeframe.value}")
+        logger.info(f"Начинаем обновление таймфрейма: {timeframe.label}")
 
         await self.market_client.get_all_historical_ohlc(timeframe)
 
         df = load_data(timeframe)
         
         if timeframe == Timeframe.H1:
-            logger.info(f"Обновление значений корреляций таймфрейма {timeframe.value}")
+            logger.info(f"Обновление значений корреляций таймфрейма: {timeframe.label}")
 
             self.indicators.update_correlations(df)
 
-        logger.info(f"Обновление значений индикаторов таймфрейма {timeframe.value}")
+        logger.info(f"Обновление значений индикаторов таймфрейма: {timeframe.label}")
 
         self.indicators.check_signals(df, timeframe)
