@@ -1,6 +1,4 @@
-import os
 import logging
-import json
 import asyncio
 
 import pandas as pd
@@ -15,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 class MarketDataClient:
     """
-    Комбинированный клиент для загрузки исторических данных.
+    Клиент для загрузки исторических данных.
 
-    Объединяет:
-    - HTTP получение тикеров
-    - WebSocket загрузку TOHLC данных
-    - сохранение в parquet/json
+    Выполняет:
+    - получение списка тикеров (HTTP)
+    - загрузку TOHLC данных (WebSocket)
+    - сбор результатов в DataFrame
     """
     def __init__(self):
         self.http_client = TradingViewHttpClient()
@@ -29,7 +27,7 @@ class MarketDataClient:
     async def get_all_historical_tohlc(
         self,
         timeframe: Timeframe = Timeframe.H1
-    ) -> None:
+    ) -> pd.DataFrame:
         """
         Загружает исторические данные для всех тикеров и сохраняет их локально.
         """
@@ -37,11 +35,9 @@ class MarketDataClient:
 
         tickers = await self.http_client.get_all_tickers()
         chunks = self._chunk_list(tickers, chunk_size)
-        total = len(tickers)
+        results = await self._run_ws_pool(chunks, len(tickers), timeframe)
 
-        results = await self._run_ws_pool(chunks, total, timeframe)
-
-        self._save_to_files(results, timeframe)
+        return self._to_dataframe(results)
 
     async def _run_ws_pool(
         self,
@@ -104,34 +100,21 @@ class MarketDataClient:
 
         return results
     
-    def _save_to_files(
-        self, 
-        all_data: dict[str, list[dict]],
-        timeframe: Timeframe
-    ):
+    def _to_dataframe(self, all_data):
         """
-        Сохраняет исторические данные в parquet и json форматах.
+        Преобразует словарь TOHLC данных в DataFrame.
         """
-        save_path = "data/historical_data"
-        filename = f"historical_data_{timeframe.value}"
-
-        os.makedirs(save_path, exist_ok=True)
-
         df_list = []
+
         for symbol, series in all_data.items():
             df = pd.DataFrame(series)
             df["symbol"] = symbol
             df_list.append(df)
 
-        if df_list:
-            full_df = pd.concat(df_list, ignore_index=True)
-            full_df.to_parquet(
-                f"{save_path}/{filename}.parquet",
-                engine="pyarrow"
-            )
+        if not df_list:
+            return pd.DataFrame()
 
-        with open(f"{save_path}/{filename}.json", "w", encoding="utf-8") as f:
-            json.dump(all_data, f, indent=4, ensure_ascii=False)
+        return pd.concat(df_list, ignore_index=True)
 
     @staticmethod
     def _chunk_list(data: list[str], chunk_size: int) -> list[list[str]]:

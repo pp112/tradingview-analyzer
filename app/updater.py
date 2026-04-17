@@ -3,7 +3,12 @@ import logging
 from models.timeframe import Timeframe
 from market import MarketDataClient
 from processing import IndicatorEngine
-from utils import load_data
+from storage.writer import (
+    save_indicators,
+    save_signals,
+    save_correlations,
+    save_report,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +19,9 @@ class TimeframeUpdater:
 
     Выполняет:
     - загрузку исторических TOHLC данных
-    - пересчёт индикаторов
-    - проверку торговых сигналов
+    - расчет индикаторов и сигналов
+    - расчёт корреляций (для H1)
+    - сохранение результатов
     """
     def __init__(self):
         self.market_client = MarketDataClient()
@@ -23,22 +29,22 @@ class TimeframeUpdater:
 
     async def update(self, timeframe: Timeframe):
         """
-        Асинхронно обновляет данные для указанного таймфрейма:
-        1. Загружает исторические данные
-        2. Обновляет корреляции (для H1)
-        3. Пересчитывает индикаторы и сигналы
+        Выполняет полный цикл обновления данных для заданного таймфрейма.
         """
         logger.info(f"Начинаем обновление таймфрейма: {timeframe.label}")
 
-        await self.market_client.get_all_historical_tohlc(timeframe)
+        df = await self.market_client.get_all_historical_tohlc(timeframe)
 
-        df = load_data(timeframe)
+        indicators, signals, reports = self.indicators.process(df, timeframe)
         
         if timeframe == Timeframe.H1:
             logger.info(f"Обновление значений корреляций таймфрейма: {timeframe.label}")
 
-            self.indicators.update_correlations(df)
+            correlations = self.indicators.calculate_correlations(df)
+            save_correlations(correlations)
 
-        logger.info(f"Обновление значений индикаторов таймфрейма: {timeframe.label}")
+        save_indicators(indicators, timeframe)
+        save_signals(signals, timeframe)
+        save_report(reports, timeframe)
 
-        self.indicators.check_signals(df, timeframe)
+        logger.info(f"Завершено обновление: {timeframe.label}")
