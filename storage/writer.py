@@ -55,7 +55,7 @@ def save_indicators(
     """
     Сохраняет рассчитанные значения индикаторов в json.
     """
-    path = f"{BASE_PATH}/value/indicators"
+    path = f"{BASE_PATH}/values/indicators"
     ensure_dir(path)
 
     file_path = f"{path}/values_{timeframe.label}.json"
@@ -71,7 +71,7 @@ def save_signals(
     """
     Сохраняет торговые сигналы в json.
     """
-    path = f"{BASE_PATH}/value/signals"
+    path = f"{BASE_PATH}/values/signals"
     ensure_dir(path)
 
     file_path = f"{path}/signals_{timeframe.label}.json"
@@ -84,7 +84,7 @@ def save_correlations(correlations: dict[str, float]):
     """
     Сохраняет корреляции активов в json.
     """
-    path = f"{BASE_PATH}/value/correlations"
+    path = f"{BASE_PATH}/values/correlations"
     ensure_dir(path)
 
     file_path = f"{path}/correlations.json"
