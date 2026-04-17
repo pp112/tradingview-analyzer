@@ -1,6 +1,6 @@
 import logging
 
-from processing.state_manager import StateManager
+from storage.state_manager import StateManager
 from app.updater import TimeframeUpdater
 
 logger = logging.getLogger(__name__)

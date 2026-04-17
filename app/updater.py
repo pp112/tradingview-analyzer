@@ -25,7 +25,7 @@ class TimeframeUpdater:
     """
     def __init__(self):
         self.market_client = MarketDataClient()
-        self.indicators = IndicatorEngine()
+        self.indicator_engine = IndicatorEngine()
 
     async def update(self, timeframe: Timeframe):
         """
@@ -35,13 +35,13 @@ class TimeframeUpdater:
 
         df = await self.market_client.get_all_historical_tohlc(timeframe)
 
-        indicators, signals, reports = self.indicators.process(df, timeframe)
+        indicators, signals, reports = self.indicator_engine.process(df, timeframe)
         
         if timeframe == Timeframe.H1:
-            logger.info(f"Обновление значений корреляций таймфрейма: {timeframe.label}")
-
-            correlations = self.indicators.calculate_correlations(df)
+            correlations = self.indicator_engine.calculate_correlations(df)
             save_correlations(correlations)
+
+            logger.info(f"Обновлены значения корреляций таймфрейма: {timeframe.label}")
 
         save_indicators(indicators, timeframe)
         save_signals(signals, timeframe)
