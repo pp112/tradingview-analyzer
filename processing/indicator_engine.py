@@ -1,6 +1,4 @@
 import logging
-import os
-import json
 
 from pandas import DataFrame
 
@@ -56,7 +54,7 @@ class IndicatorEngine:
         symbols = df["symbol"].unique()
         
         for symbol in symbols:
-            symbol_df = df[df["symbol"] == symbol]
+            symbol_df = get_symbol_df(symbol, df)
             
             rsi_val = rsi(symbol_df)
             macd_prev, macd_curr = macd(symbol_df)
@@ -147,46 +145,6 @@ class IndicatorEngine:
         ticker_corrs = sort_correlations(ticker_corrs, "desc")
 
         return ticker_corrs
-    
-    def _save_ind_and_sig(self, indicators, signals, timeframe: Timeframe):
-        self._ensure_dir(self.INDICATORS_DIR)
-        self._ensure_dir(self.SIGNALS_DIR)
-
-        file_path_i = f"{self.INDICATORS_DIR}/values_{timeframe.label}.json"
-        file_path_s = f"{self.SIGNALS_DIR}/signals_{timeframe.label}.json"
-
-        with open(file_path_i, "w", encoding="utf-8") as f:
-            json.dump(indicators, f, indent=4, ensure_ascii=False)
-
-        with open(file_path_s, "w", encoding="utf-8") as f:
-            json.dump(signals, f, indent=4, ensure_ascii=False)
-
-        logger.info(f"Значения индикаторов {timeframe.label} успешно сохранены: {file_path_i}")
-        logger.info(f"Значения сигналов {timeframe.label} успешно сохранены: {file_path_s}")
-
-    def _save_corrs(self, ticker_corrs):
-        self._ensure_dir(self.CORRELATIONS_DIR)
-
-        file_path = f"{self.CORRELATIONS_DIR}/correlations.json"
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(ticker_corrs, f, indent=4, ensure_ascii=False)
-        
-        logger.info(f"Значения корреляций успешно сохранены: {file_path}")
-
-    def _save_reports(self, reports, timeframe: Timeframe):
-        self._ensure_dir(self.REPORTS_DIR)
-
-        file_path = f"{self.REPORTS_DIR}/signals_{timeframe.label}.txt"
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            for line in reports:
-                f.write(line)
-
-        logger.info(f"Сигналы таймфрейма {timeframe.label} успешно сохранены в {file_path}")
-
-    def _ensure_dir(self, path: str):
-        os.makedirs(path, exist_ok=True)
 
     @staticmethod
     def _formated_line(symbol, indicator, signal, timeframe):
