@@ -1,3 +1,4 @@
+import json
 from typing import Literal
 
 import pandas as pd
@@ -40,16 +41,6 @@ def sort_correlations(tickers_correlations: dict, sort_order: Literal["asc", "de
             reverse=(sort_order == "desc")
         )
     )
-    
-def filter_low_correlations(tickers_correlations: dict, threshold: float):
-    """
-    Фильтрует корреляции ниже заданного порога.
-    """
-    return {
-        ticker: corr 
-        for ticker, corr in tickers_correlations.items() 
-        if corr <= threshold
-    }
 
 def get_progress():
     """
@@ -63,3 +54,14 @@ def get_progress():
         TextColumn("[bright_green]{task.percentage:>3.0f}%[/bright_green]"),
         TimeRemainingColumn()
     )
+
+def read_correlations() -> dict[str, float]:
+    """
+    Возвращает значения корреляций из файла.
+    """
+    path_file = "data/values/correlations/correlations.json"
+
+    with open(path_file, encoding="utf-8") as f:
+        ticker_corr = json.load(f)
+
+    return ticker_corr

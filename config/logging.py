@@ -11,8 +11,8 @@ def setup_logging():
 
     # Отключенные логгеры
     disabled_loggers = [
-        "data.market_data",
-        "data.websocket_client"
+        "market.market_data",
+        "market.websocket_client"
     ]
     for name_logger in disabled_loggers:
         logging.getLogger(name_logger).disabled = True

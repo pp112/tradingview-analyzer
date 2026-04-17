@@ -95,7 +95,8 @@ def save_correlations(correlations: dict[str, float]):
 
 def save_report(
     lines: list[str],
-    timeframe: Timeframe
+    timeframe: Timeframe,
+    suffix: str = ""
 ):
     """
     Сохраняет текстовый отчёт сигналов.
@@ -103,7 +104,7 @@ def save_report(
     path = f"{BASE_PATH}/reports"
     ensure_dir(path)
 
-    file_path = f"{path}/signals_{timeframe.label}.txt"
+    file_path = f"{path}/signals_{timeframe.label}{suffix}.txt"
 
     with open(file_path, "w", encoding="utf-8") as f:
         for line in lines:

@@ -18,9 +18,9 @@ class StateManager:
     STATE_FILE = "data/state/last_updates.json"
 
     TIMEFRAME_INTERVALS = {
+        Timeframe.H1: timedelta(hours=1),
         Timeframe.M15: timedelta(minutes=15),
         Timeframe.M30: timedelta(minutes=30),
-        Timeframe.H1: timedelta(hours=1),
         Timeframe.H4: timedelta(hours=4),
         Timeframe.D1: timedelta(days=1),
     }

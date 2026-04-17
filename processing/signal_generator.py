@@ -25,8 +25,11 @@ class SignalGenerator:
         return signals
 
     def _rsi(self, symbol, data, timeframe):
-        rsi_val = data["rsi"]
+        rsi_val = data.get("rsi")
         signals = []
+
+        if rsi_val is None:
+            return signals
 
         if rsi_val > self.upper_rsi:
             signals.append({
@@ -47,8 +50,12 @@ class SignalGenerator:
     def _macd(self, symbol, data, timeframe):
         signals = []
 
-        macd_prev = data["macd"]["prev"]
-        macd_curr = data["macd"]["curr"]
+        macd_block = data.get("macd") or {}
+        macd_prev = macd_block.get("prev")
+        macd_curr = macd_block.get("curr")
+
+        if macd_prev is None or macd_curr is None:
+            return signals
 
         if (
             macd_prev["MACD"] < macd_prev["MACD_signal"]
@@ -75,8 +82,14 @@ class SignalGenerator:
     def _ma(self, symbol, data, timeframe):
         signals = []
 
-        ema_prev, ema_curr = data["ema"]
-        sma_prev, sma_curr = data["sma"]
+        ema = data.get("ema")
+        sma = data.get("sma")
+
+        if ema is None or sma is None:
+            return signals
+
+        ema_prev, ema_curr = ema
+        sma_prev, sma_curr = sma
 
         if ema_prev < sma_prev and ema_curr > sma_curr:
             signals.append({
