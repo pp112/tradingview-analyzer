@@ -157,7 +157,8 @@ class TradingViewWebSocket:
                 "Open": float(item["v"][1]),
                 "High": float(item["v"][2]),
                 "Low": float(item["v"][3]),
-                "Close": float(item["v"][4])
+                "Close": float(item["v"][4]),
+                "Volume": float(item["v"][5])
             }
             for item in s_list
         ]

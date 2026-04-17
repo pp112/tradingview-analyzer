@@ -10,7 +10,7 @@ def load_data(timeframe: Timeframe) -> pd.DataFrame:
     """
     Загружает исторические данные parquet для указанного таймфрейма.
     """
-    data_path = f"data/historical_data/historical_data_{timeframe.value}.parquet"
+    data_path = f"data/historical_data/historical_data_{timeframe.label}.parquet"
     return pd.read_parquet(data_path)
 
 def get_periods_ema_sma(timeframe: Timeframe) -> tuple[int, int]:
@@ -19,7 +19,7 @@ def get_periods_ema_sma(timeframe: Timeframe) -> tuple[int, int]:
         Timeframe.M30: (12, 50),
         Timeframe.H1: (21, 50),
         Timeframe.H4: (21, 100),
-        Timeframe.D1: (50, 200),
+        Timeframe.D1: (50, 200)
     }
     return periods.get(timeframe)
 
