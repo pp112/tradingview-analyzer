@@ -11,6 +11,7 @@ from storage.writer import (
     save_signals,
     save_correlations,
     save_report,
+    save_market_data
 )
 
 logger = get_logger(__name__, "[UPDATER]")
@@ -70,6 +71,7 @@ class TimeframeUpdater:
             corr_threshold=threshold
         )
 
+        save_market_data(df, timeframe)
         save_indicators(indicators, timeframe)
         save_signals(signals, timeframe)
         save_report(reports_all, timeframe)

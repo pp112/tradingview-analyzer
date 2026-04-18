@@ -18,7 +18,7 @@ def ensure_dir(path: str):
 
 
 def save_market_data(
-    all_data: dict[str, list[TOHLC]],
+    df: pd.DataFrame,
     timeframe: Timeframe
 ):
     """
@@ -29,23 +29,9 @@ def save_market_data(
 
     filename = f"historical_data_{timeframe.label}"
 
-    df_list = []
+    df.to_parquet(f"{path}/{filename}.parquet", engine="pyarrow")
 
-    for symbol, series in all_data.items():
-        df = pd.DataFrame(series)
-        df["symbol"] = symbol
-        df_list.append(df)
-
-    if df_list:
-        full_df = pd.concat(df_list, ignore_index=True)
-
-        full_df.to_parquet(
-            f"{path}/{filename}.parquet",
-            engine="pyarrow"
-        )
-
-    with open(f"{path}/{filename}.json", "w", encoding="utf-8") as f:
-        json.dump(all_data, f, indent=4, ensure_ascii=False)
+    df.to_json(f"{path}/{filename}.json", orient="records", indent=4)
 
 
 def save_indicators(
