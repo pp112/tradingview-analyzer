@@ -89,8 +89,8 @@ class TradingViewWebSocket:
         """
         Настройки сессии TradingView.
         """
-        self._chart_session = self._generate_string_session("cs_")
-        self._quote_session = self._generate_string_session("qs_")
+        self._chart_session = TradingViewWebSocket._generate_string_session("cs_")
+        self._quote_session = TradingViewWebSocket._generate_string_session("qs_")
 
         await self._send_message("set_auth_token", ["unauthorized_user_token"])
         await self._send_message("chart_create_session", [self._chart_session, ""])
@@ -141,7 +141,7 @@ class TradingViewWebSocket:
                 for series_data in series_dict.values():
                     if series_data.get("s"):
                         logger.info(f"({self._i}) Ценовые данные успешно получены: {symbol}")
-                        return self._parse_price_bars(series_data["s"])
+                        return TradingViewWebSocket._parse_price_bars(series_data["s"])
                     
         logger.warning(f"Не удалось получить ценовые данные: {symbol}")
         return None

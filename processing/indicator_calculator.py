@@ -21,7 +21,7 @@ class IndicatorCalculator:
 
             indicators[symbol] = {
                 "rsi": rsi(symbol_df),
-                "macd": self._format_macd(macd(symbol_df)),
+                "macd": IndicatorCalculator._format_macd(macd(symbol_df)),
                 "ema": moving_average(symbol_df, timeframe, "ema"),
                 "sma": moving_average(symbol_df, timeframe, "sma"),
             }

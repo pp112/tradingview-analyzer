@@ -59,12 +59,14 @@ class TimeframeUpdater:
 
         reports_all = self.report_builder.build(
             signals,
+            indicators,
             timeframe,
             correlations=read_correlations(),
             sort_order=sort_order
         )
         reports_low_corr = self.report_builder.build(
             signals,
+            indicators,
             timeframe,
             correlations=read_correlations(),
             sort_order=sort_order,

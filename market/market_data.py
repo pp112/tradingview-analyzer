@@ -31,7 +31,7 @@ class MarketDataClient:
         chunk_size = 20
 
         tickers = await self.http_client.get_all_tickers()
-        chunks = self._chunk_list(tickers, chunk_size)
+        chunks = MarketDataClient._chunk_list(tickers, chunk_size)
         results = await self._run_ws_pool(chunks, len(tickers), timeframe)
 
         return self._to_dataframe(results)
