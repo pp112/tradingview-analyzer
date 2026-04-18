@@ -4,8 +4,6 @@ import json
 import pandas as pd
 
 from models.timeframe import Timeframe
-from models.tohlc import TOHLC
-
 
 BASE_PATH = "data"
 
@@ -15,6 +13,18 @@ def ensure_dir(path: str):
     Создаёт директорию, если она не существует.
     """
     os.makedirs(path, exist_ok=True)
+
+
+def _market_df_to_json_by_symbol(df: pd.DataFrame) -> dict[str, list[dict]]:
+    """
+    Группирует строки по уникальному символу: {symbol: [candle, ...]}.
+    Поле symbol в каждой свече не дублируется — ключ только на верхнем уровне.
+    """
+    out = {}
+    for symbol, group in df.groupby("symbol", sort=True):
+        candles = group.drop(columns=["symbol"]).to_dict(orient="records")
+        out[str(symbol)] = candles
+    return out
 
 
 def save_market_data(
@@ -31,7 +41,9 @@ def save_market_data(
 
     df.to_parquet(f"{path}/{filename}.parquet", engine="pyarrow")
 
-    df.to_json(f"{path}/{filename}.json", orient="records", indent=4)
+    payload = _market_df_to_json_by_symbol(df)
+    with open(f"{path}/{filename}.json", "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=4, ensure_ascii=False)
 
 
 def save_indicators(
