@@ -93,13 +93,13 @@ def macd(
         prev_df, curr_df = macd_df.iloc[-2], macd_df.iloc[-1]
 
         prev = {
-            "MACD": round(float(prev_df["MACD"]), 2),
-            "MACD_signal": round(float(prev_df["MACD_signal"]), 2)
+            "MACD": float(prev_df["MACD"]),
+            "MACD_signal": float(prev_df["MACD_signal"])
         }
 
         curr = {
-            "MACD": round(float(curr_df["MACD"]), 2),
-            "MACD_signal": round(float(curr_df["MACD_signal"]), 2)
+            "MACD": float(curr_df["MACD"]),
+            "MACD_signal": float(curr_df["MACD_signal"])
         }
 
         return prev, curr
