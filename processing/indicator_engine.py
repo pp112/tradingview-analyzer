@@ -16,22 +16,17 @@ class IndicatorEngine:
     2. Генерация торговых сигналов (SignalGenerator)
     3. Расчёт корреляций между активами
     """
-    def __init__(
-        self, 
-        upper_rsi = 70,
-        lower_rsi = 30,
-    ):
+    def __init__(self, upper_rsi = 70, lower_rsi = 30):
         self.indicator_calculator = IndicatorCalculator()
         self.signal_generator = SignalGenerator(upper_rsi, lower_rsi)
 
     def process(
-        self, 
-        df: pd.DataFrame, 
+        self,
+        df: pd.DataFrame,
         timeframe: Timeframe
     ) -> tuple[
-        dict[str, dict], 
-        list[dict], 
-        list[str]
+        dict[str, dict],
+        list[dict[str, str]],
     ]:
         indicators = self.indicator_calculator.calculate(df, timeframe)
         signals = self.signal_generator.generate(indicators, timeframe)
@@ -39,7 +34,7 @@ class IndicatorEngine:
         return indicators, signals
 
     def calculate_correlations(
-        self, 
+        self,
         df: pd.DataFrame,
         sort_order: Literal["asc", "desc"] = "desc"
     ) -> dict[str, float]:

@@ -36,7 +36,7 @@ class TradingViewWebSocket:
         self,
         f_update_progress,
         symbols: list[str],
-        timeframe: Timeframe = Timeframe.H1,
+        timeframe: Timeframe,
     ) -> dict[str, list[TOHLC]]:
         """
         Получает исторические TOHLC данные сразу для группы символов.
@@ -54,8 +54,8 @@ class TradingViewWebSocket:
     
     async def _get_historical_bars(
         self,
-        symbol: str = "BTCUSDT.P",
-        timeframe: Timeframe = Timeframe.H1
+        symbol: str,
+        timeframe: Timeframe
     ) -> list[TOHLC] | None:
         """
         Запрашивает и получает исторические свечи для одного символа.
@@ -97,7 +97,7 @@ class TradingViewWebSocket:
         await self._send_message("quote_create_session", [self._quote_session])
         await self._send_message("quote_set_fields", [self._quote_session])
 
-    async def _request_historical_data(self, symbol: str, timeframe: Timeframe = Timeframe.H1):
+    async def _request_historical_data(self, symbol: str, timeframe: Timeframe):
         """
         Отпраявляет сообщения для получения исторических данных.
         """
@@ -166,7 +166,7 @@ class TradingViewWebSocket:
         return tohlc
     
     @staticmethod
-    def _generate_string_session(prefix):
+    def _generate_string_session(prefix: str) -> str:
         random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
         return prefix + random_string
 

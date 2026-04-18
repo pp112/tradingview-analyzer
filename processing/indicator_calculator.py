@@ -11,12 +11,7 @@ class IndicatorCalculator:
     
     Используется как первый шаг аналитического пайплайна.
     """
-    def calculate(
-        self,
-        df: pd.DataFrame,
-        timeframe: Timeframe
-    ) -> dict[str, dict]:
-
+    def calculate(self, df: pd.DataFrame, timeframe: Timeframe) -> dict[str, dict]:
         indicators = {}
 
         symbols = df["symbol"].unique()
@@ -34,7 +29,12 @@ class IndicatorCalculator:
         return indicators
 
     @staticmethod
-    def _format_macd(macd_data):
+    def _format_macd(
+        macd_data: tuple[dict[str, float], dict[str, float]] | None
+    ) -> dict[str, dict[str, float]] | None:
+        if macd_data is None:
+            return None
+
         prev, curr = macd_data
 
         return {

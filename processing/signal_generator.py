@@ -5,7 +5,7 @@ class SignalGenerator:
     """
     Генерирует торговые сигналы на основе уже рассчитанных индикаторов.
     """
-    def __init__(self, upper_rsi, lower_rsi):
+    def __init__(self, upper_rsi: float, lower_rsi: float):
         self.upper_rsi = upper_rsi
         self.lower_rsi = lower_rsi
 
@@ -13,8 +13,10 @@ class SignalGenerator:
         self,
         indicators: dict[str, dict],
         timeframe: Timeframe
-    ) -> list[dict]:
-
+    ) -> list[dict[str, str]]:
+        """
+        Генерирует список сигналов по всем символам.
+        """
         signals = []
 
         for symbol, data in indicators.items():
@@ -24,7 +26,12 @@ class SignalGenerator:
 
         return signals
 
-    def _rsi(self, symbol, data, timeframe):
+    def _rsi(
+        self,
+        symbol: str,
+        data: dict[str, dict],
+        timeframe: Timeframe
+    ) -> list[dict[str, str]]:
         rsi_val = data.get("rsi")
         signals = []
 
@@ -47,7 +54,12 @@ class SignalGenerator:
 
         return signals
 
-    def _macd(self, symbol, data, timeframe):
+    def _macd(
+        self,
+        symbol: str,
+        data: dict[str, dict],
+        timeframe: Timeframe
+    ) -> list[dict[str, str]]:
         signals = []
 
         macd_block = data.get("macd") or {}
@@ -79,7 +91,12 @@ class SignalGenerator:
 
         return signals
 
-    def _ma(self, symbol, data, timeframe):
+    def _ma(
+        self,
+        symbol: str,
+        data: dict[str, dict],
+        timeframe: Timeframe
+    ) -> list[dict[str, str]]:
         signals = []
 
         ema = data.get("ema")

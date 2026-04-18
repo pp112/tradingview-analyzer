@@ -24,10 +24,7 @@ class MarketDataClient:
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()
         
-    async def get_all_historical_tohlc(
-        self,
-        timeframe: Timeframe = Timeframe.H1
-    ) -> pd.DataFrame:
+    async def get_all_historical_tohlc(self, timeframe: Timeframe) -> pd.DataFrame:
         """
         Загружает исторические данные для всех тикеров и сохраняет их локально.
         """

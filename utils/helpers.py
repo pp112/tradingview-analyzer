@@ -42,7 +42,7 @@ def sort_correlations(tickers_correlations: dict, sort_order: Literal["asc", "de
         )
     )
 
-def get_progress():
+def get_progress() -> Progress:
     """
     Возвращает настроенный progress-bar для CLI загрузок.
     """

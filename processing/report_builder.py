@@ -1,4 +1,5 @@
 from typing import Literal
+from models.timeframe import Timeframe
 
 
 class ReportBuilder:
@@ -16,12 +17,19 @@ class ReportBuilder:
 
     def build(
         self,
-        signals: list[dict],
-        timeframe,
+        signals: list[dict[str, str]],
+        timeframe: Timeframe,
         correlations: dict[str, float] | None = None,
         sort_order: Literal["asc", "desc"] = "desc",
         corr_threshold: float | None = None
     ) -> list[str]:
+        """
+        Собирает финальные строки отчёта по торговым сигналам.
+
+        - Если `correlations is None`, корреляционный фильтр/сортировка не применяются.
+        - Если `corr_threshold is None`, пороговая фильтрация отключена.
+        - `sort_order` влияет только когда переданы `correlations`.
+        """
         reports = []
         
         processed = self._prepare_signals(
@@ -40,11 +48,11 @@ class ReportBuilder:
 
     @staticmethod
     def _prepare_signals(
-        signals: list[dict],
+        signals: list[dict[str, str]],
         correlations: dict[str, float] | None,
         sort_order: Literal["asc", "desc"],
         corr_threshold: float | None
-    ) -> list[dict]:
+    ) -> list[dict[str, str]]:
 
         if not correlations:
             return signals
@@ -70,7 +78,13 @@ class ReportBuilder:
         )
 
     @staticmethod
-    def _format(symbol, indicator, direction, timeframe, corr_value):
+    def _format(
+        symbol: str,
+        indicator: str,
+        direction: str,
+        timeframe: Timeframe,
+        corr_value: float | None
+    ) -> str:
         return (
             f"| {symbol:<17} | {direction:<5} | {indicator:<9} | "
             f"{timeframe.label:<3} | corr: {corr_value}"
