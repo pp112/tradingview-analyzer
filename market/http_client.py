@@ -3,7 +3,7 @@ import aiohttp
 
 from config import get_logger
 
-logger = get_logger(__name__, "HTTP")
+logger = get_logger(__name__, "[HTTP]")
 
 
 class TradingViewHttpClient:

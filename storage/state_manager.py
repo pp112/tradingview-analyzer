@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from config import get_logger
 from models.timeframe import Timeframe
 
-logger = get_logger(__name__, "STATE")
+logger = get_logger(__name__, "[STATE]")
 
 
 class StateManager:

@@ -4,7 +4,7 @@ from config import get_logger
 from models.timeframe import Timeframe
 from app.updater import TimeframeUpdater
 
-logger = get_logger(__name__, "SCHED")
+logger = get_logger(__name__, "[SCHED]")
 
 
 class Scheduler:

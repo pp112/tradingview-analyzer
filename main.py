@@ -5,7 +5,7 @@ from config import setup_logging, get_logger
 from app.startup import StartupUpdater
 from app.scheduler import Scheduler
 
-logger = get_logger(__name__, "APP")
+logger = get_logger(__name__, "[APP]")
 
 
 async def main():

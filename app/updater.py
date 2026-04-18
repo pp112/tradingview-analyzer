@@ -13,7 +13,7 @@ from storage.writer import (
     save_report,
 )
 
-logger = get_logger(__name__, "UPDATER")
+logger = get_logger(__name__, "[UPDATER]")
 
 
 class TimeframeUpdater:
