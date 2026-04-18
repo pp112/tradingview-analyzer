@@ -13,7 +13,7 @@ from storage.writer import (
     save_report,
 )
 
-logger = get_logger(__name__, "UPDATER")
+logger = get_logger(__name__, "[UPDATER]")
 
 
 class TimeframeUpdater:
@@ -42,7 +42,7 @@ class TimeframeUpdater:
         """
         Выполняет полный цикл обновления данных для заданного таймфрейма.
         """
-        logger.info(f"{timeframe.label}: старт пайплайна")
+        logger.info(f"{timeframe.label}: Старт пайплайна")
 
         threshold, sort_order = self._get_correlation_settings()
 
@@ -75,7 +75,7 @@ class TimeframeUpdater:
         save_report(reports_all, timeframe)
         save_report(reports_low_corr, timeframe, suffix=f"_corr_{threshold}")
 
-        logger.info(f"{timeframe.label}: обновление завершено")
+        logger.info(f"{timeframe.label}: Обновление завершено")
 
     def _get_correlation_settings(self) -> tuple[float, Literal["asc", "desc"]]:
         settings = load_settings()

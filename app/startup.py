@@ -2,7 +2,7 @@ from config import get_logger
 from storage.state_manager import StateManager
 from app.updater import TimeframeUpdater
 
-logger = get_logger(__name__, "STARTUP")
+logger = get_logger(__name__, "[STARTUP]")
 
 
 class StartupUpdater:

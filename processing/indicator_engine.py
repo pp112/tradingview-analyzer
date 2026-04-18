@@ -5,6 +5,9 @@ from processing import IndicatorCalculator, SignalGenerator
 from processing.indicators import correlation
 from models.timeframe import Timeframe
 from utils import sort_correlations
+from config import get_logger
+
+logger = get_logger(__name__, "[SIGNALS]")
 
 
 class IndicatorEngine:
@@ -28,7 +31,12 @@ class IndicatorEngine:
         dict[str, dict],
         list[dict[str, str]],
     ]:
+        logger.info(f"{timeframe.label}: Расчёт индикаторов")
+
         indicators = self.indicator_calculator.calculate(df, timeframe)
+
+        logger.info(f"{timeframe.label}: Генерация сигналов")
+
         signals = self.signal_generator.generate(indicators, timeframe)
 
         return indicators, signals
