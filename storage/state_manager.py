@@ -39,7 +39,7 @@ class StateManager:
             last_update = self._get_last_update(tf)
 
             if last_update is None:
-                logger.info(f"{tf.label}: требуется обновление (нет данных последнего запуска)")
+                logger.info(f"{tf.label}: Требуется обновление (нет данных последнего запуска)")
                 to_update.append(tf)
                 continue
 
@@ -47,7 +47,7 @@ class StateManager:
 
             if delta >= interval:
                 pretty_delta = str(delta).split(".")[0]
-                logger.info(f"{tf.label}: требуется обновление (прошло {pretty_delta})")
+                logger.info(f"{tf.label}: Требуется обновление (прошло {pretty_delta})")
                 
                 to_update.append(tf)
 
@@ -61,7 +61,7 @@ class StateManager:
         self.state[timeframe.value] = now.isoformat()
         self._save_state()
 
-        logger.info(f"{timeframe.label}: сохранено время обновления ({now})")
+        logger.info(f"{timeframe.label}: Сохранено время обновления ({now})")
 
     def _load_state(self) -> dict:
         if not os.path.exists(self.STATE_FILE):
