@@ -1,6 +1,6 @@
-import logging
 from typing import Literal
 
+from config import get_logger
 from models.timeframe import Timeframe
 from market import MarketDataClient
 from processing import IndicatorEngine, ReportBuilder
@@ -13,7 +13,7 @@ from storage.writer import (
     save_report,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__, "UPDATER")
 
 
 class TimeframeUpdater:
@@ -42,7 +42,7 @@ class TimeframeUpdater:
         """
         Выполняет полный цикл обновления данных для заданного таймфрейма.
         """
-        logger.info(f"Начинаем обновление таймфрейма: {timeframe.label}")
+        logger.info(f"{timeframe.label}: старт пайплайна")
 
         threshold, sort_order = self._get_correlation_settings()
 
@@ -54,7 +54,7 @@ class TimeframeUpdater:
             correlations = self.indicator_engine.calculate_correlations(df, sort_order)
             save_correlations(correlations)
 
-            logger.info("Обновлены значения корреляций")
+            logger.info("Корреляции пересчитаны и сохранены")
 
         reports_all = self.report_builder.build(
             signals,
@@ -75,7 +75,7 @@ class TimeframeUpdater:
         save_report(reports_all, timeframe)
         save_report(reports_low_corr, timeframe, suffix=f"_corr_{threshold}")
 
-        logger.info(f"Завершено обновление: {timeframe.label}")
+        logger.info(f"{timeframe.label}: обновление завершено")
 
     def _get_correlation_settings(self) -> tuple[float, Literal["asc", "desc"]]:
         settings = load_settings()

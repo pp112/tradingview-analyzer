@@ -1,12 +1,11 @@
 import asyncio
 import signal
-import logging
 
-from config import setup_logging
+from config import setup_logging, get_logger
 from app.startup import StartupUpdater
 from app.scheduler import Scheduler
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__, "APP")
 
 
 async def main():

@@ -1,9 +1,8 @@
-import logging
-
+from config import get_logger
 from storage.state_manager import StateManager
 from app.updater import TimeframeUpdater
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__, "STARTUP")
 
 
 class StartupUpdater:
@@ -23,6 +22,9 @@ class StartupUpdater:
         logger.info("Начинаем стартовое обновление...")
 
         timeframes_to_update = self.state_manager.get_timeframes_to_update()
+
+        if not timeframes_to_update:
+            logger.info("Все таймфреймы актуальны, обновление не требуется")
 
         for tf in timeframes_to_update:
             await self.updater.update(tf)

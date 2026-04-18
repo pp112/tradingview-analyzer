@@ -1,8 +1,9 @@
 import json
 import aiohttp
-import logging
 
-logger = logging.getLogger(__name__)
+from config import get_logger
+
+logger = get_logger(__name__, "HTTP")
 
 
 class TradingViewHttpClient:

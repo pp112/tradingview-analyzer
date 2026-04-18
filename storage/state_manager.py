@@ -1,11 +1,11 @@
 import os
 import json
-import logging
 from datetime import datetime, timedelta
 
+from config import get_logger
 from models.timeframe import Timeframe
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__, "STATE")
 
 
 class StateManager:
@@ -39,7 +39,7 @@ class StateManager:
             last_update = self._get_last_update(tf)
 
             if last_update is None:
-                logger.info(f"Нужно обновить {tf.label} (нет данных последнего обновления)")
+                logger.info(f"{tf.label}: требуется обновление (нет данных последнего запуска)")
                 to_update.append(tf)
                 continue
 
@@ -47,7 +47,7 @@ class StateManager:
 
             if delta >= interval:
                 pretty_delta = str(delta).split(".")[0]
-                logger.info(f"Нужно обновить {tf.label} (прошло {pretty_delta})")
+                logger.info(f"{tf.label}: требуется обновление (прошло {pretty_delta})")
                 
                 to_update.append(tf)
 
@@ -61,7 +61,7 @@ class StateManager:
         self.state[timeframe.value] = now.isoformat()
         self._save_state()
 
-        logger.info(f"Сохранено время обновления таймфрейма {timeframe.label}: {now}")
+        logger.info(f"{timeframe.label}: сохранено время обновления ({now})")
 
     def _load_state(self) -> dict:
         if not os.path.exists(self.STATE_FILE):
