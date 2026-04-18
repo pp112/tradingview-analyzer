@@ -24,6 +24,15 @@ def get_periods_ema_sma(timeframe: Timeframe) -> tuple[int, int]:
     }
     return periods.get(timeframe)
 
+def get_volume_window(timeframe: Timeframe) -> int:
+    return {
+        Timeframe.M15: 10,
+        Timeframe.M30: 15,
+        Timeframe.H1: 20,
+        Timeframe.H4: 30,
+        Timeframe.D1: 50,
+    }[timeframe]
+
 def get_symbol_df(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
     """
     Фильтрует DataFrame по символу.

@@ -3,7 +3,7 @@ from typing import Literal
 import pandas as pd
 
 from models.timeframe import Timeframe
-from utils import get_periods_ema_sma, get_symbol_df
+from utils import get_periods_ema_sma, get_symbol_df, get_volume_window
 
 
 def correlation(df: pd.DataFrame, symbol: str) -> float | None:
@@ -126,4 +126,24 @@ def rsi(symbol_df: pd.DataFrame) -> float | None:
         return round(float(value), 2)
     except Exception:
         return None
-    
+
+def volume_metrics(symbol_df: pd.DataFrame, timeframe: Timeframe) -> dict | None:
+    """
+    Рассчитывает метрики объёма.
+    """
+    window = get_volume_window(timeframe)
+
+    if len(symbol_df) < window:
+        return None
+
+    avg_volume = symbol_df["Volume"].rolling(window).mean().iloc[-1]
+    curr_volume = symbol_df["Volume"].iloc[-1]
+
+    if pd.isna(avg_volume) or avg_volume == 0:
+        return None
+
+    return {
+        "curr": float(curr_volume),
+        "avg": float(avg_volume),
+        "ratio": float(curr_volume / avg_volume)
+    }

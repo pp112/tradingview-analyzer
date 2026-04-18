@@ -27,7 +27,7 @@ class ReportBuilder:
         indicators: dict[str, dict],
         timeframe: Timeframe,
         correlations: dict[str, float],
-        sort_order: Literal["asc", "desc"] = "desc",
+        corr_sort_order: Literal["asc", "desc"] = "desc",
         corr_threshold: float = 1
     ) -> list[str]:
         """
@@ -41,13 +41,14 @@ class ReportBuilder:
         reports = []
         
         filtered_sorted_signals = self._prepare_signals(
-            signals, indicators, correlations, sort_order, corr_threshold
+            signals, indicators, correlations, corr_sort_order, corr_threshold
         )
 
         for s in filtered_sorted_signals:
             indicator, direction = self.MAPPING.get(s["signal"])
             symbol = str(s["symbol"])
             corr_value = correlations.get(symbol)
+            vol_ratio = indicators[symbol]["volume"]["ratio"]
 
             reports.append(
                 self._format(
@@ -56,7 +57,8 @@ class ReportBuilder:
                     direction,
                     timeframe,
                     corr_value,
-                    indicators.get(symbol, {})
+                    indicators.get(symbol, {}),
+                    vol_ratio
                 )
             )
 
@@ -67,7 +69,7 @@ class ReportBuilder:
         signals: list[dict[str, str]],
         indicators: dict[str, dict],
         correlations: dict[str, float],
-        sort_order: Literal["asc", "desc"],
+        corr_sort_order: Literal["asc", "desc"],
         corr_threshold: float | None
     ) -> list[dict[str, str]]:
         """
@@ -89,7 +91,7 @@ class ReportBuilder:
 
         return sorted(
             filtered,
-            key=lambda s: ReportBuilder._sort_key(s, indicators, correlations, sort_order),
+            key=lambda s: ReportBuilder._sort_key(s, indicators, correlations, corr_sort_order),
         )
 
     @staticmethod
@@ -97,7 +99,7 @@ class ReportBuilder:
         signal: dict[str, str],
         indicators: dict[str, dict],
         correlations: dict[str, float],
-        sort_order: Literal["asc", "desc"],
+        corr_sort_order: Literal["asc", "desc"],
     ) -> tuple[int, float, float]:
         """
         Возвращает кортеж для сортировки для сигнала.
@@ -121,10 +123,12 @@ class ReportBuilder:
         indicator_values = indicators.get(symbol, {})
         strength = ReportBuilder._get_strength(signal_name, indicator_values)
 
-        corr_value = correlations.get(symbol, 0.0)
-        corr_score = corr_value if sort_order == "asc" else -corr_value
+        volume_ratio = indicator_values["volume"]["ratio"]
 
-        return (indicator_order, -strength, corr_score)
+        corr_value = correlations.get(symbol, 0.0)
+        corr_score = corr_value if corr_sort_order == "asc" else -corr_value
+
+        return (indicator_order, -strength, -volume_ratio, corr_score)
 
     @staticmethod
     def _get_strength(signal_name: str, values: dict) -> float:
@@ -180,7 +184,7 @@ class ReportBuilder:
             macd_val = float(curr.get("MACD", 0.0))
             macd_signal = float(curr.get("MACD_signal", 0.0))
             spread = abs(macd_val - macd_signal)
-            return f"MACD={macd_val:.6f}, SIG={macd_signal:.6f}, d={spread:.6f}"
+            return f"diff={spread:.6f}"
 
         if indicator == "EMA_SMA":
             ema = values.get("ema")
@@ -190,7 +194,7 @@ class ReportBuilder:
             ema_val = float(ema[1])
             sma_val = float(sma[1])
             spread = abs(ema_val - sma_val)
-            return f"EMA={ema_val:.6f}, SMA={sma_val:.6f}, gap={spread:.6f}"
+            return f"diff={spread:.6f}"
 
         return "-"
 
@@ -202,15 +206,16 @@ class ReportBuilder:
         timeframe: Timeframe,
         corr_value: float,
         indicator_values: dict,
+        vol_ratio: float
     ) -> str:
         """
         Формирует одну строку отчёта вида:
 
-        | SYMBOL | DIR | INDICATOR | TF | val: ... | corr: ...
+        | SYMBOL | DIR | INDICATOR | TF | val: ... | vol_rat=... | corr: ...
         """
         indicator_value = ReportBuilder._format_indicator_value(indicator, indicator_values)
         
         return (
-            f"| {symbol:<17} | {direction:<5} | {indicator:<9} | "
-            f"{timeframe.label:<3} | val: {indicator_value:<28} | corr: {corr_value}"
+            f"| {symbol:<17} | {direction:<5} | {indicator:<7} | {indicator_value:<10} | "
+            f"vol_rat={vol_ratio:<4.2f} | {timeframe.label:<3} | corr: {corr_value:.2f}"
         )

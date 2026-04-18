@@ -1,7 +1,7 @@
 import pandas as pd
 
 from models.timeframe import Timeframe
-from processing.indicators import rsi, macd, moving_average
+from processing.indicators import rsi, macd, moving_average, volume_metrics
 from utils import get_symbol_df
 
 
@@ -24,6 +24,7 @@ class IndicatorCalculator:
                 "macd": IndicatorCalculator._format_macd(macd(symbol_df)),
                 "ema": moving_average(symbol_df, timeframe, "ema"),
                 "sma": moving_average(symbol_df, timeframe, "sma"),
+                "volume": volume_metrics(symbol_df, timeframe)
             }
 
         return indicators

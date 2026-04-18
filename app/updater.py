@@ -45,51 +45,53 @@ class TimeframeUpdater:
         """
         logger.info(f"{timeframe.label}: Старт пайплайна")
 
-        threshold, sort_order = self._get_correlation_settings()
+        corr_threshold, corr_sort_order = self._get_correlation_settings()
 
         df = await self.market_client.get_all_historical_tohlc(timeframe)
 
         indicators, signals = self.indicator_engine.process(df, timeframe)
 
         if timeframe == Timeframe.H1:
-            correlations = self.indicator_engine.calculate_correlations(df, sort_order)
+            correlations = self.indicator_engine.calculate_correlations(df, corr_sort_order)
             save_correlations(correlations)
 
-            logger.info("Корреляции пересчитаны и сохранены")
+            logger.info(f"{timeframe.label}: Корреляции пересчитаны и сохранены")
 
         reports_all = self.report_builder.build(
             signals,
             indicators,
             timeframe,
             correlations=read_correlations(),
-            sort_order=sort_order
+            corr_sort_order=corr_sort_order
         )
         reports_low_corr = self.report_builder.build(
             signals,
             indicators,
             timeframe,
             correlations=read_correlations(),
-            sort_order=sort_order,
-            corr_threshold=threshold
+            corr_sort_order=corr_sort_order,
+            corr_threshold=corr_threshold
         )
+
+        logger.info(f"{timeframe.label}: Сохранение результатов в файлы")
 
         save_market_data(df, timeframe)
         save_indicators(indicators, timeframe)
         save_signals(signals, timeframe)
         save_report(reports_all, timeframe)
-        save_report(reports_low_corr, timeframe, suffix=f"_corr_{threshold}")
+        save_report(reports_low_corr, timeframe, suffix=f"_corr_{corr_threshold}")
 
         logger.info(f"{timeframe.label}: Обновление завершено")
 
     def _get_correlation_settings(self) -> tuple[float, Literal["asc", "desc"]]:
         settings = load_settings()
 
-        threshold = self._corr_threshold_override
-        sort_order = self._corr_sort_order_override
+        corr_threshold = self._corr_threshold_override
+        corr_sort_order = self._corr_sort_order_override
         
-        if threshold is None:
-            threshold = settings.correlation.threshold
-        if sort_order is None:
-            sort_order = settings.correlation.sort_order
+        if corr_threshold is None:
+            corr_threshold = settings.correlation.corr_threshold
+        if corr_sort_order is None:
+            corr_sort_order = settings.correlation.corr_sort_order
 
-        return threshold, sort_order
+        return corr_threshold, corr_sort_order
