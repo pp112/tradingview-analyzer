@@ -32,7 +32,7 @@ def correlation(df: pd.DataFrame, symbol: str) -> float | None:
         if pd.isna(corr):
             return None
 
-        return round(float(corr), 2)
+        return round(float(corr), 3)
     except Exception:
         return None
 
@@ -59,8 +59,8 @@ def moving_average(
         if len(result) < 2:
             return None
 
-        prev = round(float(result.iloc[-2]), 2)
-        curr = round(float(result.iloc[-1]), 2)
+        prev = float(result.iloc[-2])
+        curr = float(result.iloc[-1])
 
         return prev, curr
     except Exception:
