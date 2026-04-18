@@ -163,6 +163,37 @@ class ReportBuilder:
 
         return 0.0
     
+    def _format_indicator_value(indicator: str, values: dict) -> str:
+        if indicator == "RSI":
+            rsi_val = values.get("rsi")
+            if rsi_val is None:
+                return "-"
+            return f"RSI={rsi_val:.2f}"
+
+        if indicator == "MACD":
+            macd_block = values.get("macd")
+            if not macd_block:
+                return "-"
+            curr = macd_block.get("curr")
+            if not curr:
+                return "-"
+            macd_val = float(curr.get("MACD", 0.0))
+            macd_signal = float(curr.get("MACD_signal", 0.0))
+            spread = abs(macd_val - macd_signal)
+            return f"MACD={macd_val:.6f}, SIG={macd_signal:.6f}, d={spread:.6f}"
+
+        if indicator == "EMA_SMA":
+            ema = values.get("ema")
+            sma = values.get("sma")
+            if not ema or not sma:
+                return "-"
+            ema_val = float(ema[1])
+            sma_val = float(sma[1])
+            spread = abs(ema_val - sma_val)
+            return f"EMA={ema_val:.6f}, SMA={sma_val:.6f}, gap={spread:.6f}"
+
+        return "-"
+
     @staticmethod
     def _format(
         symbol: str,
