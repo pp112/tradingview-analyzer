@@ -17,7 +17,7 @@ class StartupUpdater:
     """
     def __init__(self):
         self.state_manager = StateManager()
-        self.updater = TimeframeUpdater(0.5, "desc")
+        self.updater = TimeframeUpdater()
 
     async def run(self):
         logger.info("Начинаем стартовое обновление...")

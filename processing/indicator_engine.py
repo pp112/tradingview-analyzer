@@ -20,11 +20,9 @@ class IndicatorEngine:
         self, 
         upper_rsi = 70,
         lower_rsi = 30,
-        corr_sort_order: Literal["asc", "desc"] = "desc"
     ):
         self.indicator_calculator = IndicatorCalculator()
         self.signal_generator = SignalGenerator(upper_rsi, lower_rsi)
-        self.corr_sort_order = corr_sort_order
 
     def process(
         self, 
@@ -40,7 +38,11 @@ class IndicatorEngine:
 
         return indicators, signals
 
-    def calculate_correlations(self, df: pd.DataFrame) -> dict[str, float]:
+    def calculate_correlations(
+        self, 
+        df: pd.DataFrame,
+        sort_order: Literal["asc", "desc"] = "desc"
+    ) -> dict[str, float]:
         """
         Рассчитывает корреляции всех символов относительно BTC
         и возвращает их в отсортированном виде.
@@ -52,4 +54,4 @@ class IndicatorEngine:
         for symbol in symbols:
             ticker_corrs[symbol] = correlation(df, symbol)
 
-        return sort_correlations(ticker_corrs, self.corr_sort_order)
+        return sort_correlations(ticker_corrs, sort_order)
