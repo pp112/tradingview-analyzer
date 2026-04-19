@@ -1,5 +1,6 @@
 import os
 import json
+import threading
 
 import pandas as pd
 
@@ -26,11 +27,18 @@ def _market_df_to_json_by_symbol(df: pd.DataFrame) -> dict[str, list[dict]]:
         out[str(symbol)] = candles
     return out
 
+def _save_json_async(path: str, df: pd.DataFrame):
+    """
+    Запускает task() в отдельном потоке.
+    """
+    def task():
+        payload = _market_df_to_json_by_symbol(df)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=4, ensure_ascii=False)
+    
+    threading.Thread(target=task, daemon=True).start()
 
-def save_market_data(
-    df: pd.DataFrame,
-    timeframe: Timeframe
-):
+def save_market_data(df: pd.DataFrame, timeframe: Timeframe):
     """
     Сохраняет исторические рыночные данные (TOHLC) в parquet и json.
     """
@@ -41,9 +49,7 @@ def save_market_data(
 
     df.to_parquet(f"{path}/{filename}.parquet", engine="pyarrow")
 
-    payload = _market_df_to_json_by_symbol(df)
-    with open(f"{path}/{filename}.json", "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=4, ensure_ascii=False)
+    _save_json_async(path=f"{path}/{filename}.json", df=df)
 
 
 def save_indicators(
