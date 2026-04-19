@@ -43,7 +43,7 @@ class TimeframeUpdater:
         """
         logger.info(f"{timeframe.label}: Старт пайплайна")
 
-        corr_threshold, corr_sort_order = self._get_correlation_settings()
+        corr_threshold, corr_sort_order = self._resolve_correlation_settings()
 
         df = await self.market_client.fetch_all_historical_tohlc(timeframe)
 
@@ -71,15 +71,10 @@ class TimeframeUpdater:
 
         logger.info(f"{timeframe.label}: Обновление завершено")
 
-    def _get_correlation_settings(self) -> tuple[float, Literal["asc", "desc"]]:
+    def _resolve_correlation_settings(self) -> tuple[float, Literal["asc", "desc"]]:
         settings = load_settings()
 
-        corr_threshold = self._corr_threshold_override
-        corr_sort_order = self._corr_sort_order_override
-        
-        if corr_threshold is None:
-            corr_threshold = settings.correlation.corr_threshold
-        if corr_sort_order is None:
-            corr_sort_order = settings.correlation.corr_sort_order
-
-        return corr_threshold, corr_sort_order
+        return (
+            self._corr_threshold_override or settings.correlation.corr_threshold,
+            self._corr_sort_order_override or settings.correlation.corr_sort_order
+        )
