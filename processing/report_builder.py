@@ -214,8 +214,8 @@ class ReportBuilder:
         | SYMBOL | DIR | INDICATOR | TF | val: ... | vol_rat=... | corr: ...
         """
         indicator_value = ReportBuilder._format_indicator_value(indicator, indicator_values)
-        
+
         return (
-            f"| {symbol:<17} | {direction:<5} | {indicator:<7} | {indicator_value:<10} | "
-            f"vol_rat={vol_ratio:<4.2f} | {timeframe.label:<3} | corr: {corr_value:.2f}"
+            f"| {symbol:<17} | {direction:<5} | {indicator} | {indicator_value:<9} | "
+            f"vol_rat={vol_ratio:.2f} | corr: {corr_value:<5.2f} | {timeframe.label}"
         )
