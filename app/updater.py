@@ -5,12 +5,10 @@ from models.timeframe import Timeframe
 from market import MarketDataClient
 from processing import IndicatorEngine, ReportBuilder
 from config.settings import load_settings
-from utils import read_correlations
 from storage.writer import (
     save_indicators,
     save_signals,
     save_correlations,
-    save_report,
     save_market_data
 )
 
@@ -63,70 +61,15 @@ class TimeframeUpdater:
         save_indicators(indicators, timeframe)
         save_signals(signals, timeframe)
         
-        self._generate_and_save_reports(
-            signals,
-            indicators,
-            timeframe,
-            corr_threshold,
-            corr_sort_order
+        self.report_builder.generate_and_save_reports(
+            signals=signals,
+            indicators=indicators,
+            timeframe=timeframe,
+            corr_sort_order=corr_sort_order,
+            corr_threshold=corr_threshold
         )
 
         logger.info(f"{timeframe.label}: Обновление завершено")
-
-    def _generate_and_save_reports(
-        self,
-        signals: list[dict[str, str]],
-        indicators: dict[str, dict],
-        timeframe: Timeframe,
-        corr_threshold: float,
-        corr_sort_order: Literal["asc", "desc"]
-    ):
-        """
-        Генерирует и сохраняет отчёты по торговым сигналам.
-
-        - для каждого режима сортировки формируются 2 типа отчётов:
-            1. Полный список сигналов (без фильтра по корреляции)
-            2. Отфильтрованный список (с учётом corr_threshold)
-
-        - отчёты сохраняются в структуру:
-            data/reports/
-                ├── full/
-                │   └── <timeframe>/
-                │       └── <sort_mode>.txt
-                └── low_corr/
-                    └── <timeframe>/
-                        └── <sort_mode>.txt
-        """
-        sort_modes = [
-            "corr_indic_vol",
-            "vol_indic_corr",
-            "indic_vol_corr"
-        ]
-
-        correlations = read_correlations()
-
-        for mode in sort_modes:
-            reports_all = self.report_builder.build(
-                signals,
-                indicators,
-                timeframe,
-                correlations=correlations,
-                corr_sort_order=corr_sort_order,
-                sort_mode=mode
-            )
-
-            reports_filtered = self.report_builder.build(
-                signals,
-                indicators,
-                timeframe,
-                correlations=correlations,
-                corr_sort_order=corr_sort_order,
-                corr_threshold=corr_threshold,
-                sort_mode=mode
-            )
-
-            save_report(reports_all, timeframe, group="full", sort_mode=mode)
-            save_report(reports_filtered, timeframe, group="low_corr", sort_mode=mode)
 
     def _get_correlation_settings(self) -> tuple[float, Literal["asc", "desc"]]:
         settings = load_settings()

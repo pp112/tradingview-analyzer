@@ -1,11 +1,11 @@
 import os
 import json
-import logging
 from datetime import datetime, timedelta
 
 from models.timeframe import Timeframe
+from config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__, "[STATE]")
 
 
 class StateManager:
