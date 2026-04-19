@@ -28,7 +28,12 @@ class ReportBuilder:
         timeframe: Timeframe,
         correlations: dict[str, float],
         corr_sort_order: Literal["asc", "desc"] = "desc",
-        corr_threshold: float = 1
+        corr_threshold: float = 1,
+        sort_mode: Literal[
+            "corr_indic_vol",
+            "vol_indic_corr",
+            "indic_vol_corr"
+        ] = "indic_vol_corr"
     ) -> list[str]:
         """
         Собирает финальный отчёт.
@@ -41,7 +46,7 @@ class ReportBuilder:
         reports = []
         
         filtered_sorted_signals = self._prepare_signals(
-            signals, indicators, correlations, corr_sort_order, corr_threshold
+            signals, indicators, correlations, corr_sort_order, corr_threshold, sort_mode
         )
 
         for s in filtered_sorted_signals:
@@ -58,7 +63,8 @@ class ReportBuilder:
                     timeframe,
                     corr_value,
                     indicators.get(symbol, {}),
-                    vol_ratio
+                    vol_ratio,
+                    sort_mode
                 )
             )
 
@@ -70,7 +76,12 @@ class ReportBuilder:
         indicators: dict[str, dict],
         correlations: dict[str, float],
         corr_sort_order: Literal["asc", "desc"],
-        corr_threshold: float | None
+        corr_threshold: float,
+        sort_mode: Literal[
+            "corr_indic_vol",
+            "vol_indic_corr",
+            "indic_vol_corr"
+        ]
     ) -> list[dict[str, str]]:
         """
         Фильтрует и сортирует сигналы.
@@ -91,7 +102,9 @@ class ReportBuilder:
 
         return sorted(
             filtered,
-            key=lambda s: ReportBuilder._sort_key(s, indicators, correlations, corr_sort_order),
+            key=lambda s: ReportBuilder._sort_key(
+                s, indicators, correlations, corr_sort_order, sort_mode
+            ),
         )
 
     @staticmethod
@@ -100,6 +113,11 @@ class ReportBuilder:
         indicators: dict[str, dict],
         correlations: dict[str, float],
         corr_sort_order: Literal["asc", "desc"],
+        sort_mode: Literal[
+            "corr_indic_vol",
+            "vol_indic_corr",
+            "indic_vol_corr"
+        ]
     ) -> tuple[int, float, float]:
         """
         Возвращает кортеж для сортировки для сигнала.
@@ -121,14 +139,19 @@ class ReportBuilder:
 
         symbol = str(signal.get("symbol", ""))
         indicator_values = indicators.get(symbol, {})
-        strength = ReportBuilder._get_strength(signal_name, indicator_values)
+        ind_strength = ReportBuilder._get_strength(signal_name, indicator_values)
 
-        volume_ratio = indicator_values["volume"]["ratio"]
+        volume_ratio = indicator_values.get("volume", {}).get("ratio", 0)
 
         corr_value = correlations.get(symbol, 0.0)
         corr_score = corr_value if corr_sort_order == "asc" else -corr_value
-
-        return (indicator_order, -strength, -volume_ratio, corr_score)
+        
+        if sort_mode == "corr_indic_vol":
+            return (indicator_order, corr_score, -ind_strength, -volume_ratio)
+        elif sort_mode == "vol_indic_corr":
+            return (indicator_order, -volume_ratio, -ind_strength, corr_score)
+        elif sort_mode == "indic_vol_corr":
+            return (indicator_order, -ind_strength, -volume_ratio, corr_score)
 
     @staticmethod
     def _get_strength(signal_name: str, values: dict) -> float:
@@ -206,7 +229,12 @@ class ReportBuilder:
         timeframe: Timeframe,
         corr_value: float,
         indicator_values: dict,
-        vol_ratio: float
+        vol_ratio: float,
+        column_order: Literal[
+            "corr_indic_vol",
+            "vol_indic_corr",
+            "indic_vol_corr"
+        ]
     ) -> str:
         """
         Формирует одну строку отчёта вида:
@@ -215,7 +243,21 @@ class ReportBuilder:
         """
         indicator_value = ReportBuilder._format_indicator_value(indicator, indicator_values)
 
-        return (
-            f"| {symbol:<17} | {direction:<5} | {indicator} | {indicator_value:<9} | "
-            f"vol_rat={vol_ratio:.2f} | corr: {corr_value:<5.2f} | {timeframe.label}"
-        )
+        base = {
+            "symbol": f"{symbol:<17}",
+            "direction": f"{direction:<5}",
+            "indicator": indicator,
+            "value": f"{indicator_value:<9}",
+            "volume": f"vol_rat={vol_ratio:.2f}",
+            "corr": f"corr={corr_value:.2f}",
+            "tf": timeframe.label
+        }
+
+        if column_order == "corr_indic_vol":
+            order = ["symbol", "direction", "indicator", "corr", "value", "volume", "tf"]
+        elif column_order == "vol_indic_corr":
+            order = ["symbol", "direction", "indicator", "volume", "value", "corr", "tf"]
+        elif column_order == "indic_vol_corr":
+            order = ["symbol", "direction", "indicator", "value", "volume", "corr", "tf"]
+
+        return "| " + " | ".join(base[k] for k in order)
