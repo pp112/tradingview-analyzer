@@ -6,7 +6,7 @@ import pandas as pd
 from market import TradingViewHttpClient, TradingViewWebSocket
 from models.timeframe import Timeframe
 from models.tohlc import TOHLC
-from utils import get_progress
+from utils import create_progress
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +24,13 @@ class MarketDataClient:
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()
         
-    async def get_all_historical_tohlc(self, timeframe: Timeframe) -> pd.DataFrame:
+    async def fetch_all_historical_tohlc(self, timeframe: Timeframe) -> pd.DataFrame:
         """
         Загружает исторические данные для всех тикеров и сохраняет их локально.
         """
         chunk_size = 20
 
-        tickers = await self.http_client.get_all_tickers()
+        tickers = await self.http_client.fetch_all_tickers()
         chunks = MarketDataClient._chunk_list(tickers, chunk_size)
         results = await self._run_ws_pool(chunks, len(tickers), timeframe)
 
@@ -57,7 +57,7 @@ class MarketDataClient:
         results: dict[str, list[TOHLC]] = {}
         lock = asyncio.Lock()
 
-        progress = get_progress()
+        progress = create_progress()
         task_id = progress.add_task(
             f"[cyan]Загрузка данных ({timeframe.label})",
             total=total
@@ -79,7 +79,7 @@ class MarketDataClient:
                             def update_progress():
                                 progress.update(task_id, advance=1)
 
-                            data = await ws.get_historical_batch(update_progress, chunk, timeframe)
+                            data = await ws.fetch_historical_batch(update_progress, chunk, timeframe)
 
                             async with lock:
                                 results.update(data)
@@ -125,5 +125,5 @@ if __name__ == "__main__":
     market_client = MarketDataClient()
     import time
     start = time.time()
-    data = asyncio.run(market_client.get_all_historical_tohlc())
+    data = asyncio.run(market_client.fetch_all_historical_tohlc())
     print(f"Затрачено: {time.time() - start}")

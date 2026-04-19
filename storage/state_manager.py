@@ -28,7 +28,7 @@ class StateManager:
     def __init__(self):
         self.state = self._load_state()
 
-    def get_timeframes_to_update(self) -> list[Timeframe]:
+    def resolve_timeframes_to_update(self) -> list[Timeframe]:
         """
         Возвращает список таймфреймов, которые требуют обновления.
         """

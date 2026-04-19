@@ -21,7 +21,7 @@ class TradingViewHttpClient:
             "Referer": "https://www.tradingview.com/"
         }
 
-    async def get_all_tickers(self) -> list[str]:
+    async def fetch_all_tickers(self) -> list[str]:
         """
         Возвращает список всех доступных крипто-тикеров с TradingView (ByBit).
         """
@@ -43,5 +43,5 @@ class TradingViewHttpClient:
 
 if __name__ == "__main__":
     import asyncio
-    tickers = asyncio.run(TradingViewHttpClient().get_all_tickers())
+    tickers = asyncio.run(TradingViewHttpClient().fetch_all_tickers())
     print(tickers)

@@ -14,7 +14,7 @@ def load_data(timeframe: Timeframe) -> pd.DataFrame:
     data_path = f"data/historical_data/historical_data_{timeframe.label}.parquet"
     return pd.read_parquet(data_path)
 
-def get_periods_ema_sma(timeframe: Timeframe) -> tuple[int, int]:
+def ema_sma_periods(timeframe: Timeframe) -> tuple[int, int]:
     periods = {
         Timeframe.M15: (9, 21),
         Timeframe.M30: (12, 50),
@@ -24,7 +24,7 @@ def get_periods_ema_sma(timeframe: Timeframe) -> tuple[int, int]:
     }
     return periods.get(timeframe)
 
-def get_volume_window(timeframe: Timeframe) -> int:
+def volume_window_for(timeframe: Timeframe) -> int:
     return {
         Timeframe.M15: 10,
         Timeframe.M30: 15,
@@ -33,7 +33,7 @@ def get_volume_window(timeframe: Timeframe) -> int:
         Timeframe.D1: 50,
     }[timeframe]
 
-def get_symbol_df(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
+def filter_by_symbol(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
     """
     Фильтрует DataFrame по символу.
     """
@@ -51,7 +51,7 @@ def sort_correlations(tickers_correlations: dict, sort_order: Literal["asc", "de
         )
     )
 
-def get_progress() -> Progress:
+def create_progress() -> Progress:
     """
     Возвращает настроенный progress-bar для CLI загрузок.
     """

@@ -2,7 +2,7 @@ import pandas as pd
 
 from models.timeframe import Timeframe
 from processing.indicators import rsi, macd, moving_average, volume_metrics
-from utils import get_symbol_df
+from utils import filter_by_symbol
 
 
 class IndicatorCalculator:
@@ -17,7 +17,7 @@ class IndicatorCalculator:
         symbols = df["symbol"].unique()
 
         for symbol in symbols:
-            symbol_df = get_symbol_df(symbol, df)
+            symbol_df = filter_by_symbol(symbol, df)
 
             indicators[symbol] = {
                 "rsi": rsi(symbol_df),

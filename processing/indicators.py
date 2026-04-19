@@ -3,7 +3,7 @@ from typing import Literal
 import pandas as pd
 
 from models.timeframe import Timeframe
-from utils import get_periods_ema_sma, get_symbol_df, get_volume_window
+from utils import ema_sma_periods, filter_by_symbol, volume_window_for
 
 
 def correlation(df: pd.DataFrame, symbol: str) -> float | None:
@@ -11,8 +11,8 @@ def correlation(df: pd.DataFrame, symbol: str) -> float | None:
     Рассчитывает корреляцию между BTC и указанным активом.
     """
     try:
-        df_btc = get_symbol_df("BTCUSDT.P", df)
-        df_alt = get_symbol_df(symbol, df)
+        df_btc = filter_by_symbol("BTCUSDT.P", df)
+        df_alt = filter_by_symbol(symbol, df)
 
         df_btc["Date"] = pd.to_datetime(df_btc["Timestamp"], unit="s")
         df_alt["Date"] = pd.to_datetime(df_alt["Timestamp"], unit="s")
@@ -45,12 +45,12 @@ def moving_average(
     Возвращает предыдущие и текущие значения EMA или SMA.
     """
     try:
-        periods = get_periods_ema_sma(timeframe)
+        ema_period, sma_period = ema_sma_periods(timeframe)
 
         if ma_type == "ema":
-            result = symbol_df["Close"].ewm(span=periods[0], adjust=False).mean()
+            result = symbol_df["Close"].ewm(span=ema_period, adjust=False).mean()
         elif ma_type == "sma":
-            result = symbol_df["Close"].rolling(window=periods[1]).mean()
+            result = symbol_df["Close"].rolling(window=sma_period).mean()
         else:
             return None
 
@@ -131,7 +131,7 @@ def volume_metrics(symbol_df: pd.DataFrame, timeframe: Timeframe) -> dict | None
     """
     Рассчитывает метрики объёма.
     """
-    window = get_volume_window(timeframe)
+    window = volume_window_for(timeframe)
 
     if len(symbol_df) < window:
         return None

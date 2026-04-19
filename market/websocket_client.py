@@ -32,7 +32,7 @@ class TradingViewWebSocket:
     async def __aexit__(self, exc_type, exc, tb):
         await self._ws.close()
 
-    async def get_historical_batch(
+    async def fetch_historical_batch(
         self,
         f_update_progress,
         symbols: list[str],
@@ -44,7 +44,7 @@ class TradingViewWebSocket:
         results = {}
 
         for symbol in symbols:
-            data = await self._get_historical_bars(symbol, timeframe)
+            data = await self._fetch_historical_bars(symbol, timeframe)
             if data:
                 results[symbol] = data
             
@@ -52,7 +52,7 @@ class TradingViewWebSocket:
 
         return results
     
-    async def _get_historical_bars(
+    async def _fetch_historical_bars(
         self,
         symbol: str,
         timeframe: Timeframe

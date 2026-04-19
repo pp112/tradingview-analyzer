@@ -21,7 +21,7 @@ class StartupUpdater:
     async def run(self):
         logger.info("Начинаем стартовое обновление...")
 
-        timeframes_to_update = self.state_manager.get_timeframes_to_update()
+        timeframes_to_update = self.state_manager.resolve_timeframes_to_update()
 
         if not timeframes_to_update:
             logger.info("Все таймфреймы актуальны, обновление не требуется")

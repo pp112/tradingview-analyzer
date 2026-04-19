@@ -6,7 +6,7 @@ import pandas as pd
 import mplfinance as mpf
 
 from models.timeframe import Timeframe
-from utils import load_data, get_periods_ema_sma, get_symbol_df
+from utils import load_data, ema_sma_periods, filter_by_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class MarketPlotter:
         Преобразует timestamp в datetime индекс для mplfinance.
         """
         df = load_data(timeframe)
-        df = get_symbol_df(symbol, df)
+        df = filter_by_symbol(symbol, df)
 
         if df.empty:
             return None
@@ -87,7 +87,7 @@ class MarketPlotter:
         """
         Добавляет на график EMA и SMA линии для заданного таймфрейма.
         """
-        ema_period, sma_period = get_periods_ema_sma(timeframe)
+        ema_period, sma_period = ema_sma_periods(timeframe)
 
         ema = df["Close"].ewm(span=ema_period, adjust=False).mean()
         addplots.append(mpf.make_addplot(ema, width=1, color="orange"))

@@ -1,9 +1,9 @@
 from .helpers import (
     load_data, 
-    get_periods_ema_sma, 
-    get_symbol_df, 
+    ema_sma_periods, 
+    filter_by_symbol, 
     sort_correlations, 
     read_correlations,
-    get_progress,
-    get_volume_window
+    create_progress,
+    volume_window_for
 )

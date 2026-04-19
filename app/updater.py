@@ -45,15 +45,15 @@ class TimeframeUpdater:
 
         corr_threshold, corr_sort_order = self._get_correlation_settings()
 
-        df = await self.market_client.get_all_historical_tohlc(timeframe)
+        df = await self.market_client.fetch_all_historical_tohlc(timeframe)
 
         indicators, signals = self.indicator_engine.process(df, timeframe)
 
         if timeframe == Timeframe.H1:
+            logger.info(f"{timeframe.label}: Расчет корреляций")
+
             correlations = self.indicator_engine.calculate_correlations(df, corr_sort_order)
             save_correlations(correlations)
-
-            logger.info(f"{timeframe.label}: Корреляции расчитаны и сохранены")
 
         logger.info(f"{timeframe.label}: Сохранение результатов в файлы")
 
