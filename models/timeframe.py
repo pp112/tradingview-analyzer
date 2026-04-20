@@ -10,9 +10,9 @@ class Timeframe(Enum):
     @property
     def label(self):
         return {
-            "15": "15m",
-            "30": "30m",
-            "60": "1h",
-            "240": "4h",
-            "1D": "1d",
-        }[self.value]
+            Timeframe.M15: "15m",
+            Timeframe.M30: "30m",
+            Timeframe.H1: "1h",
+            Timeframe.H4: "4h",
+            Timeframe.D1: "1d",
+        }[self]

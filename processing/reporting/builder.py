@@ -63,7 +63,7 @@ class ReportBuilder:
                     sort_mode=mode
                 )
             
-                save_report(reports_all, timeframe, group=group, sort_mode=mode.value)
+                save_report(reports_all, timeframe, group=group, sort_mode=mode)
 
         build_and_save(1, "full")
 

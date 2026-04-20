@@ -5,6 +5,7 @@ import threading
 import pandas as pd
 
 from models.timeframe import Timeframe
+from models.sort_mode import SortMode
 
 BASE_PATH = "data"
 
@@ -101,7 +102,7 @@ def save_report(
     lines: list[str],
     timeframe: Timeframe,
     group: str,
-    sort_mode: str
+    sort_mode: SortMode
 ):
     """
     Сохраняет текстовый отчёт сигналов.
@@ -109,7 +110,7 @@ def save_report(
     base_path = f"{BASE_PATH}/reports/{group}/{timeframe.label}"
     ensure_dir(base_path)
 
-    file_path = f"{base_path}/{sort_mode}.txt"
+    file_path = f"{base_path}/{sort_mode.filename}.txt"
 
     with open(file_path, "w", encoding="utf-8") as f:
         for line in lines:
