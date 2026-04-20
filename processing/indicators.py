@@ -114,8 +114,8 @@ def rsi(symbol_df: pd.DataFrame) -> float | None:
         delta = symbol_df["Close"].diff()
         gain = delta.clip(lower=0)
         loss = -delta.clip(upper=0)
-        avg_gain = gain.rolling(14).mean()
-        avg_loss = loss.rolling(14).mean()
+        avg_gain = rma(gain, 14)
+        avg_loss = rma(loss, 14)
         rs = avg_gain / avg_loss
         rsi_series = 100 - (100 / (1 + rs))
 
@@ -126,6 +126,9 @@ def rsi(symbol_df: pd.DataFrame) -> float | None:
         return round(float(value), 2)
     except Exception:
         return None
+    
+def rma(series: pd.Series, length: int) -> pd.Series:
+    return series.ewm(alpha=1/length, adjust=False).mean()
 
 def volume_metrics(symbol_df: pd.DataFrame, timeframe: Timeframe) -> dict | None:
     """
