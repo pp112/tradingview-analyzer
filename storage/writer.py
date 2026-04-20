@@ -41,7 +41,7 @@ def _save_json_async(path: str, df: pd.DataFrame):
 
 def save_market_data(df: pd.DataFrame, timeframe: Timeframe):
     """
-    Сохраняет исторические рыночные данные (TOHLC) в parquet и json.
+    Сохраняет исторические рыночные данные (TOHLCV) в parquet и json.
     """
     path = f"{BASE_PATH}/historical_data"
     ensure_dir(path)

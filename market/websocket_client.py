@@ -2,21 +2,21 @@ import random
 import string
 import json
 import re
-import logging
 import asyncio
+from config import get_logger
 from models.timeframe import Timeframe
-from models.tohlc import TOHLC
+from models.tohlcv import TOHLCV
 
 import websockets
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__, "[WEBSOCKET]")
 
 
 class TradingViewWebSocket:
     """
     WebSocket клиент TradingView.
 
-    Используется для получения исторических TOHLC данных.
+    Используется для получения исторических TOHLCV данных.
     """
     def __init__(self):
         self._ws = None
@@ -37,9 +37,9 @@ class TradingViewWebSocket:
         f_update_progress,
         symbols: list[str],
         timeframe: Timeframe,
-    ) -> dict[str, list[TOHLC]]:
+    ) -> dict[str, list[TOHLCV]]:
         """
-        Получает исторические TOHLC данные сразу для группы символов.
+        Получает исторические TOHLCV данные сразу для группы символов.
         """
         results = {}
 
@@ -56,7 +56,7 @@ class TradingViewWebSocket:
         self,
         symbol: str,
         timeframe: Timeframe
-    ) -> list[TOHLC] | None:
+    ) -> list[TOHLCV] | None:
         """
         Запрашивает и получает исторические свечи для одного символа.
         """
@@ -147,11 +147,11 @@ class TradingViewWebSocket:
         return None
 
     @staticmethod
-    def _parse_price_bars(s_list: list[dict]) -> list[TOHLC]:
+    def _parse_price_bars(s_list: list[dict]) -> list[TOHLCV]:
         """
-        Преобразует сырой формат TradingView в список TOHLC свечей.
+        Преобразует сырой формат TradingView в список TOHLCV свечей.
         """
-        tohlc: list[TOHLC] = [
+        tohlcv: list[TOHLCV] = [
             {
                 "Timestamp": int(item["v"][0]),
                 "Open": float(item["v"][1]),
@@ -163,7 +163,7 @@ class TradingViewWebSocket:
             for item in s_list
         ]
 
-        return tohlc
+        return tohlcv
     
     @staticmethod
     def _generate_string_session(prefix: str) -> str:
@@ -175,6 +175,6 @@ if __name__ == "__main__":
     with TradingViewWebSocket() as ws:
         symbols = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P", "HYPEUSDT.P"]
         for symbol in symbols:
-            tohlc = ws.get_historical_bars(symbol)
+            tohlcv = ws.get_historical_bars(symbol)
             with open(f"{symbol}.json", "w", encoding="utf-8") as f:
-                json.dump(tohlc, f, indent=4, ensure_ascii=False)
+                json.dump(tohlcv, f, indent=4, ensure_ascii=False)

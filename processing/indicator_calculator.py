@@ -1,7 +1,7 @@
 import pandas as pd
 
 from models.timeframe import Timeframe
-from processing.indicators import rsi_series, rsi_extremes, macd, moving_average, volume_metrics
+from processing.indicator_service import IndicatorService
 from utils import filter_by_symbol
 
 
@@ -19,29 +19,13 @@ class IndicatorCalculator:
         for symbol in symbols:
             symbol_df = filter_by_symbol(symbol, df)
 
-            rsi_series_val = rsi_series(symbol_df)
-
             indicators[symbol] = {
-                "rsi": round(rsi_series_val.iloc[-1], 2),
-                "rsi_extremes": rsi_extremes(rsi_series_val, 3),
-                "macd": IndicatorCalculator._format_macd(macd(symbol_df)),
-                "ema": moving_average(symbol_df, timeframe, "ema"),
-                "sma": moving_average(symbol_df, timeframe, "sma"),
-                "volume": volume_metrics(symbol_df, timeframe)
+                "rsi": round(IndicatorService.rsi_last(symbol_df), 2),
+                "rsi_extremes": IndicatorService.rsi_extremes(symbol_df, 3),
+                "macd": IndicatorService.macd_last(symbol_df),
+                "ema": IndicatorService.ema_last(symbol_df, timeframe),
+                "sma": IndicatorService.sma_last(symbol_df, timeframe),
+                "volume": IndicatorService.volume_metrics(symbol_df, timeframe)
             }
 
         return indicators
-
-    @staticmethod
-    def _format_macd(
-        macd_data: tuple[dict[str, float], dict[str, float]] | None
-    ) -> dict[str, dict[str, float]] | None:
-        if macd_data is None:
-            return None
-
-        prev, curr = macd_data
-
-        return {
-            "prev": prev,
-            "curr": curr
-        }

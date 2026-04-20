@@ -20,7 +20,7 @@ class TimeframeUpdater:
     Пайплайн обновления данных для конкретного таймфрейма.
 
     Выполняет:
-    - загрузку исторических TOHLC данных
+    - загрузку исторических TOHLCV данных
     - расчет индикаторов и сигналов
     - расчёт корреляций (для H1)
     - сохранение результатов
@@ -45,7 +45,7 @@ class TimeframeUpdater:
 
         corr_threshold, corr_sort_order = self._resolve_correlation_settings()
 
-        df = await self.market_client.fetch_all_historical_tohlc(timeframe)
+        df = await self.market_client.fetch_all_historical_tohlcv(timeframe)
 
         indicators, signals = self.indicator_engine.process(df, timeframe)
 

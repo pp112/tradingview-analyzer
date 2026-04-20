@@ -2,7 +2,7 @@ import pandas as pd
 from typing import Literal
 
 from processing import IndicatorCalculator, SignalGenerator
-from processing.indicators import correlation
+from processing.indicator_service import IndicatorService
 from models.timeframe import Timeframe
 from utils import sort_correlations
 from config import get_logger
@@ -31,6 +31,9 @@ class IndicatorEngine:
         dict[str, dict],
         list[dict[str, str]],
     ]:
+        """
+        Возвращает расчитанные индикаторы и сгенерированные сигналы
+        """
         logger.info(f"{timeframe.label}: Расчёт индикаторов")
 
         indicators = self.indicator_calculator.calculate(df, timeframe)
@@ -55,6 +58,6 @@ class IndicatorEngine:
         symbols = df['symbol'].unique()
 
         for symbol in symbols:
-            ticker_corrs[symbol] = correlation(df, symbol)
+            ticker_corrs[symbol] = IndicatorService.correlation(df, symbol)
 
         return sort_correlations(ticker_corrs, sort_order)

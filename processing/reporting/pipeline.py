@@ -33,7 +33,10 @@ class ReportPipeline:
         corr_threshold: float,
         corr_sort_order: Literal["asc", "desc"],
         sort_mode: SortMode
-    ) -> list[str]:
+    ) -> tuple[
+        list[str], 
+        list[dict[str, str]]
+    ]:
         """
         Формирует список строк отчёта.
         """
@@ -56,7 +59,7 @@ class ReportPipeline:
         # 3. FORMAT
         reports = []
 
-        for signal in sorted_signals:
+        for i, signal in enumerate(sorted_signals, start=1):
             signal_name = signal["signal"]
             symbol = str(signal["symbol"])
 
@@ -75,8 +78,9 @@ class ReportPipeline:
                     corr_value=corr_value,
                     indicator_values=indicator_values,
                     vol_ratio=vol_ratio,
-                    column_order=sort_mode
+                    column_order=sort_mode,
+                    index=i
                 )
             )
 
-        return reports
+        return reports, sorted_signals

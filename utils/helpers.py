@@ -14,25 +14,6 @@ def load_data(timeframe: Timeframe) -> pd.DataFrame:
     data_path = f"data/historical_data/historical_data_{timeframe.label}.parquet"
     return pd.read_parquet(data_path)
 
-def ema_sma_periods(timeframe: Timeframe) -> tuple[int, int]:
-    periods = {
-        Timeframe.M15: (9, 21),
-        Timeframe.M30: (12, 50),
-        Timeframe.H1: (21, 50),
-        Timeframe.H4: (21, 100),
-        Timeframe.D1: (50, 200)
-    }
-    return periods.get(timeframe)
-
-def volume_window_for(timeframe: Timeframe) -> int:
-    return {
-        Timeframe.M15: 10,
-        Timeframe.M30: 15,
-        Timeframe.H1: 20,
-        Timeframe.H4: 30,
-        Timeframe.D1: 50,
-    }[timeframe]
-
 def filter_by_symbol(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
     """
     Фильтрует DataFrame по символу.

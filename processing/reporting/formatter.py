@@ -15,8 +15,9 @@ class ReportFormatter:
         corr_value: float,
         indicator_values: dict,
         vol_ratio: float,
-        column_order: SortMode
-    ):
+        column_order: SortMode,
+        index: int
+    ) -> str:
         """
         Формирует одну строку отчёта вида:
 
@@ -26,22 +27,23 @@ class ReportFormatter:
         extrs = ReportFormatter._rsi_ext_value(direction, indicator_values)
 
         base = {
+            "index": f"{index:<2}",
             "symbol": f"{symbol:<17}",
             "direction": f"{direction:<5}",
             "indicator_name": indicator_name,
             "value": f"{value:<9}",
             "volume": f"vol_rat={vol_ratio:<5.2f}",
             "rsi_extrs": f"extrs={extrs:<19}",
-            "corr": f"corr={corr_value:<5.2f}",
+            "corr": f"corr={corr_value:<5}",
             "tf": timeframe.label
         }
 
         if column_order == SortMode.CORR_IND_VOL:
-            keys = ["symbol", "direction", "indicator_name", "corr", "value", "rsi_extrs", "volume", "tf"]
+            keys = ["index", "symbol", "direction", "indicator_name", "corr", "value", "rsi_extrs", "volume", "tf"]
         elif column_order == SortMode.VOL_IND_CORR:
-            keys = ["symbol", "direction", "indicator_name", "volume", "value", "rsi_extrs", "corr", "tf"]
+            keys = ["index", "symbol", "direction", "indicator_name", "volume", "value", "rsi_extrs", "corr", "tf"]
         elif column_order == SortMode.IND_VOL_CORR:
-            keys = ["symbol", "direction", "indicator_name", "value", "volume", "rsi_extrs", "corr", "tf"]
+            keys = ["index", "symbol", "direction", "indicator_name", "value", "volume", "rsi_extrs", "corr", "tf"]
 
         if indicator_name != "RSI":
             keys.remove("rsi_extrs")

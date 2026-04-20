@@ -5,7 +5,7 @@ import pandas as pd
 
 from market import TradingViewHttpClient, TradingViewWebSocket
 from models.timeframe import Timeframe
-from models.tohlc import TOHLC
+from models.tohlcv import TOHLCV
 from utils import create_progress
 
 logger = logging.getLogger(__name__)
@@ -17,14 +17,14 @@ class MarketDataClient:
 
     Выполняет:
     - получение списка тикеров (HTTP)
-    - загрузку TOHLC данных (WebSocket)
+    - загрузку TOHLCV данных (WebSocket)
     - сбор результатов в DataFrame
     """
     def __init__(self):
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()
         
-    async def fetch_all_historical_tohlc(self, timeframe: Timeframe) -> pd.DataFrame:
+    async def fetch_all_historical_tohlcv(self, timeframe: Timeframe) -> pd.DataFrame:
         """
         Загружает исторические данные для всех тикеров и сохраняет их локально.
         """
@@ -41,7 +41,7 @@ class MarketDataClient:
         chunks: list[list[str]],
         total: int,
         timeframe: Timeframe
-    ) -> dict[str, list[TOHLC]]:
+    ) -> dict[str, list[TOHLCV]]:
         """
         Параллельно запускает WebSocket воркеры для загрузки данных.
         """
@@ -54,7 +54,7 @@ class MarketDataClient:
 
         semaphore = asyncio.Semaphore(max_concurrent_ws)
 
-        results: dict[str, list[TOHLC]] = {}
+        results: dict[str, list[TOHLCV]] = {}
         lock = asyncio.Lock()
 
         progress = create_progress()
@@ -99,7 +99,7 @@ class MarketDataClient:
     
     def _to_dataframe(self, all_data):
         """
-        Преобразует словарь TOHLC данных в DataFrame.
+        Преобразует словарь TOHLCV данных в DataFrame.
         """
         df_list = []
 
@@ -125,5 +125,5 @@ if __name__ == "__main__":
     market_client = MarketDataClient()
     import time
     start = time.time()
-    data = asyncio.run(market_client.fetch_all_historical_tohlc())
+    data = asyncio.run(market_client.fetch_all_historical_tohlcv())
     print(f"Затрачено: {time.time() - start}")

@@ -12,3 +12,11 @@ class SortMode(str, Enum):
             SortMode.VOL_IND_CORR: "by_volume",
             SortMode.IND_VOL_CORR: "by_indicator",
         }[self]
+    
+    @property
+    def charts_dirname(self) -> str:
+        return {
+            SortMode.CORR_IND_VOL: "by_corr_charts",
+            SortMode.VOL_IND_CORR: "by_volume_charts",
+            SortMode.IND_VOL_CORR: "by_indicator_charts",
+        }[self]
