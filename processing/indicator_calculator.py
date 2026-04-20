@@ -1,7 +1,7 @@
 import pandas as pd
 
 from models.timeframe import Timeframe
-from processing.indicators import rsi, macd, moving_average, volume_metrics
+from processing.indicators import rsi_series, rsi_extremes, macd, moving_average, volume_metrics
 from utils import filter_by_symbol
 
 
@@ -19,8 +19,11 @@ class IndicatorCalculator:
         for symbol in symbols:
             symbol_df = filter_by_symbol(symbol, df)
 
+            rsi_series_val = rsi_series(symbol_df)
+
             indicators[symbol] = {
-                "rsi": rsi(symbol_df),
+                "rsi": round(rsi_series_val.iloc[-1], 2),
+                "rsi_extremes": rsi_extremes(rsi_series_val, 3),
                 "macd": IndicatorCalculator._format_macd(macd(symbol_df)),
                 "ema": moving_average(symbol_df, timeframe, "ema"),
                 "sma": moving_average(symbol_df, timeframe, "sma"),

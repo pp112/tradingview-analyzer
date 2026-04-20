@@ -106,7 +106,7 @@ def macd(
     except Exception:
         return None, None
 
-def rsi(symbol_df: pd.DataFrame) -> float | None:
+def rsi_series(symbol_df: pd.DataFrame) -> pd.Series:
     """
     Рассчитывает RSI и взвращает последнее значение.
     """
@@ -117,18 +117,27 @@ def rsi(symbol_df: pd.DataFrame) -> float | None:
         avg_gain = rma(gain, 14)
         avg_loss = rma(loss, 14)
         rs = avg_gain / avg_loss
-        rsi_series = 100 - (100 / (1 + rs))
-
-        value = rsi_series.iloc[-1]
-        if pd.isna(value):
-            return None
-
-        return round(float(value), 2)
+        return 100 - (100 / (1 + rs))
+    
     except Exception:
         return None
     
 def rma(series: pd.Series, length: int) -> pd.Series:
     return series.ewm(alpha=1/length, adjust=False).mean()
+
+def rsi_extremes(rsi_series: pd.Series, top_n: int) -> dict[str, list[float]]:
+    s = rsi_series.dropna()
+
+    if len(s) < top_n:
+        return None
+
+    top = s.nlargest(top_n).values
+    bottom = s.nsmallest(top_n).values
+
+    return {
+        "top": [round(x, 2) for x in top.tolist()],
+        "bottom": [round(x, 2) for x in bottom.tolist()]
+    }
 
 def volume_metrics(symbol_df: pd.DataFrame, timeframe: Timeframe) -> dict | None:
     """

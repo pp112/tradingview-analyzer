@@ -60,7 +60,7 @@ class ReportPipeline:
             signal_name = signal["signal"]
             symbol = str(signal["symbol"])
 
-            indicator, direction = ReportPipeline.MAPPING.get(signal_name, ("-", "-"))
+            indicator_name, direction = ReportPipeline.MAPPING.get(signal_name, ("-", "-"))
 
             corr_value = correlations.get(symbol)
             indicator_values = indicators.get(symbol, {})
@@ -70,7 +70,7 @@ class ReportPipeline:
                 ReportFormatter.format_line(
                     symbol=symbol,
                     direction=direction,
-                    indicator=indicator,
+                    indicator_name=indicator_name,
                     timeframe=timeframe,
                     corr_value=corr_value,
                     indicator_values=indicator_values,
