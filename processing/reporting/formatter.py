@@ -41,7 +41,7 @@ class ReportFormatter:
         elif column_order == SortMode.IND_VOL_CORR:
             keys = ["symbol", "direction", "indicator", "value", "volume", "corr", "tf"]
 
-        return "| " + " | ".join(base[k] for k in keys)
+        return "| " + " | ".join(base[k] for k in keys) + " |"
 
     @staticmethod
     def _indicator_value(indicator: str, values: dict) -> str:

@@ -72,6 +72,8 @@ class SignalGenerator:
         if (
             macd_prev["MACD"] < macd_prev["MACD_signal"]
             and macd_curr["MACD"] > macd_curr["MACD_signal"]
+            and macd_curr["MACD"] < 0
+            and macd_curr["MACD_signal"] < 0
         ):
             signals.append({
                 "symbol": symbol,
@@ -82,6 +84,8 @@ class SignalGenerator:
         elif (
             macd_prev["MACD"] > macd_prev["MACD_signal"]
             and macd_curr["MACD"] < macd_curr["MACD_signal"]
+            and macd_curr["MACD"] > 0
+            and macd_curr["MACD_signal"] > 0
         ):
             signals.append({
                 "symbol": symbol,
