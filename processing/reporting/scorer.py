@@ -22,7 +22,10 @@ class SignalScorer:
             curr = macd.get("curr")
             if not curr:
                 return 0.0
-            return abs(curr["MACD"] - curr["MACD_signal"])
+            spread = abs(curr["MACD"] - curr["MACD_signal"])
+            base = abs(curr["MACD_signal"]) if curr["MACD_signal"] != 0 else 1e-9
+
+            return spread / base
 
         if signal_name in {"EMA_SMA_BULLISH", "EMA_SMA_BEARISH"}:
             ema = values.get("ema")

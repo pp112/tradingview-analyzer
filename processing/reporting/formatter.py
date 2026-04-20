@@ -59,7 +59,11 @@ class ReportFormatter:
             if not curr:
                 return "-"
             spread = abs(curr['MACD'] - curr['MACD_signal'])
-            return f"diff={spread:.6f}"
+            base = abs(curr['MACD_signal']) if curr['MACD_signal'] != 0 else 1e-9
+
+            relative = spread / base
+
+            return f"diff={relative:.3f}"
 
         if indicator == "EMA_SMA":
             ema = values.get("ema")
