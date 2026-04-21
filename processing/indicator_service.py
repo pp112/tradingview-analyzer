@@ -143,8 +143,8 @@ class IndicatorService:
         Последние 2 значения EMA (prev, curr)
         """
         ema = IndicatorService.ema_series(symbol_df, timeframe).dropna()
-        if ema.empty:
-            return None, None
+        if len(ema) < 2:
+            return None
         return float(ema.iloc[-2]), float(ema.iloc[-1])
 
     @staticmethod
@@ -153,7 +153,7 @@ class IndicatorService:
         Последние 2 значения SMA (prev, curr)
         """
         sma = IndicatorService.sma_series(symbol_df, timeframe).dropna()
-        if sma.empty:
+        if len(sma) < 2:
             return None
         return float(sma.iloc[-2]), float(sma.iloc[-1])
 

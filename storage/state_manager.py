@@ -22,7 +22,7 @@ class StateManager:
         Timeframe.M15: timedelta(minutes=15),
         Timeframe.M30: timedelta(minutes=30),
         Timeframe.H4: timedelta(hours=4),
-        Timeframe.D1: timedelta(days=1),
+        Timeframe.D1: timedelta(days=1)
     }
 
     def __init__(self):
