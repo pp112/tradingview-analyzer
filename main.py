@@ -19,6 +19,8 @@ async def main():
     """
     setup_logging()
 
+    logger.info("\nЗапуск приложения")
+
     stop_event = asyncio.Event()
 
     scheduler = Scheduler()

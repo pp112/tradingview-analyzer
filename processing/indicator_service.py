@@ -2,6 +2,9 @@ import pandas as pd
 
 from models.timeframe import Timeframe
 from utils import filter_by_symbol
+from config import get_logger
+
+logger = get_logger(__name__)
 
 
 class IndicatorService:
@@ -24,6 +27,7 @@ class IndicatorService:
             return 100 - (100 / (1 + rs))
         
         except Exception:
+            logger.warning(f"RSI: ошибка расчёта серии")
             return None
 
     @staticmethod
@@ -41,6 +45,7 @@ class IndicatorService:
             return round(float(rsi.iloc[-1]), 2)
         
         except Exception:
+            logger.warning(f"RSI: ошибка получения последних значений")
             return None
 
     @staticmethod
@@ -62,6 +67,7 @@ class IndicatorService:
                 "bottom": [round(x, 2) for x in bottom.tolist()]
             }
         except Exception:
+            logger.warning(f"RSI: ошибка расчета экстремумов")
             return None
     
     @staticmethod
@@ -86,6 +92,7 @@ class IndicatorService:
             })
         
         except Exception:
+            logger.warning(f"MACD: ошибка расчёта серии")
             return None
 
     @staticmethod
@@ -116,6 +123,7 @@ class IndicatorService:
             }
         
         except Exception:
+            logger.warning(f"MACD: ошибка получения последних значений")
             return None
 
     @staticmethod
@@ -165,22 +173,26 @@ class IndicatorService:
         """
         Рассчитывает метрики объёма.
         """
-        window = IndicatorService.volume_window_for(timeframe)
+        try:
+            window = IndicatorService.volume_window_for(timeframe)
 
-        if len(symbol_df) < window:
+            if len(symbol_df) < window:
+                return None
+
+            avg_volume = symbol_df["Volume"].rolling(window).mean().iloc[-1]
+            curr_volume = symbol_df["Volume"].iloc[-1]
+
+            if pd.isna(avg_volume) or avg_volume == 0:
+                return None
+
+            return {
+                "curr": float(curr_volume),
+                "avg": float(avg_volume),
+                "ratio": float(curr_volume / avg_volume)
+            }
+        except Exception:
+            logger.warning(f"VOLUME: ошибка расчета метрик объема")
             return None
-
-        avg_volume = symbol_df["Volume"].rolling(window).mean().iloc[-1]
-        curr_volume = symbol_df["Volume"].iloc[-1]
-
-        if pd.isna(avg_volume) or avg_volume == 0:
-            return None
-
-        return {
-            "curr": float(curr_volume),
-            "avg": float(avg_volume),
-            "ratio": float(curr_volume / avg_volume)
-        }
 
     @staticmethod
     def correlation(symbol_df: pd.DataFrame, symbol: str) -> float | None:
@@ -212,6 +224,7 @@ class IndicatorService:
             return round(float(corr), 2)
 
         except Exception:
+            logger.warning(f"CORRELATION: ошибка расчета корреляции")
             return None
     
     @staticmethod
