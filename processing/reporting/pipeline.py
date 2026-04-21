@@ -40,14 +40,12 @@ class ReportPipeline:
         """
         Формирует список строк отчёта.
         """
-        # 1. FILTER
         filtered_signals = SignalFilter.by_correlation(
             signals=signals,
             correlations=correlations,
             threshold=corr_threshold
         )
 
-        # 2. SORT
         sorted_signals = SignalSorter.by_priority(
             signals=filtered_signals,
             indicators=indicators,
@@ -56,7 +54,6 @@ class ReportPipeline:
             sort_mode=sort_mode
         )
 
-        # 3. FORMAT
         reports = []
 
         for i, signal in enumerate(sorted_signals, start=1):

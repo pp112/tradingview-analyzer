@@ -2,12 +2,16 @@ from typing import Literal
 from collections import defaultdict
 from multiprocessing import Pool, cpu_count
 
+from processing.reporting.filter import SignalFilter
 from processing.reporting.pipeline import ReportPipeline
 from visualization.plotter import MarketPlotter
 from models.timeframe import Timeframe
 from models.sort_mode import SortMode
-from storage.writer import save_report, ensure_dir
+from storage.writer import save_report_txt, ensure_dir
 from utils import read_correlations
+from config import get_logger
+
+logger = get_logger(__name__, "[REPORTS]")
 
 
 class ReportBuilder:
@@ -54,21 +58,25 @@ class ReportBuilder:
         ]
 
         correlations = read_correlations()
-        import time
-        def build_and_save(threshold: float, group: str):
-            start = time.time()
+
+        def build_and_save(input_signals: list[dict[str, str]], corr_threshold: float, group: str):
+            """
+            Для каждого варианта сортировки:
+            1. Формируется и сохраняется отчет (txt)
+            2. Создаются графики
+            """
             for mode in sort_modes:
                 reports, sorted_signals = ReportPipeline.build(
-                    signals=signals,
+                    signals=input_signals,
                     indicators=indicators,
                     timeframe=timeframe,
                     correlations=correlations,
-                    corr_threshold=threshold,
+                    corr_threshold=corr_threshold,
                     corr_sort_order=corr_sort_order,
                     sort_mode=mode
                 )
-            
-                save_report(reports, timeframe, group=group, sort_mode=mode)
+
+                save_report_txt(reports, timeframe, group=group, sort_mode=mode)
 
                 if sorted_signals:
                     self._save_charts(
@@ -78,11 +86,27 @@ class ReportBuilder:
                         sort_mode=mode,
                         max_charts=5
                     )
-            print(f"Затрачено на {group}: {timeframe}: {time.time() - start}")
+
+            logger.info(f"{timeframe.label}: Отчеты сформированы - {group}")
+        
+        groups = []
+
+        strong_signals = SignalFilter.strong(signals, indicators)
+        if not strong_signals:
+            strong_signals = SignalFilter.strong(signals, indicators, volume_threshold=None)
+
+        if strong_signals:
+            groups.append(("strong_all", strong_signals))
+            if corr_threshold < 1:
+                groups.append(("strong_low_corr", strong_signals))
 
         if corr_threshold < 1:
-            build_and_save(corr_threshold, "low_corr")
-        build_and_save(1, "full")
+            groups.append(("low_corr", signals))
+        groups.append(("all", signals))
+
+        for group_name, sigs in groups:
+            threshold = corr_threshold if "low_corr" in group_name else 1
+            build_and_save(sigs, threshold, group_name)
 
     def _save_charts(
         self,

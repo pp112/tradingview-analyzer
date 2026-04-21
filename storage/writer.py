@@ -98,7 +98,7 @@ def save_correlations(correlations: dict[str, float]):
         json.dump(correlations, f, indent=4, ensure_ascii=False)
 
 
-def save_report(
+def save_report_txt(
     lines: list[str],
     timeframe: Timeframe,
     group: str,

@@ -1,10 +1,7 @@
 import pandas as pd
-from typing import Literal
 
 from processing import IndicatorCalculator, SignalGenerator
-from processing.indicator_service import IndicatorService
 from models.timeframe import Timeframe
-from utils import sort_correlations
 from config import get_logger
 
 logger = get_logger(__name__, "[SIGNALS]")
@@ -43,21 +40,3 @@ class IndicatorEngine:
         signals = self.signal_generator.generate(indicators, timeframe)
 
         return indicators, signals
-
-    def calculate_correlations(
-        self,
-        df: pd.DataFrame,
-        sort_order: Literal["asc", "desc"] = "desc"
-    ) -> dict[str, float]:
-        """
-        Рассчитывает корреляции всех символов относительно BTC
-        и возвращает их в отсортированном виде.
-        """
-        ticker_corrs = {}
-
-        symbols = df['symbol'].unique()
-
-        for symbol in symbols:
-            ticker_corrs[symbol] = IndicatorService.correlation(df, symbol)
-
-        return sort_correlations(ticker_corrs, sort_order)

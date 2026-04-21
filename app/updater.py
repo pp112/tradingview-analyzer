@@ -3,7 +3,7 @@ from typing import Literal
 from config import get_logger
 from models.timeframe import Timeframe
 from market import MarketDataClient
-from processing import IndicatorEngine, ReportBuilder
+from processing import IndicatorEngine, ReportBuilder, CorrelationCalculator
 from config.settings import load_settings
 from storage.writer import (
     save_indicators,
@@ -35,6 +35,7 @@ class TimeframeUpdater:
 
         self.market_client = MarketDataClient()
         self.indicator_engine = IndicatorEngine()
+        self.correlation_calculator = CorrelationCalculator()
         self.report_builder = ReportBuilder()
 
     async def update(self, timeframe: Timeframe):
@@ -52,7 +53,7 @@ class TimeframeUpdater:
         if timeframe == Timeframe.H1:
             logger.info(f"{timeframe.label}: Расчет корреляций")
 
-            correlations = self.indicator_engine.calculate_correlations(df, corr_sort_order)
+            correlations = self.correlation_calculator.calculate(df, corr_sort_order)
             save_correlations(correlations)
 
         logger.info(f"{timeframe.label}: Сохранение результатов в файлы")
