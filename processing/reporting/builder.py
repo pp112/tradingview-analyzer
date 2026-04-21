@@ -1,5 +1,6 @@
 from typing import Literal
 from collections import defaultdict
+from multiprocessing import Pool, cpu_count
 
 from processing.reporting.pipeline import ReportPipeline
 from visualization.plotter import MarketPlotter
@@ -55,6 +56,7 @@ class ReportBuilder:
         correlations = read_correlations()
         import time
         def build_and_save(threshold: float, group: str):
+            start = time.time()
             for mode in sort_modes:
                 reports, sorted_signals = ReportPipeline.build(
                     signals=signals,
@@ -69,7 +71,6 @@ class ReportBuilder:
                 save_report(reports, timeframe, group=group, sort_mode=mode)
 
                 if sorted_signals:
-                    start = time.time()
                     self._save_charts(
                         signals=sorted_signals,
                         timeframe=timeframe,
@@ -77,12 +78,11 @@ class ReportBuilder:
                         sort_mode=mode,
                         max_charts=5
                     )
-                    print(f"Затрачено на графики {timeframe}: {time.time() - start}")
-
-        build_and_save(1, "full")
+            print(f"Затрачено на {group}: {timeframe}: {time.time() - start}")
 
         if corr_threshold < 1:
             build_and_save(corr_threshold, "low_corr")
+        build_and_save(1, "full")
 
     def _save_charts(
         self,
@@ -109,6 +109,8 @@ class ReportBuilder:
 
             signals_by_indicator[indicator_type].append(signal)
 
+        tasks = []
+
         for indicator_type, indicator_signals in signals_by_indicator.items():
             top_signals = indicator_signals[:max_charts]
             if not top_signals:
@@ -123,10 +125,24 @@ class ReportBuilder:
             for i, signal in enumerate(top_signals, start=1):
                 symbol = signal["symbol"]
 
-                self.plotter.plot_candles(
-                    symbol=symbol,
-                    save_folder=charts_folder,
-                    filename=str(i),
-                    timeframe=timeframe
-                )
+                tasks.append((symbol, charts_folder, str(i), timeframe))
             
+        if tasks:
+            with Pool(processes=cpu_count() // 2 + 1) as pool:
+                pool.map(_plot_task, tasks)
+
+
+def _plot_task(args):
+    """
+    Отдельная задача multiprocessing для создания графика
+    """
+    symbol, save_folder, filename, timeframe = args
+
+    plotter = MarketPlotter()
+
+    return plotter.plot_candles(
+        symbol=symbol,
+        save_folder=save_folder,
+        filename=filename,
+        timeframe=timeframe
+    )

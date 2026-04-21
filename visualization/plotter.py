@@ -67,7 +67,7 @@ class MarketPlotter:
                 volume=False,
                 addplot=addplots,
                 figsize=(16, 9),
-                savefig=dict(fname=save_path, dpi=500)
+                savefig=dict(fname=save_path, dpi=400)
             )
         
         return save_path
@@ -136,8 +136,10 @@ class MarketPlotter:
 if __name__ == "__main__":
     plotter = MarketPlotter()
     img = plotter.plot_candles(
-        symbol="JCTUSDT.P",
+        symbol="BTCUSDT.P",
         timeframe=Timeframe.H1,
+        save_folder="visualization",
+        filename="1",
         ema_sma=True, 
         rsi=True, 
         macd=True)

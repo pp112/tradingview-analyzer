@@ -38,7 +38,7 @@ class IndicatorService:
             if rsi.empty:
                 return None
             
-            return float(rsi.iloc[-1])
+            return round(float(rsi.iloc[-1]), 2)
         
         except Exception:
             return None
