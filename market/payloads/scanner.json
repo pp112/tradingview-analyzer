@@ -1,5 +1,8 @@
 {
-    "columns": [],
+    "columns": [
+        "24h_close_change|5",
+        "24h_vol_change|5"
+    ],
     "filter": [
         {
             "left": "exchange",
