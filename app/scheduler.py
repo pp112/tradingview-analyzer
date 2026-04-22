@@ -18,7 +18,7 @@ class Scheduler:
         self.updater = TimeframeUpdater()
 
     def start(self):
-        logger.info("Запуск планировщика...")
+        logger.info("Запуск планировщика")
 
         self.scheduler.add_job(self._run_update, "cron", minute="1,16,31,46", args=[Timeframe.M15])
         self.scheduler.add_job(self._run_update, "cron", minute="1,31", args=[Timeframe.M30])
@@ -27,14 +27,14 @@ class Scheduler:
         self.scheduler.add_job(self._run_update, "cron", hour=0, minute=1, args=[Timeframe.D1])
 
         self.scheduler.start()
-        logger.info("Планировщик успешно запущен. Контроль передан ему.")
+        logger.info("Планировщик успешно запущен. Контроль передан.")
 
     async def _run_update(self, timeframe: Timeframe):
         """
         Запускает обновление данных для заданного таймфрейма.
         Вызывается планировщиком.
         """
-        logger.info(f"Обновление {timeframe.value}")
+        logger.info(f"{timeframe.label}: Обновление")
         await self.updater.update(timeframe)
 
     def shutdown(self):

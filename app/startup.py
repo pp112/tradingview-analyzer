@@ -19,16 +19,19 @@ class StartupUpdater:
         self.updater = TimeframeUpdater()
 
     async def run(self):
-        logger.info("Начинаем стартовое обновление...")
+        logger.info("Проверяем актуальность таймфреймов")
 
         timeframes_to_update = self.state_manager.resolve_timeframes_to_update()
 
         if not timeframes_to_update:
             logger.info("Все таймфреймы актуальны, обновление не требуется")
+        else:
+            logger.info("Начинаем стартовое обновление")
 
         for tf in timeframes_to_update:
             await self.updater.update(tf)
             self.state_manager.set_updated(tf)
 
-        logger.info("Стартовое обновление завершено. Все данные актуальны.")
+        if timeframes_to_update:
+            logger.info("Стартовое обновление завершено. Все данные актуальны.")
 

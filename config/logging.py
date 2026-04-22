@@ -57,6 +57,9 @@ def setup_logging():
     for name_logger in disabled_loggers:
         logging.getLogger(name_logger).disabled = True
 
+    # приглушаем APScheduler
+    logging.getLogger("apscheduler").setLevel(logging.WARNING)
+
 
 def get_logger(name: str, prefix: str = ""):
     logger = logging.getLogger(name)

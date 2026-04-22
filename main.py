@@ -26,7 +26,7 @@ async def main():
     scheduler = Scheduler()
 
     def shutdown():
-        logger.info("Получен сигнал завершения...")
+        logger.info("Получен сигнал завершения")
         scheduler.shutdown()
         stop_event.set()
 
@@ -40,7 +40,7 @@ async def main():
 
     scheduler.start()
 
-    logger.info("Приложение запущено и работает...")
+    logger.info("Приложение запущено и работает")
 
     await stop_event.wait()
 
