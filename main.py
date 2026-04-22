@@ -19,7 +19,8 @@ async def main():
     """
     setup_logging()
 
-    logger.info("\nЗапуск приложения")
+    logger.info("--------------------------------------------------")
+    logger.info("Запуск приложения")
 
     stop_event = asyncio.Event()
 

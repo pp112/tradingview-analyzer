@@ -191,7 +191,7 @@ class IndicatorService:
                 "ratio": float(curr_volume / avg_volume)
             }
         except Exception:
-            logger.warning(f"VOLUME: ошибка расчета метрик объема")
+            logger.warning(f"VOLUME: ошибка расчета метрик")
             return None
 
     @staticmethod

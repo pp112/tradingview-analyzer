@@ -107,7 +107,7 @@ def save_report_txt(
     """
     Сохраняет текстовый отчёт сигналов.
     """
-    base_path = f"{BASE_PATH}/reports/{group}/{timeframe.label}"
+    base_path = f"{BASE_PATH}/reports/{timeframe.label}/{group}"
     ensure_dir(base_path)
 
     file_path = f"{base_path}/{sort_mode.filename}.txt"

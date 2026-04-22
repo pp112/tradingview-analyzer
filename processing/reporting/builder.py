@@ -141,7 +141,7 @@ class ReportBuilder:
                 continue
 
             charts_folder = (
-                f"data/reports/{group}/{timeframe.label}/"
+                f"data/reports/{timeframe.label}/{group}/"
                 f"{sort_mode.charts_dirname}/{indicator_type}"
             )
             ensure_dir(charts_folder)
