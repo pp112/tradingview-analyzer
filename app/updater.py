@@ -1,16 +1,18 @@
 from typing import Literal
 
 from config import get_logger
-from models.timeframe import Timeframe
+from models import Timeframe
 from market import MarketDataClient
 from processing import IndicatorEngine, ReportBuilder, CorrelationCalculator
 from config.settings import load_settings
+from utils import read_correlations
 from storage.writer import (
     save_indicators,
     save_signals,
     save_correlations,
     save_market_data
 )
+from api.api import broadcast_signal
 
 logger = get_logger(__name__, "[UPDATER]")
 
@@ -20,7 +22,7 @@ class TimeframeUpdater:
     Пайплайн обновления данных для конкретного таймфрейма.
 
     Выполняет:
-    - загрузку исторических TOHLCV данных
+    - загрузку исторических данных свечей
     - расчет индикаторов и сигналов
     - расчёт корреляций (для H1)
     - сохранение результатов
@@ -46,21 +48,27 @@ class TimeframeUpdater:
 
         corr_threshold, corr_sort_order = self._resolve_correlation_settings()
 
-        df = await self.market_client.fetch_all_historical_tohlcv(timeframe)
-
-        indicators, signals = self.indicator_engine.process(df, timeframe)
+        df_candles = await self.market_client.fetch_all_historical_candles(timeframe)
 
         if timeframe == Timeframe.H1:
             logger.info(f"{timeframe.label}: Расчет корреляций")
-
-            correlations = self.correlation_calculator.calculate(df, corr_sort_order)
+            correlations = self.correlation_calculator.calculate(df_candles, corr_sort_order)
             save_correlations(correlations)
+        else:
+            correlations = read_correlations()
 
+        indicators, signals = self.indicator_engine.process(
+            df_candles, correlations, timeframe
+        )
+        
         logger.info(f"{timeframe.label}: Сохранение результатов в файлы")
-
-        save_market_data(df, timeframe)
-        save_indicators(indicators, timeframe)
+        
         save_signals(signals, timeframe)
+
+        # broadcast_signal(timeframe)
+
+        save_market_data(df_candles, timeframe)
+        save_indicators(indicators, timeframe)
         
         self.report_builder.generate_and_save_reports(
             signals=signals,

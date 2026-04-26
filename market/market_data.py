@@ -1,11 +1,11 @@
 import logging
 import asyncio
+from dataclasses import asdict
 
 import pandas as pd
 
 from market import TradingViewHttpClient, TradingViewWebSocket
-from models.timeframe import Timeframe
-from models.tohlcv import TOHLCV
+from models import Timeframe, Candle
 from utils import create_progress
 
 logger = logging.getLogger(__name__)
@@ -17,20 +17,21 @@ class MarketDataClient:
 
     Выполняет:
     - получение списка тикеров (HTTP)
-    - загрузку TOHLCV данных (WebSocket)
+    - загрузку данных свечей (WebSocket)
     - сбор результатов в DataFrame
     """
     def __init__(self):
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()
         
-    async def fetch_all_historical_tohlcv(self, timeframe: Timeframe) -> pd.DataFrame:
+    async def fetch_all_historical_candles(self, timeframe: Timeframe) -> pd.DataFrame:
         """
-        Загружает исторические данные для всех тикеров и сохраняет их локально.
+        Загружает исторические данные свечей для всех тикеров и сохраняет их локально.
         """
         chunk_size = 20
 
-        tickers = await self.http_client.fetch_all_tickers()
+        data = await self.http_client.fetch_data()
+        tickers = list(data.keys())
         chunks = MarketDataClient._chunk_list(tickers, chunk_size)
         results = await self._run_ws_pool(chunks, len(tickers), timeframe)
 
@@ -41,7 +42,7 @@ class MarketDataClient:
         chunks: list[list[str]],
         total: int,
         timeframe: Timeframe
-    ) -> dict[str, list[TOHLCV]]:
+    ) -> dict[str, list[Candle]]:
         """
         Параллельно запускает WebSocket воркеры для загрузки данных.
         """
@@ -54,7 +55,7 @@ class MarketDataClient:
 
         semaphore = asyncio.Semaphore(max_concurrent_ws)
 
-        results: dict[str, list[TOHLCV]] = {}
+        results: dict[str, list[Candle]] = {}
         lock = asyncio.Lock()
 
         progress = create_progress()
@@ -97,14 +98,14 @@ class MarketDataClient:
 
         return results
     
-    def _to_dataframe(self, all_data):
+    def _to_dataframe(self, all_data: dict[str, list[Candle]]):
         """
-        Преобразует словарь TOHLCV данных в DataFrame.
+        Преобразует словарь {symbol: [Candle]} в единый DataFrame.
         """
         df_list = []
 
-        for symbol, series in all_data.items():
-            df = pd.DataFrame(series)
+        for symbol, candles in all_data.items():
+            df = pd.DataFrame.from_records(asdict(c) for c in candles)
             df["symbol"] = symbol
             df_list.append(df)
 
@@ -125,5 +126,5 @@ if __name__ == "__main__":
     market_client = MarketDataClient()
     import time
     start = time.time()
-    data = asyncio.run(market_client.fetch_all_historical_tohlcv())
+    data = asyncio.run(market_client.fetch_all_historical_candles())
     print(f"Затрачено: {time.time() - start}")

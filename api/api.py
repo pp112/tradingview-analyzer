@@ -4,7 +4,8 @@ import json
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 
-from models.timeframe import Timeframe
+from models import Timeframe
+
 
 app = FastAPI()
 

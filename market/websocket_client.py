@@ -4,8 +4,7 @@ import json
 import re
 import asyncio
 from config import get_logger
-from models.timeframe import Timeframe
-from models.tohlcv import TOHLCV
+from models import Timeframe, Candle
 
 import websockets
 
@@ -16,7 +15,7 @@ class TradingViewWebSocket:
     """
     WebSocket клиент TradingView.
 
-    Используется для получения исторических TOHLCV данных.
+    Используется для получения исторических свечей.
     """
     def __init__(self):
         self._ws = None
@@ -37,9 +36,9 @@ class TradingViewWebSocket:
         f_update_progress,
         symbols: list[str],
         timeframe: Timeframe,
-    ) -> dict[str, list[TOHLCV]]:
+    ) -> dict[str, list[Candle]]:
         """
-        Получает исторические TOHLCV данные сразу для группы символов.
+        Получает исторические данные свечей сразу для группы символов.
         """
         results = {}
 
@@ -56,7 +55,7 @@ class TradingViewWebSocket:
         self,
         symbol: str,
         timeframe: Timeframe
-    ) -> list[TOHLCV] | None:
+    ) -> list[Candle] | None:
         """
         Запрашивает и получает исторические свечи для одного символа.
         """
@@ -147,23 +146,23 @@ class TradingViewWebSocket:
         return None
 
     @staticmethod
-    def _parse_price_bars(s_list: list[dict]) -> list[TOHLCV]:
+    def _parse_price_bars(s_list: list[dict]) -> list[Candle]:
         """
-        Преобразует сырой формат TradingView в список TOHLCV свечей.
+        Преобразует сырой формат TradingView в список Candle.
         """
-        tohlcv: list[TOHLCV] = [
-            {
-                "Timestamp": int(item["v"][0]),
-                "Open": float(item["v"][1]),
-                "High": float(item["v"][2]),
-                "Low": float(item["v"][3]),
-                "Close": float(item["v"][4]),
-                "Volume": float(item["v"][5])
-            }
+        candles: list[Candle] = [
+            Candle(
+                timestamp=int(item["v"][0]),
+                open=float(item["v"][1]),
+                high=float(item["v"][2]),
+                low=float(item["v"][3]),
+                close=float(item["v"][4]),
+                volume=float(item["v"][5]),
+            )
             for item in s_list
         ]
 
-        return tohlcv
+        return candles
     
     @staticmethod
     def _generate_string_session(prefix: str) -> str:
@@ -175,6 +174,6 @@ if __name__ == "__main__":
     with TradingViewWebSocket() as ws:
         symbols = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P", "HYPEUSDT.P"]
         for symbol in symbols:
-            tohlcv = ws.get_historical_bars(symbol)
+            candles = ws.get_historical_bars(symbol)
             with open(f"{symbol}.json", "w", encoding="utf-8") as f:
-                json.dump(tohlcv, f, indent=4, ensure_ascii=False)
+                json.dump(candles, f, indent=4, ensure_ascii=False)

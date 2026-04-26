@@ -4,7 +4,7 @@ from typing import Literal
 import pandas as pd
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
 
-from models.timeframe import Timeframe
+from models import Timeframe
 
 
 def load_data(timeframe: Timeframe) -> pd.DataFrame:
@@ -50,8 +50,6 @@ def read_correlations() -> dict[str, float]:
     Возвращает значения корреляций из файла.
     """
     path_file = "data/values/correlations/correlations.json"
-
     with open(path_file, encoding="utf-8") as f:
         ticker_corr = json.load(f)
-
     return ticker_corr

@@ -4,8 +4,8 @@ import threading
 
 import pandas as pd
 
-from models.timeframe import Timeframe
-from models.sort_mode import SortMode
+from models import Timeframe, SortMode, Signal
+
 
 BASE_PATH = "data"
 
@@ -41,7 +41,7 @@ def _save_json_async(path: str, df: pd.DataFrame):
 
 def save_market_data(df: pd.DataFrame, timeframe: Timeframe):
     """
-    Сохраняет исторические рыночные данные (TOHLCV) в parquet и json.
+    Сохраняет исторические данные свечей в parquet и json.
     """
     path = f"{BASE_PATH}/historical_data"
     ensure_dir(path)
@@ -70,7 +70,7 @@ def save_indicators(
 
 
 def save_signals(
-    signals: list[dict],
+    signals: list[Signal],
     timeframe: Timeframe
 ):
     """
@@ -82,7 +82,8 @@ def save_signals(
     file_path = f"{path}/signals_{timeframe.label}.json"
 
     with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(signals, f, indent=4, ensure_ascii=False)
+        data = [s.model_dump(mode="json") for s in signals]
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 
 def save_correlations(correlations: dict[str, float]):

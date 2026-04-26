@@ -1,6 +1,8 @@
+import json
+
 import pandas as pd
 
-from models.timeframe import Timeframe
+from models import Timeframe
 from processing.indicator_service import IndicatorService
 from utils import filter_by_symbol
 
@@ -11,7 +13,15 @@ class IndicatorCalculator:
     
     Используется как первый шаг аналитического пайплайна.
     """
-    def calculate(self, df: pd.DataFrame, timeframe: Timeframe) -> dict[str, dict]:
+    def __init__(self):
+        pass
+
+    def calculate(
+        self, 
+        df: pd.DataFrame,
+        correlations: dict[str, float],
+        timeframe: Timeframe
+    ) -> dict[str, dict]:
         indicators = {}
 
         symbols = df["symbol"].unique()
@@ -19,13 +29,16 @@ class IndicatorCalculator:
         for symbol in symbols:
             symbol_df = filter_by_symbol(symbol, df)
 
+            if symbol not in correlations:
+                continue
+            
             indicator_values = {
                 "rsi": IndicatorService.rsi_last(symbol_df),
                 "rsi_extremes": IndicatorService.rsi_extremes(symbol_df, 3),
                 "macd": IndicatorService.macd_last(symbol_df),
                 "ema": IndicatorService.ema_last(symbol_df, timeframe),
                 "sma": IndicatorService.sma_last(symbol_df, timeframe),
-                "volume": IndicatorService.volume_metrics(symbol_df, timeframe),
+                "volume": IndicatorService.volume_metrics(symbol_df, timeframe)
             }
 
             if any(v is None for v in indicator_values.values()):

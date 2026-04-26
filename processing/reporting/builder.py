@@ -5,8 +5,7 @@ from multiprocessing import Pool, cpu_count
 from processing.reporting.filter import SignalFilter
 from processing.reporting.pipeline import ReportPipeline
 from visualization.plotter import MarketPlotter
-from models.timeframe import Timeframe
-from models.sort_mode import SortMode
+from models import Timeframe, SortMode, Signal
 from storage.writer import save_report_txt, ensure_dir
 from utils import read_correlations
 from config import get_logger
@@ -30,7 +29,7 @@ class ReportBuilder:
 
     def generate_and_save_reports(
         self,
-        signals: list[dict[str, str]],
+        signals: list[Signal],
         indicators: dict[str, dict],
         timeframe: Timeframe,
         corr_sort_order: Literal["asc", "desc"],
@@ -69,7 +68,6 @@ class ReportBuilder:
                 reports, sorted_signals = ReportPipeline.build(
                     signals=input_signals,
                     indicators=indicators,
-                    timeframe=timeframe,
                     correlations=correlations,
                     corr_threshold=corr_threshold,
                     corr_sort_order=corr_sort_order,
@@ -110,7 +108,7 @@ class ReportBuilder:
 
     def _save_charts(
         self,
-        signals: list[dict[str, str]],
+        signals: list[Signal],
         timeframe: Timeframe,
         group: str,
         sort_mode: SortMode,
@@ -121,17 +119,14 @@ class ReportBuilder:
         """
         signals_by_indicator = defaultdict(list)
 
-        for signal in signals:
-            signal_type = signal["signal"]
-
-            if "RSI" in signal_type:
+        for s in signals:
+            if "RSI" in s.indicator.value:
                 indicator_type = "RSI"
-            elif "MACD" in signal_type:
+            elif "MACD" in s.indicator.value:
                 indicator_type = "MACD"
-            elif "EMA_SMA" in signal_type:
+            elif "EMA_SMA" in s.indicator.value:
                 indicator_type = "EMA_SMA"
-
-            signals_by_indicator[indicator_type].append(signal)
+            signals_by_indicator[indicator_type].append(s)
 
         tasks = []
 
@@ -147,9 +142,7 @@ class ReportBuilder:
             ensure_dir(charts_folder)
 
             for i, signal in enumerate(top_signals, start=1):
-                symbol = signal["symbol"]
-
-                tasks.append((symbol, charts_folder, str(i), timeframe))
+                tasks.append((s.symbol, charts_folder, str(i), timeframe))
             
         if tasks:
             with Pool(processes=cpu_count() // 2 + 1) as pool:

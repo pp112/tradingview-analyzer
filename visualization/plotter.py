@@ -5,7 +5,7 @@ import warnings
 import pandas as pd
 import mplfinance as mpf
 
-from models.timeframe import Timeframe
+from models import Timeframe
 from utils import load_data, filter_by_symbol
 from processing.indicator_service import IndicatorService
 
@@ -83,7 +83,7 @@ class MarketPlotter:
         if df.empty:
             return None
 
-        df["Date"] = pd.to_datetime(df["Timestamp"], unit="s")
+        df["Date"] = pd.to_datetime(df["timestamp"], unit="s")
         df.set_index("Date", inplace=True)
 
         return df

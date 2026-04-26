@@ -1,6 +1,6 @@
 import pandas as pd
 
-from models.timeframe import Timeframe
+from models import Timeframe
 from utils import filter_by_symbol
 from config import get_logger
 
@@ -18,7 +18,7 @@ class IndicatorService:
         """
         try:
             length = 14
-            delta = symbol_df["Close"].diff()
+            delta = symbol_df["close"].diff()
             gain = delta.clip(lower=0)
             loss = -delta.clip(upper=0)
             avg_gain = gain.ewm(alpha=1/length, adjust=False).mean()
@@ -79,8 +79,8 @@ class IndicatorService:
         - histogram
         """
         try:
-            ema_fast = symbol_df["Close"].ewm(span=12, adjust=False).mean()
-            ema_slow = symbol_df["Close"].ewm(span=26, adjust=False).mean()
+            ema_fast = symbol_df["close"].ewm(span=12, adjust=False).mean()
+            ema_slow = symbol_df["close"].ewm(span=26, adjust=False).mean()
 
             macd_line = ema_fast - ema_slow
             signal_line = macd_line.ewm(span=9, adjust=False).mean()
@@ -132,7 +132,7 @@ class IndicatorService:
         Полная EMA серия
         """
         period, _ = IndicatorService.ema_sma_periods(timeframe)
-        return symbol_df["Close"].ewm(span=period, adjust=False).mean()
+        return symbol_df["close"].ewm(span=period, adjust=False).mean()
 
     @staticmethod
     def sma_series(symbol_df: pd.DataFrame, timeframe: Timeframe) -> pd.Series:
@@ -140,7 +140,7 @@ class IndicatorService:
         Полная SMA серия
         """
         _, period = IndicatorService.ema_sma_periods(timeframe)
-        return symbol_df["Close"].rolling(period).mean()
+        return symbol_df["close"].rolling(period).mean()
 
     @staticmethod
     def ema_last(
@@ -179,8 +179,8 @@ class IndicatorService:
             if len(symbol_df) < window:
                 return None
 
-            avg_volume = symbol_df["Volume"].rolling(window).mean().iloc[-1]
-            curr_volume = symbol_df["Volume"].iloc[-1]
+            avg_volume = symbol_df["volume"].rolling(window).mean().iloc[-1]
+            curr_volume = symbol_df["volume"].iloc[-1]
 
             if pd.isna(avg_volume) or avg_volume == 0:
                 return None
@@ -203,15 +203,15 @@ class IndicatorService:
             df_btc = filter_by_symbol("BTCUSDT.P", symbol_df)
             df_alt = filter_by_symbol(symbol, symbol_df)
 
-            df_btc["Date"] = pd.to_datetime(df_btc["Timestamp"], unit="s")
-            df_alt["Date"] = pd.to_datetime(df_alt["Timestamp"], unit="s")
+            df_btc["Date"] = pd.to_datetime(df_btc["timestamp"], unit="s")
+            df_alt["Date"] = pd.to_datetime(df_alt["timestamp"], unit="s")
 
             df_btc.set_index("Date", inplace=True)
             df_alt.set_index("Date", inplace=True)
 
             merged = pd.DataFrame({
-                "btc": df_btc["Close"],
-                "alt": df_alt["Close"]
+                "btc": df_btc["close"],
+                "alt": df_alt["close"]
             }).dropna()
 
             if len(merged) < 30:
@@ -224,7 +224,7 @@ class IndicatorService:
             return round(float(corr), 2)
 
         except Exception:
-            logger.warning(f"CORRELATION: ошибка расчета корреляции")
+            logger.warning(f"CORRELATION: ошибка расчета корреляции, {symbol}")
             return None
     
     @staticmethod

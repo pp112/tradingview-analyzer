@@ -1,6 +1,6 @@
 from typing import Literal
 
-from models.sort_mode import SortMode
+from models import SortMode, Signal
 from processing.reporting.filter import SignalFilter
 from processing.reporting.sorter import SignalSorter
 from processing.reporting.formatter import ReportFormatter
@@ -15,28 +15,15 @@ class ReportPipeline:
     2. Сортировка сигналов
     3. Формирование строк отчёта
     """
-    MAPPING = {
-        "RSI_OVERBOUGHT": ("RSI", "ВНИЗ"),
-        "RSI_OVERSOLD": ("RSI", "ВВЕРХ"),
-        "MACD_BULLISH": ("MACD", "ВВЕРХ"),
-        "MACD_BEARISH": ("MACD", "ВНИЗ"),
-        "EMA_SMA_BULLISH": ("EMA_SMA", "ВВЕРХ"),
-        "EMA_SMA_BEARISH": ("EMA_SMA", "ВНИЗ"),
-    }
-
     @staticmethod
     def build(
-        signals: list[dict[str, str]],
+        signals: list[Signal],
         indicators: dict[str, dict],
-        timeframe,
         correlations: dict[str, float],
         corr_threshold: float,
         corr_sort_order: Literal["asc", "desc"],
         sort_mode: SortMode
-    ) -> tuple[
-        list[str], 
-        list[dict[str, str]]
-    ]:
+    ) -> tuple[list[str], list[Signal]]:
         """
         Формирует список строк отчёта.
         """
@@ -54,30 +41,15 @@ class ReportPipeline:
             sort_mode=sort_mode
         )
 
-        reports = []
-
-        for i, signal in enumerate(sorted_signals, start=1):
-            signal_name = signal["signal"]
-            symbol = str(signal["symbol"])
-
-            indicator_name, direction = ReportPipeline.MAPPING.get(signal_name, ("-", "-"))
-
-            corr_value = correlations.get(symbol)
-            indicator_values = indicators.get(symbol, {})
-            vol_ratio = indicator_values.get("volume", {}).get("ratio", 0)
-
-            reports.append(
-                ReportFormatter.format_line(
-                    symbol=symbol,
-                    direction=direction,
-                    indicator_name=indicator_name,
-                    timeframe=timeframe,
-                    corr_value=corr_value,
-                    indicator_values=indicator_values,
-                    vol_ratio=vol_ratio,
-                    column_order=sort_mode,
-                    index=i
-                )
+        reports = [
+            ReportFormatter.format_line(
+                signal=s,
+                corr_value=correlations.get(s.symbol),
+                indicator_values=indicators.get(s.symbol, {}),
+                column_order=sort_mode,
+                index=i
             )
+            for i, s in enumerate(sorted_signals, start=1)
+        ]
 
         return reports, sorted_signals

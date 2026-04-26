@@ -1,7 +1,7 @@
 from typing import Literal
 
 from processing.reporting.scorer import SignalScorer
-from models.sort_mode import SortMode
+from models import SortMode, Signal, Indicator
 
 
 class SignalSorter:
@@ -10,12 +10,12 @@ class SignalSorter:
     """
     @staticmethod
     def by_priority(
-        signals: list[dict[str, str]],
+        signals: list[Signal],
         indicators: dict[str, dict],
         correlations: dict[str, float],
         corr_sort_order: Literal["asc", "desc"],
         sort_mode: SortMode
-    ) -> list[dict[str, str]]:
+    ) -> list[Signal]:
         """
         Сортирует список торговых сигналов по составному ключу.
         
@@ -26,34 +26,27 @@ class SignalSorter:
         4. Корреляция
         """
         indicator_priority = {
-            "RSI_OVERBOUGHT": 0,
-            "RSI_OVERSOLD": 0,
-            "MACD_BULLISH": 1,
-            "MACD_BEARISH": 1,
-            "EMA_SMA_BULLISH": 2,
-            "EMA_SMA_BEARISH": 2,
+            Indicator.RSI: 0,
+            Indicator.MACD: 1,
+            Indicator.EMA_SMA: 2,
         }
 
-        def key(signal: dict[str, str]) -> tuple[int, float, float, float]:
+        def key(s: Signal) -> tuple[int, float, float, float]:
             """
             Возвращает кортеж для сортировки для сигнала.
             """
-            symbol = signal["symbol"]
-            signal_name = str(signal.get("signal", ""))
-            indicator_values = indicators.get(symbol, {})
-
-            priority = indicator_priority.get(signal_name, 99)
-            indicator_strength = SignalScorer.strength(signal_name, indicator_values)
+            indicator_values = indicators.get(s.symbol, {})
+            priority = indicator_priority.get(s.indicator, 99)
+            strength = SignalScorer.strength(s, indicator_values)
             volume_ratio = indicator_values.get("volume", {}).get("ratio", 0)
-
-            corr_value = correlations.get(symbol, 0.0)
+            corr_value = correlations.get(s.symbol, 0.0)
             corr_score = corr_value if corr_sort_order == "asc" else -corr_value
 
             if sort_mode == SortMode.CORR_IND_VOL:
-                return (priority, corr_score, -indicator_strength, -volume_ratio)
+                return (priority, corr_score, -strength, -volume_ratio)
             elif sort_mode == SortMode.VOL_IND_CORR:
-                return (priority, -volume_ratio, -indicator_strength, corr_score)
+                return (priority, -volume_ratio, -strength, corr_score)
             elif sort_mode == SortMode.IND_VOL_CORR:
-                return (priority, -indicator_strength, -volume_ratio, corr_score)
+                return (priority, -strength, -volume_ratio, corr_score)
 
         return sorted(signals, key=key)

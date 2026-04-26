@@ -36,6 +36,7 @@ def setup_logging():
 
     indicator_service_file_handler = RotatingFileHandler(
         f"{LOG_DIR}/{INDICATOR_SERVICE_LOG_FILE}",
+        mode="a",
         maxBytes=2_000_000
     )
     indicator_service_file_handler.setLevel(logging.WARNING)

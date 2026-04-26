@@ -11,7 +11,7 @@ class CorrelationCalculator:
     """
     def calculate(
         self,
-        df: pd.DataFrame,
+        symbol_df: pd.DataFrame,
         sort_order: Literal["asc", "desc"] = "desc"
     ) -> dict[str, float]:
         """
@@ -19,10 +19,10 @@ class CorrelationCalculator:
         """
         ticker_corrs: dict[str, float] = {}
 
-        symbols = df["symbol"].unique()
+        symbols = symbol_df["symbol"].unique()
 
         for symbol in symbols:
-            corr = IndicatorService.correlation(df, symbol)
+            corr = IndicatorService.correlation(symbol_df, symbol)
 
             if corr is None:
                 continue

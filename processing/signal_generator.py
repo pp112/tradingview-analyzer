@@ -1,4 +1,4 @@
-from models.timeframe import Timeframe
+from models import Signal, Timeframe, Direction, Indicator
 
 
 class SignalGenerator:
@@ -12,118 +12,99 @@ class SignalGenerator:
     def generate(
         self,
         indicators: dict[str, dict],
+        correlations: dict[str, float],
         timeframe: Timeframe
-    ) -> list[dict[str, str]]:
+    ) -> list[Signal]:
         """
         Генерирует список сигналов по всем символам.
         """
         signals = []
-
+        
         for symbol, data in indicators.items():
-            signals.extend(self._rsi(symbol, data, timeframe))
-            signals.extend(self._macd(symbol, data, timeframe))
-            signals.extend(self._ma(symbol, data, timeframe))
+            for signal_data in (
+                self._rsi(data),
+                self._macd(data),
+                self._ma(data),
+            ):
+                if signal_data is None:
+                    continue
+
+                indicator, indicator_value, direction = signal_data
+                signals.append(
+                    Signal(
+                        symbol=symbol,
+                        indicator=indicator,
+                        indicator_value=indicator_value,
+                        direction=direction,
+                        correlation=correlations[symbol],
+                        timeframe=timeframe
+                    )
+                )
 
         return signals
 
-    def _rsi(
-        self,
-        symbol: str,
-        data: dict[str, dict],
-        timeframe: Timeframe
-    ) -> list[dict[str, str]]:
-        rsi_val = data.get("rsi")
-        signals = []
+    def _rsi(self, data: dict[str, dict]) -> list[Signal] | None:
+        value = data.get("rsi")
 
-        if rsi_val is None:
-            return signals
+        if value is None:
+            return None
 
-        if rsi_val > self.upper_rsi:
-            signals.append({
-                "symbol": symbol,
-                "signal": "RSI_OVERBOUGHT",
-                "timeframe": timeframe.value
-            })
+        if value > self.upper_rsi:
+            direction = Direction.DOWN
+        elif value < self.lower_rsi:
+            direction = Direction.UP
+        else:
+            return None
+        
+        return Indicator.RSI, value, direction
 
-        elif rsi_val < self.lower_rsi:
-            signals.append({
-                "symbol": symbol,
-                "signal": "RSI_OVERSOLD",
-                "timeframe": timeframe.value
-            })
+    def _macd(self, data: dict[str, dict]) -> list[Signal] | None:
+        block = data.get("macd") or {}
+        prev = block.get("prev")
+        curr = block.get("curr")
 
-        return signals
+        if prev is None or curr is None:
+            return None
 
-    def _macd(
-        self,
-        symbol: str,
-        data: dict[str, dict],
-        timeframe: Timeframe
-    ) -> list[dict[str, str]]:
-        signals = []
-
-        macd_block = data.get("macd") or {}
-        macd_prev = macd_block.get("prev")
-        macd_curr = macd_block.get("curr")
-
-        if macd_prev is None or macd_curr is None:
-            return signals
+        spread = abs(curr["MACD"] - curr["MACD_signal"])
+        base = abs(curr["MACD_signal"]) if curr["MACD_signal"] != 0 else 1e-9
+        value = spread / base
 
         if (
-            macd_prev["MACD"] < macd_prev["MACD_signal"]
-            and macd_curr["MACD"] > macd_curr["MACD_signal"]
-            and macd_curr["MACD"] < 0
-            and macd_curr["MACD_signal"] < 0
+            prev["MACD"] < prev["MACD_signal"]
+            and curr["MACD"] > curr["MACD_signal"]
+            and curr["MACD"] < 0
+            and curr["MACD_signal"] < 0
         ):
-            signals.append({
-                "symbol": symbol,
-                "signal": "MACD_BULLISH",
-                "timeframe": timeframe.value
-            })
-
+            direction = Direction.UP
         elif (
-            macd_prev["MACD"] > macd_prev["MACD_signal"]
-            and macd_curr["MACD"] < macd_curr["MACD_signal"]
-            and macd_curr["MACD"] > 0
-            and macd_curr["MACD_signal"] > 0
+            prev["MACD"] > prev["MACD_signal"]
+            and curr["MACD"] < curr["MACD_signal"]
+            and curr["MACD"] > 0
+            and curr["MACD_signal"] > 0
         ):
-            signals.append({
-                "symbol": symbol,
-                "signal": "MACD_BEARISH",
-                "timeframe": timeframe.value
-            })
+            direction = Direction.UP
+        else:
+            return None
+        
+        return Indicator.MACD, value, direction
 
-        return signals
-
-    def _ma(
-        self,
-        symbol: str,
-        data: dict[str, dict],
-        timeframe: Timeframe
-    ) -> list[dict[str, str]]:
-        signals = []
-
+    def _ma(self, data: dict[str, dict]) -> list[Signal] | None:
         ema = data.get("ema")
         sma = data.get("sma")
 
         if ema is None or sma is None:
-            return signals
+            return None
 
         ema_prev, ema_curr = ema
         sma_prev, sma_curr = sma
+        value = abs(ema_curr - sma_curr)
 
         if ema_prev < sma_prev and ema_curr > sma_curr:
-            signals.append({
-                "symbol": symbol,
-                "signal": "EMA_SMA_BULLISH",
-                "timeframe": timeframe.value
-            })
-
+            direction = Direction.UP
         elif ema_prev > sma_prev and ema_curr < sma_curr:
-            signals.append({
-                "symbol": symbol,
-                "signal": "EMA_SMA_BEARISH",
-                "timeframe": timeframe.value
-            })
-
-        return signals
+            direction = Direction.DOWN
+        else:
+            return None
+        
+        return Indicator.EMA_SMA, value, direction

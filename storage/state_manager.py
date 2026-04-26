@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime, timedelta
 
-from models.timeframe import Timeframe
+from models import Timeframe
 from config import get_logger
 
 logger = get_logger(__name__, "[STATE]")

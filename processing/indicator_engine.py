@@ -1,7 +1,7 @@
 import pandas as pd
 
 from processing import IndicatorCalculator, SignalGenerator
-from models.timeframe import Timeframe
+from models import Timeframe, Signal
 from config import get_logger
 
 logger = get_logger(__name__, "[SIGNALS]")
@@ -23,20 +23,21 @@ class IndicatorEngine:
     def process(
         self,
         df: pd.DataFrame,
+        correlations: dict[str, float],
         timeframe: Timeframe
     ) -> tuple[
         dict[str, dict],
-        list[dict[str, str]],
+        list[Signal],
     ]:
         """
         Возвращает расчитанные индикаторы и сгенерированные сигналы
         """
         logger.info(f"{timeframe.label}: Расчёт индикаторов")
 
-        indicators = self.indicator_calculator.calculate(df, timeframe)
+        indicators = self.indicator_calculator.calculate(df, correlations, timeframe)
 
         logger.info(f"{timeframe.label}: Генерация сигналов")
 
-        signals = self.signal_generator.generate(indicators, timeframe)
+        signals = self.signal_generator.generate(indicators, correlations, timeframe)
 
         return indicators, signals
