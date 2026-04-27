@@ -1,6 +1,4 @@
-/* ── CryptoScope Dashboard — app.js ──────────────────────────────────────── */
-
-const API = 'http://localhost:8000/api';
+const API = 'http://localhost:8000/';
 
 /* ── State ────────────────────────────────────────────────────────────────── */
 const state = {

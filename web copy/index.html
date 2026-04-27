@@ -89,14 +89,6 @@
             <button class="tf-btn" data-tf="1d">1D</button>
           </div>
         </div>
-        <div class="count-group">
-          <span class="controls-label">Сигналов</span>
-          <div class="count-buttons" id="countButtons">
-            <button class="count-btn active" data-n="20">20</button>
-            <button class="count-btn" data-n="50">50</button>
-            <button class="count-btn" data-n="100">100</button>
-          </div>
-        </div>
       </div>
 
       <!-- SIGNAL TABLE -->
@@ -106,17 +98,16 @@
             <tr>
               <th class="th-fav">★</th>
               <th>Монета</th>
-              <th>RSI</th>
               <th>Индикатор</th>
+              <th>Значение</th>
               <th>Направление</th>
-              <th>EMA / SMA</th>
-              <th>Vol Ratio</th>
-              <th>Таймфрейм</th>
+              <th>Объем</th>
+              <th>Корреляция</th>
               <th>График</th>
             </tr>
           </thead>
           <tbody id="signalBody">
-            <tr><td colspan="9" class="loading-cell">
+            <tr><td colspan="8" class="loading-cell">
               <div class="loader"></div>
               <span>Загрузка сигналов...</span>
             </td></tr>
