@@ -43,6 +43,7 @@ async def stream(request: Request):
 
 
 @app.get("/signals")
-def get_signals(tf: str):
-    # Сделать файл сигналов со всеми данными и путь до него
-    ...
+def get_signals(timeframe: str):
+    file_path = f"data/values/signals/signals_{timeframe}.json"
+    with open(file_path, encoding="utf-8") as f:
+        return json.load(f)
