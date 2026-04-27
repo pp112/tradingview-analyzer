@@ -155,19 +155,6 @@ html, body {
   letter-spacing: -0.01em; color: var(--text0);
 }
 
-.update-badge {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: 20px; padding: 4px 11px;
-  font-size: 0.68rem; color: var(--text1);
-  font-family: var(--font-mono);
-}
-.update-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--green);
-  animation: blink 2s ease-in-out infinite;
-}
-
 .filter-btn {
   background: var(--bg3); border: 1px solid var(--border);
   border-radius: 8px; padding: 7px 14px;
@@ -287,9 +274,8 @@ html, body {
   font-family: var(--font-mono); font-weight: 700;
   font-size: 0.78rem;
 }
-.rsi-bull { color: var(--green); }
-.rsi-bear { color: var(--red);   }
-.rsi-mid  { color: var(--blue);  }
+.value-bull { color: var(--green); }
+.value-bear { color: var(--red);   }
 
 .badge {
   display: inline-block;
@@ -300,16 +286,12 @@ html, body {
 }
 .badge-bull { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
 .badge-bear { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd);   }
-.badge-up   { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
-.badge-down { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd);   }
-.badge-blue { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-bd);  }
 
 .ema-sma-cell {
   font-family: var(--font-mono); font-size: 0.7rem;
   color: var(--text1); white-space: nowrap;
 }
 .vol-cell { font-family: var(--font-mono); font-size: 0.72rem; }
-.tf-cell  { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text2); }
 
 .chart-btn {
   background: var(--blue-bg); border: 1px solid var(--blue-bd);
