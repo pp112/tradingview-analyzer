@@ -45,10 +45,13 @@ function connectSSE() {
 }
 
 async function fetchSignals(tf) {
-  const res = await fetch(`http://localhost:8000/signals?tf=${tf}`);
+  const res = await fetch(`${API}/signals?tf=${tf}`);
   const data = await res.json();
   setSignals(tf, data);
   console.log(`Данные обновлены: ${tf}`);
+  if (tf === currentTimeframe) {
+    renderTable();
+  }
 }
 
 function setSignals(tf, data) {

@@ -49,6 +49,8 @@ class TradingViewHttpClient:
         """
         result = {}
         for item in data["data"]:
+            if None in item["d"]:
+                continue
             symbol_name = item["s"].split(":")[1]
             change_price = round(item["d"][0], 2)
             change_volume = round(item["d"][1], 2)

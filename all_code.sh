@@ -5,13 +5,13 @@ exclude_dirs=(
     "./.venv"
     "./market"
     "./visualization"
-    "./app"
     "./processing"
     "./config"
     "./models"
     "./storage"
     "./utils"
     "./visualization"
+    "./web"
 )
 
 # Функция для построения аргументов find с исключениями

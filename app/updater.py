@@ -65,7 +65,7 @@ class TimeframeUpdater:
         
         save_signals(signals, timeframe)
 
-        broadcast_signal(timeframe.label)
+        await broadcast_signal(timeframe.label)
 
         save_market_data(df_candles, timeframe)
         save_indicators(indicators, timeframe)

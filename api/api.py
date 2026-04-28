@@ -11,11 +11,11 @@ app = FastAPI()
 clients: list[asyncio.Queue] = []
 
 
-def broadcast_signal(timeframe: str):
+async def broadcast_signal(timeframe: str):
     message = json.dumps({"timeframe": timeframe})
 
     for queue in clients:
-        queue.put(("update", message))
+        await queue.put(("update", message))
 
 
 @app.get("/stream")
@@ -42,8 +42,8 @@ async def stream(request: Request):
 
 
 @app.get("/signals")
-def get_signals(timeframe: str):
-    file_path = f"data/values/signals/signals_{timeframe}.json"
+def get_signals(tf: str):
+    file_path = f"data/values/signals/signals_{tf}.json"
     with open(file_path, encoding="utf-8") as f:
         return json.load(f)
 

@@ -76,14 +76,14 @@ class ReportBuilder:
 
                 save_report_txt(reports, timeframe, group=group, sort_mode=mode)
 
-                if sorted_signals:
-                    self._save_charts(
-                        signals=sorted_signals,
-                        timeframe=timeframe,
-                        group=group,
-                        sort_mode=mode,
-                        max_charts=5
-                    )
+                # if sorted_signals:
+                #     self._save_charts(
+                #         signals=sorted_signals,
+                #         timeframe=timeframe,
+                #         group=group,
+                #         sort_mode=mode,
+                #         max_charts=5
+                #     )
 
             logger.info(f"{timeframe.label}: Отчеты сформированы - {group}")
         
