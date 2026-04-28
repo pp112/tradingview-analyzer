@@ -3,7 +3,14 @@
 # Список директорий для исключения (можно легко добавлять/удалять)
 exclude_dirs=(
     "./.venv"
-    # "./market"
+    "./market"
+    "./visualization"
+    "./app"
+    "./processing"
+    "./config"
+    "./models"
+    "./storage"
+    "./utils"
     "./visualization"
 )
 
@@ -19,7 +26,7 @@ build_find_excludes() {
 # Основная команда
 find . $(build_find_excludes) \
     -type f \
-    \( -name "*.py" -o -name "*.yaml" -o -name "*.yml" \) \
+    \( -name "*.py" -o -name "*.yaml" -o -name "*.js" -o -name "*.css" -o -name "*.html" \) \
     -exec echo \; \
     -exec echo "=== {} ===" \; \
     -exec cat {} \; > code.txt

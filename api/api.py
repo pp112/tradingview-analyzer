@@ -2,9 +2,8 @@ import asyncio
 import json
 
 from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse
-
-from models import Timeframe
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 
 app = FastAPI()
@@ -12,11 +11,11 @@ app = FastAPI()
 clients: list[asyncio.Queue] = []
 
 
-def broadcast_signal(timeframe: Timeframe):
-    message = json.dumps({"timeframe": timeframe.label})
+def broadcast_signal(timeframe: str):
+    message = json.dumps({"timeframe": timeframe})
 
     for queue in clients:
-        queue.put(("signals", message))
+        queue.put(("update", message))
 
 
 @app.get("/stream")
@@ -31,7 +30,7 @@ async def stream(request: Request):
                     break
                 
                 try:
-                    event_type, msg = asyncio.wait_for(queue.get(), timeout=30)
+                    event_type, msg = await asyncio.wait_for(queue.get(), timeout=30)
                     yield f"event: {event_type}\ndata: {msg}\n\n"
                 except asyncio.TimeoutError:
                     yield f"data: ping\n\n"
@@ -47,3 +46,9 @@ def get_signals(timeframe: str):
     file_path = f"data/values/signals/signals_{timeframe}.json"
     with open(file_path, encoding="utf-8") as f:
         return json.load(f)
+
+@app.get("/")
+def index():
+    return FileResponse("web_copy/index.html")
+
+app.mount("/", StaticFiles(directory="web_copy", html=True), name="web_copy")
