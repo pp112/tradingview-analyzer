@@ -14,23 +14,37 @@ const API = "http://localhost:8000"
 const signals = [];
 
 let currentTimeframe = "1h";
+let currentIndicator = "RSI";
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  bindTF();
+  initControls();
   connectSSE();
   renderTable();
 })
 
 
-function bindTF() {
-  document.getElementById("tfButtons").addEventListener("click", e => {
-    const btn = e.target.closest(".tf-btn");
-    document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+function bindToggle(containerId, selector, datasetKey, callback) {
+  document.getElementById(containerId).addEventListener("click", (e) => {
+    const btn = e.target.closest(selector);
+    document.querySelectorAll(selector).forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    currentTimeframe = btn.dataset.tf;
+    callback(btn.dataset[datasetKey]);
+  });
+}
+
+function initControls() {
+  // Таймфреймы
+  bindToggle("tfButtons", ".btn--tf", "tf", (tf) => {
+    currentTimeframe = tf;
     renderTable();
-  })
+  });
+
+  // Индикаторы
+  bindToggle("indicatorButtons", ".btn--indicator", "ind", (ind) => {
+    currentIndicator = ind;
+    renderTable();
+  });
 }
 
 
@@ -73,7 +87,10 @@ function formatSignal(signal) {
 function renderTable() {
   const tbody = document.getElementById("signalBody");
   
-  let rows = signals.filter(x => x.timeframe === currentTimeframe);
+  let rows = signals.filter(x => 
+    x.timeframe === currentTimeframe &&
+    x.indicator === currentIndicator
+  );
 
   tbody.innerHTML = rows.map((signal, i) => buildRow(signal, i)).join("");
 }

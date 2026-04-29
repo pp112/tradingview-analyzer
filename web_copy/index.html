@@ -68,16 +68,25 @@
     <!-- LEFT PANEL -->
     <div class="panel-left">
 
-      <!-- TF + COUNT controls -->
+      <!-- TF + IDICATORS controls -->
       <div class="controls-row">
-        <div class="tf-group">
-          <span class="controls-label">Таймфрейм</span>
-          <div class="tf-buttons" id="tfButtons">
-            <button class="tf-btn" data-tf="15m">15M</button>
-            <button class="tf-btn" data-tf="30m">30M</button>
-            <button class="tf-btn active" data-tf="1h">1H</button>
-            <button class="tf-btn" data-tf="4h">4H</button>
-            <button class="tf-btn" data-tf="1d">1D</button>
+        <div class="control-group control-group--timeframe">
+          <span class="control-label">Таймфрейм</span>
+          <div class="control-buttons" id="tfButtons">
+            <button class="btn btn--tf" data-tf="15m">15M</button>
+            <button class="btn btn--tf" data-tf="30m">30M</button>
+            <button class="btn btn--tf active" data-tf="1h">1H</button>
+            <button class="btn btn--tf" data-tf="4h">4H</button>
+            <button class="btn btn--tf" data-tf="1d">1D</button>
+          </div>
+        </div>
+
+        <div class="control-group control-group--indicators">
+          <span class="control-label">Индикаторы</span>
+          <div class="control-buttons" id="indicatorButtons">
+            <button class="btn btn--indicator active" data-ind="rsi">RSI</button>
+            <button class="btn btn--indicator" data-ind="macd">MACD</button>
+            <button class="btn btn--indicator" data-ind="ema_sma">EMA-SMA</button>
           </div>
         </div>
       </div>
