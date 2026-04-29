@@ -84,9 +84,27 @@
         <div class="control-group control-group--indicators">
           <span class="control-label">Индикаторы</span>
           <div class="control-buttons" id="indicatorButtons">
-            <button class="btn btn--indicator active" data-ind="rsi">RSI</button>
-            <button class="btn btn--indicator" data-ind="macd">MACD</button>
-            <button class="btn btn--indicator" data-ind="ema_sma">EMA-SMA</button>
+            <button class="btn btn--indicator active" data-ind="RSI">RSI</button>
+            <button class="btn btn--indicator" data-ind="MACD">MACD</button>
+            <button class="btn btn--indicator" data-ind="EMA_SMA">EMA-SMA</button>
+            <button class="btn btn--indicator" data-ind="VOLUME">VOLUME</button>
+          </div>
+        </div>
+      
+        <div class="control-group control-group--filters">
+          <span class="control-label">Корреляция</span>
+
+          <div class="corr-box">
+            <button class="corr-btn" id="corrMinus">−</button>
+
+            <input
+              id="corrInput"
+              type="text"
+              value="1"
+              class="corr-input"
+            />
+
+            <button class="corr-btn" id="corrPlus">+</button>
           </div>
         </div>
       </div>
@@ -97,12 +115,12 @@
           <thead>
             <tr>
               <th class="th-fav">★</th>
-              <th>Монета</th>
-              <th>Значение</th>
-              <th>Индикатор</th>
-              <th>Направление</th>
-              <th>Корреляция</th>
-              <th>График</th>
+              <th data-col="symbol">Монета<span class="sort-icon"></span></th>
+              <th data-col="indicator_value">Значение<span class="sort-icon"></span></th>
+              <th data-col="indicator">Индикатор<span class="sort-icon"></span></th>
+              <th data-col="direction">Направление<span class="sort-icon"></span></th>
+              <th data-col="correlation">Корреляция<span class="sort-icon"></span></th>
+              <th>Подробно</th>
             </tr>
           </thead>
           <tbody id="signalBody">
@@ -284,6 +302,6 @@
   </div>
 </div>
 
-<script src="app.js"></script>  
+<script src="app.js"></script>
 </body>
 </html>

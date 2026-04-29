@@ -1,0 +1,176 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg0:#0b0d12;--bg1:#10131a;--bg2:#161920;--bg3:#1c1f28;--bg4:#222633;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.10);
+  --text0:#eceef4;--text1:#a0a6b8;--text2:#7e85a0;
+  --green:#29c98a;--green-bg:rgba(41,201,138,0.10);--green-bd:rgba(41,201,138,0.25);
+  --red:#f04f52;--red-bg:rgba(240,79,82,0.10);--red-bd:rgba(240,79,82,0.25);
+  --blue:#4f8ef5;--blue-bg:rgba(79,142,245,0.10);--blue-bd:rgba(79,142,245,0.25);
+  --yellow:#f5a623;
+  --radius:10px;
+}
+body { background: var(--bg0); color: var(--text0); font-family: 'JetBrains Mono', monospace; padding: 16px; }
+
+.table-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+
+thead { position: sticky; top: 0; background: var(--bg3); }
+
+th {
+  padding: 10px 12px;
+  font-size: 0.62rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text2); text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s, background 0.15s;
+}
+
+th:hover { color: var(--text0); background: var(--bg4); }
+
+th.sorted-asc,
+th.sorted-desc { color: var(--blue); }
+
+th.sorted-asc .sort-icon::after  { content: '▲'; }
+th.sorted-desc .sort-icon::after { content: '▼'; }
+th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after { content: '⇅'; opacity: 0.35; }
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 0.55rem;
+  vertical-align: middle;
+  transition: opacity 0.15s;
+}
+
+/* th:hover .sort-icon::after { opacity: 1 !important; } */
+
+.th-fav { width: 36px; text-align: center !important; cursor: default; }
+.th-fav:hover { background: transparent; }
+
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tbody tr { transition: background 0.12s; }
+tbody tr:hover { background: var(--bg4); }
+tbody tr:last-child td { border-bottom: none; }
+
+.sym-cell { font-weight: 700; font-size: 0.8rem; color: var(--text0); }
+.value-bull { color: var(--green); }
+.value-bear { color: var(--red); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px; border-radius: 6px;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
+}
+.badge-bull { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+.badge-bear { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd); }
+
+.corr-pos { color: var(--green); }
+.corr-neg { color: var(--red); }
+.corr-neu { color: var(--text1); }
+
+.chart-icon { color: var(--blue); font-size: 0.9rem; cursor: pointer; }
+
+.sorted-col { background: rgba(79,142,245,0.03); }
+</style>
+
+<div class="table-wrap">
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th class="th-fav">★</th>
+        <th data-col="symbol">Монета<span class="sort-icon"></span></th>
+        <th data-col="indicator_value">Значение<span class="sort-icon"></span></th>
+        <th data-col="indicator">Индикатор<span class="sort-icon"></span></th>
+        <th data-col="direction">Направление<span class="sort-icon"></span></th>
+        <th data-col="correlation">Корреляция<span class="sort-icon"></span></th>
+        <th data-col="vol_ratio">Объём ×<span class="sort-icon"></span></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<script>
+const data = [
+  { symbol:"ETH/USDT",  indicator:"RSI",     indicator_value:76.06, direction:"ВНИЗ",  vol_ratio:1.5,  correlation:0.91 },
+  { symbol:"ZBT/USDT",  indicator:"RSI",     indicator_value:70.52, direction:"ВНИЗ",  vol_ratio:2.2,  correlation:0.70 },
+  { symbol:"LDO/USDT",  indicator:"RSI",     indicator_value:88.39, direction:"ВНИЗ",  vol_ratio:3.5,  correlation:0.65 },
+  { symbol:"KAT/USDT",  indicator:"RSI",     indicator_value:28.08, direction:"ВВЕРХ", vol_ratio:12.13, correlation:-0.83 },
+  { symbol:"OPG/USDT",  indicator:"MACD",    indicator_value:0.08,  direction:"ВВЕРХ", vol_ratio:12.13, correlation:0.77 },
+  { symbol:"XAU/USDT",  indicator:"EMA_SMA", indicator_value:0.09,  direction:"ВВЕРХ", vol_ratio:12.13, correlation:0.60 },
+  { symbol:"PIPPIN/USDT",indicator:"EMA_SMA",indicator_value:0.000006,direction:"ВНИЗ",vol_ratio:12.13, correlation:-0.72 },
+  { symbol:"NAORIS/USDT",indicator:"RSI",    indicator_value:81.25, direction:"ВНИЗ",  vol_ratio:12.13, correlation:0.73 },
+];
+
+let sortCol = null;
+let sortDir = 1;
+
+function render() {
+  const sorted = [...data];
+  if (sortCol) {
+    sorted.sort((a, b) => {
+      let av = a[sortCol], bv = b[sortCol];
+      if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
+      return (av - bv) * sortDir;
+    });
+  }
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = sorted.map(s => {
+    const bull = s.direction === 'ВВЕРХ';
+    const cls = bull ? 'badge-bull' : 'badge-bear';
+    const vcls = bull ? 'value-bull' : 'value-bear';
+    const corr = s.correlation;
+    const corrCls = corr > 0.3 ? 'corr-pos' : corr < -0.3 ? 'corr-neg' : 'corr-neu';
+    const corrBar = `<span style="display:inline-block;width:${Math.abs(corr)*36}px;height:3px;border-radius:2px;background:${corr > 0 ? 'var(--green)' : 'var(--red)'};vertical-align:middle;margin-right:5px;opacity:0.7"></span>`;
+
+    return `<tr>
+      <td style="text-align:center;color:var(--text2);font-size:0.9rem">☆</td>
+      <td class="sym-cell${sortCol==='symbol'?' sorted-col':''}">${s.symbol}</td>
+      <td class="${vcls}${sortCol==='indicator_value'?' sorted-col':''}">${s.indicator_value < 0.01 ? s.indicator_value.toExponential(2) : s.indicator_value.toFixed(2)}</td>
+      <td class="${sortCol==='indicator'?' sorted-col':''}"><span class="badge ${cls}">${s.indicator}</span></td>
+      <td class="${sortCol==='direction'?' sorted-col':''}"><span class="badge ${cls}">${s.direction}</span></td>
+      <td class="${corrCls}${sortCol==='correlation'?' sorted-col':''}">${corrBar}${corr.toFixed(2)}</td>
+      <td style="color:var(--text1)${sortCol==='vol_ratio'?';background:rgba(79,142,245,0.03)':''}">${s.vol_ratio.toFixed(2)}×</td>
+    </tr>`;
+  }).join('');
+}
+
+document.querySelectorAll('th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+
+    document.querySelectorAll('th[data-col]').forEach(t => {
+      t.classList.remove('sorted-asc', 'sorted-desc');
+    });
+
+    if (sortCol === col) {
+      sortDir *= -1;
+    } else {
+      sortCol = col;
+      sortDir = 1;
+    }
+
+    th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+    render();
+  });
+});
+
+render();
+</script>-

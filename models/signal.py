@@ -20,6 +20,7 @@ class Signal(BaseModel):
     indicator: Indicator
     indicator_value: float
     direction: Direction
+    vol_ratio: float
     correlation: float
     timeframe: Timeframe
 

@@ -20,7 +20,7 @@ class ReportFormatter:
         """
         indicator_name = signal.indicator.value
         direction = signal.direction.value
-        vol_ratio = indicator_values.get("volume", {}).get("ratio", 0)
+        vol_ratio = signal.vol_ratio
 
         value = ReportFormatter._indicator_value(signal, indicator_values)
         extrs = ReportFormatter._rsi_ext_value(signal, indicator_values)

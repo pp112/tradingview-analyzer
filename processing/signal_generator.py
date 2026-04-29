@@ -36,6 +36,7 @@ class SignalGenerator:
                         indicator=indicator,
                         indicator_value=indicator_value,
                         direction=direction,
+                        vol_ratio=indicators[symbol]["volume"]["ratio"],
                         correlation=correlations[symbol],
                         timeframe=timeframe
                     )

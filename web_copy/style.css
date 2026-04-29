@@ -10,7 +10,10 @@
   --border2:  rgba(255,255,255,0.10);
   --text0:    #eceef4;
   --text1:    #a0a6b8;
-  --text2:    #7e85a0;
+  --text2:    #a7abbe;
+  --volume2:  #f5dd23;
+  --volume3:  #ff8c00;
+  --volume4:  #f04f52;
   --green:    #29c98a;
   --green-bg: rgba(41,201,138,0.10);
   --green-bd: rgba(41,201,138,0.25);
@@ -195,6 +198,61 @@ html, body {
   flex-direction: column;
 }
 
+.control-group--filters .control-label {
+  text-align: center;
+  width: 100%;
+}
+
+.corr-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg2);
+}
+
+/* поле */
+.corr-input {
+  width: 46px;
+  padding: 3px 0;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  text-align: center;
+
+  color: var(--text0);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* кнопки */
+.corr-btn {
+  width: 22px;
+  height: 21px;
+
+  background: var(--bg3);
+  border: none;
+
+  color: var(--text1);
+  font-size: 0.8rem;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.15s;
+}
+
+.corr-btn:hover {
+  background: var(--bg4);
+  color: var(--text0);
+}
+
 .control-label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -253,8 +311,10 @@ html, body {
   border-radius: var(--radius);
 }
 .signal-table {
-  width: 100%; border-collapse: collapse;
+  width: 100%; 
+  border-collapse: collapse;
   font-size: 0.78rem;
+  table-layout: fixed;
 }
 .signal-table thead {
   position: sticky; top: 0; z-index: 2;
@@ -275,6 +335,11 @@ html, body {
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
+.signal-table th:nth-child(1),
+.signal-table td:nth-child(1) {
+  padding-left: 20px;
+  padding-right: 24px;
+}
 .signal-table tbody tr {
   transition: background 0.12s;
   animation: rowIn 0.25s ease both;
@@ -283,6 +348,42 @@ html, body {
 @keyframes rowIn {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: none; }
+}
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 0.70rem;
+  vertical-align: middle;
+  transition: opacity 0.15s;
+}
+
+.signal-table th:hover { 
+  color: var(--text0); 
+  background: var(--bg4); 
+}
+
+th.sorted-asc, th.sorted-desc { 
+  color: var(--blue); 
+}
+
+th.sorted-asc .sort-icon::after {
+  content: '▲';
+  opacity: 1;
+}
+
+th.sorted-desc .sort-icon::after {
+  content: '▼';
+  opacity: 1;
+}
+
+th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after {
+  content: '⇅';
+  opacity: 0.35;
+}
+
+.sorted-col {
+  background: rgba(79,142,245,0.03);
 }
 
 .fav-btn {
@@ -317,6 +418,12 @@ html, body {
 .badge-bull { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
 .badge-bear { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd);   }
 
+.badge-volume {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid var(--blue-bd);
+}
+
 .ema-sma-cell {
   font-family: var(--font-mono); font-size: 0.7rem;
   color: var(--text1); white-space: nowrap;
@@ -348,6 +455,23 @@ html, body {
   margin-right: 8px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Volume levels ──────────────────────────────────────────────────────────── */
+.vol-default {
+  color: var(--text1);
+}
+
+.vol-yellow {
+  color: var(--volume2);
+}
+
+.vol-orange {
+  color: var(--volume3); 
+}
+
+.vol-red {
+  color: var(--volume4);
+}
 
 /* ── Bottom row ───────────────────────────────────────────────────────────── */
 .bottom-row {

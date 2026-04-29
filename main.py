@@ -41,6 +41,7 @@ async def main():
         fastapi_app, host="0.0.0.0", port=8000, log_level="warning", log_config=None)
     server = uvicorn.Server(config)
     asyncio.create_task(server.serve())
+    logger.info("Запуск веб-интерфейса: http://localhost:8000/")
 
     startup_updater = StartupUpdater()
     await startup_updater.run()

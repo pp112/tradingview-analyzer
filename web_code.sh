@@ -1,0 +1,1 @@
+find web_copy -type f -exec echo "=== {} ===" \; -exec cat {} \; > web_code.txt

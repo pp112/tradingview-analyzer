@@ -142,7 +142,7 @@ class ReportBuilder:
             ensure_dir(charts_folder)
 
             for i, signal in enumerate(top_signals, start=1):
-                tasks.append((s.symbol, charts_folder, str(i), timeframe))
+                tasks.append((signal.symbol, charts_folder, str(i), timeframe))
             
         if tasks:
             with Pool(processes=cpu_count() // 2 + 1) as pool:
