@@ -1,5 +1,7 @@
 import asyncio
 import signal
+import webbrowser
+
 import uvicorn
 
 from config import setup_logging, get_logger
@@ -37,11 +39,22 @@ async def main():
     loop.add_signal_handler(signal.SIGINT, shutdown)
     loop.add_signal_handler(signal.SIGTERM, shutdown)
     
+    host = "127.0.0.1" 
+    port = 8000
+    url = f"http://{host}:{port}"
+
     config = uvicorn.Config(
-        fastapi_app, host="0.0.0.0", port=8000, log_level="warning", log_config=None)
+        fastapi_app, host=host, port=port, log_level="warning", log_config=None
+    )
     server = uvicorn.Server(config)
+
     asyncio.create_task(server.serve())
-    logger.info("Запуск веб-интерфейса: http://localhost:8000/")
+    logger.info(f"Запуск веб-интерфейса: {url}")
+
+    def open_browser():
+        webbrowser.open(url)
+
+    loop.call_later(1, open_browser)
 
     startup_updater = StartupUpdater()
     await startup_updater.run()
