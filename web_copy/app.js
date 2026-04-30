@@ -30,11 +30,20 @@ const state = {
 
 document.addEventListener("DOMContentLoaded", () => {
   initControls();
-  initCorrelationInput();
-  connectSSE();
+  // connectSSE();
   renderTable();
 });
 
+// ─── Инициализация кнопок таблицы ──────────────────────────
+
+function initControls() {
+  bindToggle("tfButtons", ".btn--tf", "timeframe", "tf");
+  bindToggle("indicatorButtons", ".btn--indicator", "indicator", "ind");
+  initCorrelationInput();
+  bindSorting();
+}
+
+// ─── Переключение кнопок таймфрейма и индикатора ──────────────────────────
 
 function bindToggle(containerId, selector, statekey, datakey) {
   document.getElementById(containerId).addEventListener("click", (e) => {
@@ -48,11 +57,7 @@ function bindToggle(containerId, selector, statekey, datakey) {
   });
 }
 
-function initControls() {
-  bindToggle("tfButtons", ".btn--tf", "timeframe", "tf");
-  bindToggle("indicatorButtons", ".btn--indicator", "indicator", "ind");
-}
-
+// ─── Поле и кнопки настройки корреляции ──────────────────────────────────────
 
 function initCorrelationInput() {
   const input = document.getElementById("corrInput");
@@ -72,16 +77,76 @@ function initCorrelationInput() {
 
   input.addEventListener("input", () => {
     const val = parseFloat(input.value.replace(",", "."));
-    if (isNaN(val)) return;
-
-    state.correlation = clamp(val);
-    renderTable();
+    if (!isNaN(val)) {
+      state.correlation = clamp(val);
+      renderTable();
+    }
   });
 
   input.addEventListener("blur", () => update(state.correlation));
-  input.addEventListener("focus", () => input.select());
 }
 
+// ─── Сортировка таблицы по колонкам ───────────────────────────────────────────────────
+
+function bindSorting() {
+  const table = document.getElementById("signalTable");
+
+  table.addEventListener("click", (e) => {
+    const th = e.target.closest("th[data-col]");
+    if (!th) return;
+    
+    const col = th.dataset.col;
+    
+    if (state.sort.column === col) {
+      state.sort.direction++;
+
+      if (state.sort.direction > 2) {
+        state.sort.column = null;
+        state.sort.direction = 0;
+      }
+    } else {
+      state.sort.column = col;
+      state.sort.direction = 1;
+    }
+
+    renderTable();
+  });
+}
+
+function applySorting(rows) {
+  if (!state.sort.column || state.sort.direction === 0) return rows;
+  
+  const column = state.sort.column;
+  const direction = state.sort.direction === 1 ? -1 : 1;
+
+  rows.sort((a, b) => {
+    let el1 = a[column];
+    let el2 = b[column];
+
+    if (typeof el1 === "string") {
+      return el1.localeCompare(el2) * direction;
+    }
+
+    return (el1 - el2) * direction;
+  });
+
+  return rows;
+}
+
+function updateSortCell() {
+  const table = document.getElementById("signalTable")
+  const ths = table.querySelectorAll("th[data-col]");
+
+  ths.forEach(th => {th.classList.remove("sorted-asc", "sorted-desc")});
+
+  if (!state.sort.column) return;
+
+  const th = table.querySelector(`th[data-col=${state.sort.column}]`);
+  if (state.sort.direction === 1) th.classList.add("sorted-desc");
+  if (state.sort.direction === 2) th.classList.add("sorted-asc");
+}
+
+// ─── SSE и API получение обновлений с сервера ─────────────────────────────────
 
 function connectSSE() {
   const eventSource = new EventSource(`${API}/stream`);
@@ -118,6 +183,7 @@ function formatSignal(signal) {
   };
 }
 
+// ─── Отрисовка таблицы ───────────────────────────────────────────────────
 
 function renderTable() {
   const tbody = document.getElementById("signalBody");
@@ -142,8 +208,11 @@ function renderTable() {
   }
 
   rows = rows.filter(s => s.correlation <= state.correlation);
+  rows = applySorting(rows);
 
-  tbody.innerHTML = rows.map((signal, i) => buildRow(signal, i)).join("");
+  tbody.innerHTML = rows.map(buildRow).join("");
+
+  updateSortCell();
 }
 
 function buildRow(signal, i) {

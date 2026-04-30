@@ -321,13 +321,16 @@ html, body {
   background: var(--bg3);
 }
 .signal-table th {
+  position: relative;
   padding: 10px 12px;
   font-size: 0.62rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.07em;
   color: var(--text2); text-align: left;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
+  cursor: pointer;
   font-family: var(--font-mono);
+  transition: color 0.15s, background 0.15s;
 }
 .th-fav { width: 36px; text-align: center !important; }
 .signal-table td {
@@ -351,39 +354,36 @@ html, body {
 }
 
 .sort-icon {
+  transform: translateY(-50%);
+  height: 10px;
   display: inline-block;
-  margin-left: 5px;
-  font-size: 0.70rem;
+  margin-left: 6px;
+  font-size: 0.7rem;
   vertical-align: middle;
   transition: opacity 0.15s;
 }
 
 .signal-table th:hover { 
   color: var(--text0); 
-  background: var(--bg4); 
+}
+
+.signal-table th:hover:not(.sorted-asc):not(.sorted-desc){ 
+  color: var(--text0);
+  background: var(--bg4);
 }
 
 th.sorted-asc, th.sorted-desc { 
-  color: var(--blue); 
+  color: var(--blue);
+  background: rgba(79, 143, 245, 0.075);
+  transition: none;
 }
 
 th.sorted-asc .sort-icon::after {
   content: '▲';
-  opacity: 1;
 }
 
 th.sorted-desc .sort-icon::after {
   content: '▼';
-  opacity: 1;
-}
-
-th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after {
-  content: '⇅';
-  opacity: 0.35;
-}
-
-.sorted-col {
-  background: rgba(79,142,245,0.03);
 }
 
 .fav-btn {
