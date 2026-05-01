@@ -41,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
 function initControls() {
   bindToggle("tfButtons", ".btn--tf", "timeframe", "tf");
   bindToggle("indicatorButtons", ".btn--indicator", "indicator", "ind");
+  initCorrelationInput();
   initSigtypeButtons();
   initTopNInput();
-  initCorrelationInput();
   bindSorting();
 }
 
@@ -121,24 +121,22 @@ function initTopNInput() {
   const plus = document.getElementById("topNPlus");
   const minus = document.getElementById("topNMinus");
 
+  const clamp = (v) => Math.max(1, Math.min(50, v));
+
   function update(val) {
-    const v = parseInt(val);
-    if (!isNaN(v)) {
-      state.topN = Math.max(1, v);
-      input.value = state.topN;
-      renderTable();
-    }
+    state.topN = clamp(val);
+    input.value = state.topN;
+    renderTable();
   }
 
-  plus.addEventListener("click", () => update(state.topN + 1));
+  plus.addEventListener("click",  () => update(state.topN + 1));
   minus.addEventListener("click", () => update(state.topN - 1));
   input.addEventListener("input", () => {
-    const val = parseInt(input.value);
-    if (!isNaN(val)) {
-      state.topN = val;
+    const v = parseInt(input.value);
+    if (!isNaN(v)) { 
+      state.topN = clamp(v); 
     }
   });
-
   input.addEventListener("blur", () => update(state.topN));
 }
 

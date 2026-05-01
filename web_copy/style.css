@@ -28,8 +28,8 @@
   --blue-bd:     rgba(79,142,245,0.25);
   --yellow:      #f5a623;
   --yellow-bg:   rgba(245,166,35,0.10);
-  --sidebar-w:    220px;
-  --topbar-h:     50px;
+  --sidebar-w:    200px;
+  --topbar-h:     44px;
   --ticker-h:     36px;
   --radius:       10px;
   --font-ui:      'Syne', sans-serif;
@@ -94,7 +94,7 @@ html, body {
 /* ── Nav ──────────────────────────────────────────────────────────────────── */
 .nav {
   display: flex; flex-direction: column;
-  gap: 2px; padding: 14px 10px; flex: 1;
+  gap: 3px; padding: 14px 10px; flex: 1;
 }
 .nav-item {
   display: flex; align-items: center; gap: 10px;
@@ -147,7 +147,6 @@ html, body {
   gap: 16px;
 }
 .topbar-left { display: flex; align-items: center; gap: 14px; }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
 
 .menu-btn {
   display: none;
@@ -193,7 +192,9 @@ html, body {
 .controls-row {
   display: flex;
   align-items: center;
-  gap: 24px;
+  column-gap: 24px;
+  row-gap: 12px;
+  flex-wrap: wrap;
 }
 
 .control-group {
