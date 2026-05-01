@@ -1,37 +1,39 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg0:      #0b0d12;
-  --bg1:      #10131a;
-  --bg2:      #161920;
-  --bg3:      #1c1f28;
-  --bg4:      #222633;
-  --border:   rgba(255,255,255,0.06);
-  --border2:  rgba(255,255,255,0.10);
-  --text0:    #eceef4;
-  --text1:    #a0a6b8;
-  --text2:    #a7abbe;
-  --volume2:  #f5dd23;
-  --volume3:  #ff8c00;
-  --volume4:  #f04f52;
-  --green:    #29c98a;
-  --green-bg: rgba(41,201,138,0.10);
-  --green-bd: rgba(41,201,138,0.25);
-  --red:      #f04f52;
-  --red-bg:   rgba(240,79,82,0.10);
-  --red-bd:   rgba(240,79,82,0.25);
-  --blue:     #4f8ef5;
-  --blue-bg:  rgba(79,142,245,0.10);
-  --blue-bd:  rgba(79,142,245,0.25);
-  --yellow:   #f5a623;
-  --yellow-bg:rgba(245,166,35,0.10);
-  --sidebar-w: 220px;
-  --topbar-h:  50px;
-  --ticker-h:  36px;
-  --radius:    10px;
-  --font-ui:   'Syne', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --shadow:    0 4px 24px rgba(0,0,0,0.4);
+  --bg0:       #0b0d12;
+  --bg1:       #10131a;
+  --bg2:       #161920;
+  --bg3:       #1c1f28;
+  --bg4:       #222633;
+  --border:    rgba(255,255,255,0.06);
+  --border2:   rgba(255,255,255,0.10);
+  --tf-active: #0e44a8e2;
+  --ind-active:#19840fe5;
+  --text0:     #eceef4;
+  --text1:     #c9ccd9;
+  --text2:     #b9bdcd;
+  --volume2:   #f5dd23;
+  --volume3:   #ff8c00;
+  --volume4:   #f04f52;
+  --green:     #29c98a;
+  --green-bg:  rgba(41,201,138,0.10);
+  --green-bd:  rgba(41,201,138,0.25);
+  --red:       #f04f52;
+  --red-bg:    rgba(240,79,82,0.10);
+  --red-bd:    rgba(240,79,82,0.25);
+  --blue:      #4f8ef5;
+  --blue-bg:   rgba(79,142,245,0.10);
+  --blue-bd:   rgba(79,142,245,0.25);
+  --yellow:    #f5a623;
+  --yellow-bg: rgba(245,166,35,0.10);
+  --sidebar-w:  220px;
+  --topbar-h:   50px;
+  --ticker-h:   36px;
+  --radius:     10px;
+  --font-ui:    'Syne', sans-serif;
+  --font-mono:  'JetBrains Mono NL Light', monospace;
+  --shadow:     0 4px 24px rgba(0,0,0,0.4);
 }
 
 html, body {
@@ -271,7 +273,7 @@ html, body {
 /* базовая кнопка (вместо tf-btn) */
 .btn {
   padding: 5px 14px;
-  border-radius: 7px;
+  border-radius: 4px;
   font-size: 0.72rem;
   font-weight: 700;
   font-family: var(--font-mono);
@@ -285,22 +287,21 @@ html, body {
 
 /* hover общий */
 .btn:hover {
+  background: var(--bg4);
   border-color: var(--border2);
   color: var(--text0);
 }
 
 /* активный таймфрейм */
 .btn--tf.active {
-  background: var(--blue);
+  background: var(--tf-active);
   color: #fff;
-  border-color: var(--blue);
 }
 
 /* активный индикатор */
 .btn--indicator.active {
-  background: var(--green-bg);
-  color: var(--green);
-  border-color: var(--green-bd);
+  background: var(--ind-active);
+  color: #fff;
 }
 
 /* ── Signal table ─────────────────────────────────────────────────────────── */
@@ -310,16 +311,19 @@ html, body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
+
 .signal-table {
   width: 100%; 
   border-collapse: collapse;
-  font-size: 0.78rem;
+  font-size: 0.83rem;
   table-layout: fixed;
 }
+
 .signal-table thead {
   position: sticky; top: 0; z-index: 2;
   background: var(--bg3);
 }
+
 .signal-table th {
   position: relative;
   padding: 10px 12px;
@@ -329,24 +333,30 @@ html, body {
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
   cursor: pointer;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   transition: color 0.15s, background 0.15s;
 }
-.th-fav { width: 36px; text-align: center !important; }
+
+.th-fav { 
+  width: 54px; 
+}
+
 .signal-table td {
   padding: 9px 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
-.signal-table th:nth-child(1),
-.signal-table td:nth-child(1) {
-  padding-left: 20px;
-  padding-right: 24px;
+
+.signal-table th, .signal-table td {
+  border-right: 1px solid var(--border);
+  text-align: center;
 }
+
 .signal-table tbody tr {
   transition: background 0.12s;
   animation: rowIn 0.25s ease both;
 }
+
 .signal-table tbody tr:hover { background: var(--bg4); }
 @keyframes rowIn {
   from { opacity: 0; transform: translateY(4px); }
@@ -376,6 +386,7 @@ th.sorted-asc, th.sorted-desc {
   color: var(--blue);
   background: rgba(79, 143, 245, 0.075);
   transition: none;
+  box-shadow: inset 0 -1px 0 #4f8ff5f7;  
 }
 
 th.sorted-asc .sort-icon::after {
@@ -443,7 +454,6 @@ th.sorted-desc .sort-icon::after {
   text-align: center; padding: 40px 20px !important;
   color: var(--text2); font-size: 0.85rem;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  /* override table-cell flex layout */
 }
 .loader {
   width: 18px; height: 18px;
