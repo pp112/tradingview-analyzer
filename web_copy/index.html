@@ -90,15 +90,30 @@
             <button class="btn btn--indicator" data-ind="VOLUME">VOLUME</button>
           </div>
         </div>
-      
-        <div class="control-group control-group--filters">
-          <span class="control-label">Корреляция</span>
+        
+        <div class="control-group control-group--sigtype">
+          <span class="control-label">Тип сигнала</span>
+          <div class="control-buttons" id="sigtypeButtons">
+            <button class="btn btn--sigtype active" data-sigt="all">Все</button>
+            <button class="btn btn--sigtype" data-sigt="strong">Сильные</button>
+            <button class="btn btn--sigtype" data-sigt="combined">Комбинированные</button>
+          </div>
+        </div>
 
+        <div class="control-group control-group--topn topn-disabled" id="topNGroup" style="display: none;">
+          <span class="control-label control-label-centered">Количество</span>
+          <div class="corr-box">
+            <button class="corr-btn" id="topNMinus">−</button>
+            <input id="topNInput" type="text" value="5" class="corr-input" />
+            <button class="corr-btn" id="topNPlus">+</button>
+          </div>
+        </div>
+
+        <div class="control-group control-group--filters">
+          <span class="control-label control-label-centered">Корреляция</span>
           <div class="corr-box">
             <button class="corr-btn" id="corrMinus">−</button>
-
             <input id="corrInput" type="text" value="1" class="corr-input" />
-
             <button class="corr-btn" id="corrPlus">+</button>
           </div>
         </div>

@@ -1,39 +1,40 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg0:       #0b0d12;
-  --bg1:       #10131a;
-  --bg2:       #161920;
-  --bg3:       #1c1f28;
-  --bg4:       #222633;
-  --border:    rgba(255,255,255,0.06);
-  --border2:   rgba(255,255,255,0.10);
-  --tf-active: #0e44a8e2;
-  --ind-active:#19840fe5;
-  --text0:     #eceef4;
-  --text1:     #c9ccd9;
-  --text2:     #b9bdcd;
-  --volume2:   #f5dd23;
-  --volume3:   #ff8c00;
-  --volume4:   #f04f52;
-  --green:     #29c98a;
-  --green-bg:  rgba(41,201,138,0.10);
-  --green-bd:  rgba(41,201,138,0.25);
-  --red:       #f04f52;
-  --red-bg:    rgba(240,79,82,0.10);
-  --red-bd:    rgba(240,79,82,0.25);
-  --blue:      #4f8ef5;
-  --blue-bg:   rgba(79,142,245,0.10);
-  --blue-bd:   rgba(79,142,245,0.25);
-  --yellow:    #f5a623;
-  --yellow-bg: rgba(245,166,35,0.10);
-  --sidebar-w:  220px;
-  --topbar-h:   50px;
-  --ticker-h:   36px;
-  --radius:     10px;
-  --font-ui:    'Syne', sans-serif;
-  --font-mono:  'JetBrains Mono NL Light', monospace;
-  --shadow:     0 4px 24px rgba(0,0,0,0.4);
+  --bg0:         #0b0d12;
+  --bg1:         #10131a;
+  --bg2:         #161920;
+  --bg3:         #1c1f28;
+  --bg4:         #222633;
+  --border:      rgba(255,255,255,0.06);
+  --border2:     rgba(255,255,255,0.10);
+  --tf-active:   #0e44a8e2;
+  --ind-active:  #19840fe5;
+  --type-active: #7444b0e8;
+  --text0:       #eceef4;
+  --text1:       #c9ccd9;
+  --text2:       #b9bdcd;
+  --volume2:     #f5dd23;
+  --volume3:     #ff8c00;
+  --volume4:     #f04f52;
+  --green:       #29c98a;
+  --green-bg:    rgba(41,201,138,0.10);
+  --green-bd:    rgba(41,201,138,0.25);
+  --red:         #f04f52;
+  --red-bg:      rgba(240,79,82,0.10);
+  --red-bd:      rgba(240,79,82,0.25);
+  --blue:        #4f8ef5;
+  --blue-bg:     rgba(79,142,245,0.10);
+  --blue-bd:     rgba(79,142,245,0.25);
+  --yellow:      #f5a623;
+  --yellow-bg:   rgba(245,166,35,0.10);
+  --sidebar-w:    220px;
+  --topbar-h:     50px;
+  --ticker-h:     36px;
+  --radius:       10px;
+  --font-ui:      'Syne', sans-serif;
+  --font-mono:    'JetBrains Mono NL Light', monospace;
+  --shadow:       0 4px 24px rgba(0,0,0,0.4);
 }
 
 html, body {
@@ -200,7 +201,7 @@ html, body {
   flex-direction: column;
 }
 
-.control-group--filters .control-label {
+.control-label-centered {
   text-align: center;
   width: 100%;
 }
@@ -270,7 +271,6 @@ html, body {
   gap: 4px;
 }
 
-/* базовая кнопка (вместо tf-btn) */
 .btn {
   padding: 5px 14px;
   border-radius: 4px;
@@ -285,23 +285,36 @@ html, body {
   letter-spacing: 0.03em;
 }
 
-/* hover общий */
 .btn:hover {
   background: var(--bg4);
   border-color: var(--border2);
   color: var(--text0);
 }
 
-/* активный таймфрейм */
 .btn--tf.active {
   background: var(--tf-active);
   color: #fff;
 }
 
-/* активный индикатор */
 .btn--indicator.active {
   background: var(--ind-active);
   color: #fff;
+}
+
+.btn--sigtype.active {
+  background: var(--type-active);
+  color: #fff;
+}
+
+.indicator-disabled .btn--indicator {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.indicator-disabled .btn--indicator.active {
+  background: var(--bg2);
+  color: var(--text1);
+  border-color: var(--border);
 }
 
 /* ── Signal table ─────────────────────────────────────────────────────────── */

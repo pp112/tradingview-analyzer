@@ -21,6 +21,8 @@ const state = {
   timeframe: "1h",
   indicator: "RSI", // RSI, MACD, EMA_SMA, VOLUME
   correlation: 1,
+  sigtype: "all",   // all | strong | combined
+  topN: 5,
   sort: {
     column: null,
     direction: 0
@@ -39,17 +41,21 @@ document.addEventListener("DOMContentLoaded", () => {
 function initControls() {
   bindToggle("tfButtons", ".btn--tf", "timeframe", "tf");
   bindToggle("indicatorButtons", ".btn--indicator", "indicator", "ind");
+  initSigtypeButtons();
+  initTopNInput();
   initCorrelationInput();
   bindSorting();
 }
 
-// ─── Переключение кнопок таймфрейма и индикатора ──────────────────────────
+// ─── Переключение кнопок таблицы ──────────────────────────
 
 function bindToggle(containerId, selector, statekey, datakey) {
   document.getElementById(containerId).addEventListener("click", (e) => {
     const btn = e.target.closest(selector);
+    
+    if (statekey === "indicator" && state.sigtype !== "all") return;
 
-    document.querySelectorAll(selector).forEach(b => b.classList.remove("active"));
+    btn.parentElement.querySelector(".active").classList.remove("active");
     btn.classList.add("active");
     
     state[statekey] = btn.dataset[datakey];
@@ -57,7 +63,33 @@ function bindToggle(containerId, selector, statekey, datakey) {
   });
 }
 
-// ─── Поле и кнопки настройки корреляции ──────────────────────────────────────
+function initSigtypeButtons() {
+  document.getElementById("sigtypeButtons").addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn--sigtype");
+    if (!btn) return;
+
+    document.querySelectorAll(".btn--sigtype").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    state.sigtype = btn.dataset.sigt;
+  
+    const indicatorButtons = document.getElementById("indicatorButtons");
+    const topNGroup = document.getElementById("topNGroup");
+
+    indicatorButtons.querySelector(".active")?.classList.remove("active");
+
+    if (state.sigtype === "all") {
+      topNGroup.style.display = "none";
+      indicatorButtons.querySelector("[data-ind='RSI']").classList.add("active");
+    } else {
+      topNGroup.style.display = state.sigtype === "strong" ? "" : "none";
+    }
+
+    renderTable();
+  });
+}
+
+// ─── Поля и кнопки настройки корреляции и количества ──────────────────────────────────────
 
 function initCorrelationInput() {
   const input = document.getElementById("corrInput");
@@ -74,16 +106,40 @@ function initCorrelationInput() {
 
   plus.addEventListener("click", () => update(state.correlation + 0.05));
   minus.addEventListener("click", () => update(state.correlation - 0.05));
-
   input.addEventListener("input", () => {
-    const val = parseFloat(input.value.replace(",", "."));
-    if (!isNaN(val)) {
-      state.correlation = clamp(val);
-      renderTable();
+    const v = parseFloat(input.value.replace(",", "."));
+    if (!isNaN(v)) {
+      state.correlation = clamp(v);
     }
   });
 
   input.addEventListener("blur", () => update(state.correlation));
+}
+
+function initTopNInput() {
+  const input = document.getElementById("topNInput");
+  const plus = document.getElementById("topNPlus");
+  const minus = document.getElementById("topNMinus");
+
+  function update(val) {
+    const v = parseInt(val);
+    if (!isNaN(v)) {
+      state.topN = Math.max(1, v);
+      input.value = state.topN;
+      renderTable();
+    }
+  }
+
+  plus.addEventListener("click", () => update(state.topN + 1));
+  minus.addEventListener("click", () => update(state.topN - 1));
+  input.addEventListener("input", () => {
+    const val = parseInt(input.value);
+    if (!isNaN(val)) {
+      state.topN = val;
+    }
+  });
+
+  input.addEventListener("blur", () => update(state.topN));
 }
 
 // ─── Сортировка таблицы по колонкам ───────────────────────────────────────────────────
