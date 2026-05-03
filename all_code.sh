@@ -3,14 +3,14 @@
 # Список директорий для исключения (можно легко добавлять/удалять)
 exclude_dirs=(
     "./.venv"
-    "./market"
-    "./visualization"
-    "./processing"
-    "./config"
-    "./models"
-    "./storage"
-    "./utils"
-    "./visualization"
+    # "./market"
+    # "./visualization"
+    # "./processing"
+    # "./config"
+    # "./models"
+    # "./storage"
+    # "./utils"
+    # "./visualization"
     "./web"
 )
 

@@ -1,1 +1,1 @@
-find web_copy -type f -exec echo "=== {} ===" \; -exec cat {} \; > web_code.txt
+find web -type f -exec echo "=== {} ===" \; -exec cat {} \; > web_code.txt

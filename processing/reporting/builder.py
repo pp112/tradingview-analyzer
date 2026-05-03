@@ -4,7 +4,7 @@ from multiprocessing import Pool, cpu_count
 
 from processing.reporting.filter import SignalFilter
 from processing.reporting.pipeline import ReportPipeline
-from visualization.plotter import MarketPlotter
+from processing.plotter import MarketPlotter
 from models import Timeframe, SortMode, Signal
 from storage.writer import save_report_txt, ensure_dir
 from utils import read_correlations

@@ -453,7 +453,7 @@ th.sorted-desc .sort-icon::after {
   font-family: var(--font-mono); font-size: 0.7rem;
   color: var(--text1); white-space: nowrap;
 }
-.vol-cell { font-family: var(--font-mono); font-size: 0.72rem; }
+.vol-cell, .corr-cell { font-family: var(--font-mono); }
 
 .chart-btn {
   background: var(--blue-bg); border: 1px solid var(--blue-bd);
@@ -467,7 +467,6 @@ th.sorted-desc .sort-icon::after {
 .loading-cell {
   text-align: center; padding: 40px 20px !important;
   color: var(--text2); font-size: 0.85rem;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .loader {
   width: 18px; height: 18px;

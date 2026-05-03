@@ -55,19 +55,7 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-left">
-      <button class="menu-btn" id="menuBtn">☰</button>
       <h1 class="page-title">Рыночные сигналы</h1>
-      <div class="update-badge" id="updateBadge">
-        <span class="update-dot"></span>
-        <span id="updateText">обновление...</span>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <div class="search-box">
-        <span>⌕</span>
-        <input type="text" placeholder="Поиск монеты..." id="searchInput">
-      </div>
-      <button class="filter-btn">⚙ Фильтры</button>
     </div>
   </header>
 
@@ -77,24 +65,53 @@
     <!-- LEFT PANEL -->
     <div class="panel-left">
 
-      <!-- TF + COUNT controls -->
+      <!-- TF + IDICATORS controls -->
       <div class="controls-row">
-        <div class="tf-group">
-          <span class="controls-label">Таймфрейм</span>
-          <div class="tf-buttons" id="tfButtons">
-            <button class="tf-btn" data-tf="15m">15M</button>
-            <button class="tf-btn" data-tf="30m">30M</button>
-            <button class="tf-btn active" data-tf="1h">1H</button>
-            <button class="tf-btn" data-tf="4h">4H</button>
-            <button class="tf-btn" data-tf="1d">1D</button>
+        <div class="control-group control-group--timeframe">
+          <span class="control-label">Таймфрейм</span>
+          <div class="control-buttons" id="tfButtons">
+            <button class="btn btn--tf" data-tf="15m">15M</button>
+            <button class="btn btn--tf" data-tf="30m">30M</button>
+            <button class="btn btn--tf active" data-tf="1h">1H</button>
+            <button class="btn btn--tf" data-tf="4h">4H</button>
+            <button class="btn btn--tf" data-tf="1d">1D</button>
           </div>
         </div>
-        <div class="count-group">
-          <span class="controls-label">Сигналов</span>
-          <div class="count-buttons" id="countButtons">
-            <button class="count-btn active" data-n="20">20</button>
-            <button class="count-btn" data-n="50">50</button>
-            <button class="count-btn" data-n="100">100</button>
+
+        <div class="control-group control-group--indicators">
+          <span class="control-label">Индикаторы</span>
+          <div class="control-buttons" id="indicatorButtons">
+            <button class="btn btn--indicator active" data-ind="rsi">RSI</button>
+            <button class="btn btn--indicator" data-ind="macd">MACD</button>
+            <button class="btn btn--indicator" data-ind="ema_sma">EMA-SMA</button>
+            <button class="btn btn--indicator" data-ind="vol_ratio">VOLUME</button>
+          </div>
+        </div>
+        
+        <div class="control-group control-group--sigtype">
+          <span class="control-label">Тип сигнала</span>
+          <div class="control-buttons" id="sigtypeButtons">
+            <button class="btn btn--sigtype active" data-sigt="all">Все</button>
+            <button class="btn btn--sigtype" data-sigt="strong">Сильные</button>
+            <button class="btn btn--sigtype" data-sigt="combined">Комбинированные</button>
+          </div>
+        </div>
+
+        <div class="control-group control-group--topn topn-disabled" id="topNGroup" style="display: none;">
+          <span class="control-label control-label-centered">Количество</span>
+          <div class="corr-box">
+            <button class="corr-btn" id="topNMinus">−</button>
+            <input id="topNInput" type="text" value="5" class="corr-input" />
+            <button class="corr-btn" id="topNPlus">+</button>
+          </div>
+        </div>
+
+        <div class="control-group control-group--filters">
+          <span class="control-label control-label-centered">Корреляция</span>
+          <div class="corr-box">
+            <button class="corr-btn" id="corrMinus">−</button>
+            <input id="corrInput" type="text" value="1" class="corr-input" />
+            <button class="corr-btn" id="corrPlus">+</button>
           </div>
         </div>
       </div>
@@ -105,18 +122,16 @@
           <thead>
             <tr>
               <th class="th-fav">★</th>
-              <th>Монета</th>
-              <th>RSI</th>
-              <th>Индикатор</th>
-              <th>Направление</th>
-              <th>EMA / SMA</th>
-              <th>Vol Ratio</th>
-              <th>Таймфрейм</th>
-              <th>График</th>
+              <th data-col="symbol">Монета<span class="sort-icon"></span></th>
+              <th data-col="indicator_value">Значение<span class="sort-icon"></span></th>
+              <th data-col="indicator">Индикатор<span class="sort-icon"></span></th>
+              <th data-col="direction">Направление<span class="sort-icon"></span></th>
+              <th data-col="correlation">Корреляция<span class="sort-icon"></span></th>
+              <th>Подробно</th>
             </tr>
           </thead>
           <tbody id="signalBody">
-            <tr><td colspan="9" class="loading-cell">
+            <tr><td colspan="8" class="loading-cell">
               <div class="loader"></div>
               <span>Загрузка сигналов...</span>
             </td></tr>
@@ -294,6 +309,6 @@
   </div>
 </div>
 
-<script src="app.js"></script>  
+<script type="module" src="js/main.js"></script>
 </body>
 </html>

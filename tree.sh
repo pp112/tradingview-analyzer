@@ -1,1 +1,1 @@
-tree -L 2 --gitfile g > tree.txt
+tree -L 5 --gitfile g > tree.txt

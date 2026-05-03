@@ -10,9 +10,9 @@ class Direction(str, Enum):
 
 
 class Indicator(str, Enum):
-    RSI = "RSI"
-    MACD = "MACD"
-    EMA_SMA = "EMA_SMA"
+    RSI = "rsi"
+    MACD = "macd"
+    EMA_SMA = "ema_sma"
 
 
 class Signal(BaseModel):
