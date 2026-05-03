@@ -14,8 +14,13 @@ export function connectSSE() {
 
   eventSource.addEventListener("update", (event) => {
     const data = JSON.parse(event.data);
-    console.log(`Пришло сообщение обновления: ${data.timeframe}`);
-    fetchSignals(data.timeframe);
+    console.log(`Пришло сообщение обновления: ${data.type}`);
+    
+    if (data.type === "signals") {
+      fetchSignals(data.timeframe);
+    } else if (data.type === "price_volume"){
+      fetchPriceVolume();
+    }
   });
 
   eventSource.onerror = (err) => {
@@ -25,7 +30,7 @@ export function connectSSE() {
 
 // ── Запрос сигналов по таймфрейму ──────────────────────────────────────────
 
-export async function fetchSignals(tf) {
+async function fetchSignals(tf) {
   try {
     const res  = await fetch(`${API}/signals?tf=${tf}`);
     const data = await res.json();
@@ -39,6 +44,14 @@ export async function fetchSignals(tf) {
   } catch (err) {
     console.error(`Ошибка загрузки сигналов (${tf}):`, err);
   }
+}
+
+// ── Запрос изменений цен и объемов ─────────────────────────────────────────
+
+async function fetchPriceVolume() {
+    const res  = await fetch(`${API}/price_volume`);
+    const data = await res.json();
+    console.log("Изменения цен и объемов обновлены");
 }
 
 // ── Форматирование сырых данных ────────────────────────────────────────────

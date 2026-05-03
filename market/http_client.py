@@ -1,6 +1,5 @@
 import json
 import aiohttp
-import copy
 
 from config import get_logger
 
@@ -27,7 +26,7 @@ class TradingViewHttpClient:
 
     async def fetch_data(self) -> dict[str, dict[str, float]]:
         """
-        Возвращает список всех доступных крипто-тикеров .
+        Возвращает список всех доступных крипто-тикеров и цен.
         """
         data = await self._post(self.payload)
         parsed_data = self._parse_data(data)
@@ -52,12 +51,11 @@ class TradingViewHttpClient:
             if None in item["d"]:
                 continue
             symbol_name = item["s"].split(":")[1]
-            change_price = round(item["d"][0], 2)
-            change_volume = round(item["d"][1], 2)
+            price = item["d"][0]
             result[symbol_name] = {
-                "change_price": change_price,
-                "change_volume": change_volume
+                "price": price
             }
+            
         return result
 
 

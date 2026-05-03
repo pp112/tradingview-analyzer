@@ -1,5 +1,3 @@
-import json
-
 import pandas as pd
 
 from models import Timeframe

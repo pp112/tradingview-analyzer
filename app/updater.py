@@ -1,9 +1,8 @@
 from typing import Literal
 
-from config import get_logger
 from models import Timeframe
 from market import MarketDataClient
-from processing import IndicatorEngine, ReportBuilder, CorrelationCalculator
+from processing import IndicatorEngine, ReportBuilder, CorrelationCalculator, PriceVolumeMonitor
 from config.settings import load_settings
 from utils import read_correlations
 from storage.writer import (
@@ -12,7 +11,8 @@ from storage.writer import (
     save_correlations,
     save_market_data
 )
-from api.api import broadcast_signal
+from api.api import broadcast
+from config import get_logger
 
 logger = get_logger(__name__, "[UPDATER]")
 
@@ -38,6 +38,7 @@ class TimeframeUpdater:
         self.market_client = MarketDataClient()
         self.indicator_engine = IndicatorEngine()
         self.correlation_calculator = CorrelationCalculator()
+        self.price_volume_monitor = PriceVolumeMonitor()
         self.report_builder = ReportBuilder()
 
     async def update(self, timeframe: Timeframe):
@@ -49,6 +50,10 @@ class TimeframeUpdater:
         corr_threshold, corr_sort_order = self._resolve_correlation_settings()
 
         df_candles = await self.market_client.fetch_all_historical_candles(timeframe)
+
+        if timeframe == Timeframe.M30:
+            self.price_volume_monitor.calculate_and_save(df_candles)
+            await broadcast({"type": "price_volume"})
 
         if timeframe == Timeframe.H1:
             logger.info(f"{timeframe.label}: Расчет корреляций")
@@ -65,7 +70,7 @@ class TimeframeUpdater:
         
         save_signals(signals, timeframe)
 
-        await broadcast_signal(timeframe.label)
+        await broadcast({"type": "signals", "timeframe": timeframe.label})
 
         save_market_data(df_candles, timeframe)
         save_indicators(indicators, timeframe)
