@@ -1,0 +1,15 @@
+.venv/
+__pycache__
+data/historical_data/*
+data/values/indicators/*
+data/values/correlations/*
+data/values/signals/*
+data/reports/*
+data/state/*
+visualization/plots/*
+*.md
+test*
+*.sh
+TODO
+*.txt
+g

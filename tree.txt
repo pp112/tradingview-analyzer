@@ -1,0 +1,76 @@
+.
+├── api
+│   └── api.py
+├── app
+│   ├── scheduler.py
+│   ├── startup.py
+│   └── updater.py
+├── app.js
+├── config
+│   ├── __init__.py
+│   ├── logging.py
+│   ├── settings.py
+│   └── settings.yaml
+├── data
+│   ├── historical_data
+│   ├── reports
+│   ├── state
+│   └── values
+│       ├── correlations
+│       ├── indicators
+│       └── signals
+├── main.py
+├── market
+│   ├── http_client.py
+│   ├── __init__.py
+│   ├── market_data.py
+│   ├── payloads
+│   │   └── scanner.json
+│   └── websocket_client.py
+├── models
+│   ├── candle.py
+│   ├── __init__.py
+│   ├── signal.py
+│   ├── sort_mode.py
+│   └── timeframe.py
+├── processing
+│   ├── correlation_calculator.py
+│   ├── indicator_calculator.py
+│   ├── indicator_engine.py
+│   ├── indicator_service.py
+│   ├── __init__.py
+│   ├── plotter.py
+│   ├── price_volume_monitor.py
+│   ├── reporting
+│   │   ├── builder.py
+│   │   ├── filter.py
+│   │   ├── formatter.py
+│   │   ├── pipeline.py
+│   │   ├── scorer.py
+│   │   └── sorter.py
+│   └── signal_generator.py
+├── storage
+│   ├── state_manager.py
+│   └── writer.py
+├── utils
+│   ├── helpers.py
+│   └── __init__.py
+└── web
+    ├── index.html
+    ├── js
+    │   ├── api.js
+    │   ├── controls
+    │   │   ├── correlation.js
+    │   │   ├── indicator.js
+    │   │   ├── sigtype.js
+    │   │   ├── sort.js
+    │   │   ├── timeframe.js
+    │   │   └── topn.js
+    │   ├── controls.js
+    │   ├── main.js
+    │   ├── signals.js
+    │   ├── state.js
+    │   └── table.js
+    └── style.css
+
+22 directories, 52 files
