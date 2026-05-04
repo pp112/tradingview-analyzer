@@ -426,6 +426,18 @@ th.sorted-desc .sort-icon::after {
   white-space: nowrap;
 }
 
+.sym-link {
+  color: var(--text0);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.sym-link:hover {
+  color: var(--blue);
+}
+
 .rsi-val {
   font-family: var(--font-mono); font-weight: 700;
   font-size: 0.78rem;

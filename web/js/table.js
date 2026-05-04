@@ -175,7 +175,13 @@ function buildRow(signal, i) {
   return `
     <tr style="animation-delay:${i * 0.03}s">
       <td class="th-fav">☆</td>
-      <td class="sym-cell">${signal.symbol}</td>
+      <td class="sym-cell">
+        <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${signal.symbol.replace("/", "")}"
+           target="_blank"
+           class="sym-link">
+          ${signal.symbol}
+        </a>
+      </td>
       ${buildIndicatorCells(signal)}
       <td>${signal.correlation}</td>
       <td>𓏬</td>
