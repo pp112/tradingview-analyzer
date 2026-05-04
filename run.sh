@@ -1,6 +1,3 @@
+kill -9 $(lsof -ti :8000) 2>/dev/null
 
-# убиваем всё, что висит на 8000
-fuser -k 8000/tcp 2>/dev/null
-
-# запускаем сервер
 python main.py

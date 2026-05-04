@@ -3,6 +3,7 @@ from typing import Literal
 
 import pandas as pd
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
+from config.logging import console
 
 from models import Timeframe
 
@@ -42,7 +43,8 @@ def create_progress() -> Progress:
         BarColumn(complete_style="green", finished_style="bright_green"),
         TextColumn("[bright_green]{task.completed}[/bright_green]/[yellow]{task.total}[/yellow]"),
         TextColumn("[bright_green]{task.percentage:>3.0f}%[/bright_green]"),
-        TimeRemainingColumn()
+        TimeRemainingColumn(),
+        console=console
     )
 
 def read_correlations() -> dict[str, float]:

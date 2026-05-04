@@ -7,7 +7,7 @@ exclude_dirs=(
     # "./app"
     "./config"
     # "./market"
-    "./models"
+    # "./models"
     # "./processing"
     "./storage"
     "./utils"

@@ -39,7 +39,7 @@ async def main():
     loop.add_signal_handler(signal.SIGINT, shutdown)
     loop.add_signal_handler(signal.SIGTERM, shutdown)
     
-    host = "127.0.0.1" 
+    host = "localhost" 
     port = 8000
     url = f"http://{host}:{port}"
 
