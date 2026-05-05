@@ -4,7 +4,7 @@ data/historical_data/*
 data/values/indicators/*
 data/values/correlations/*
 data/values/signals/*
-data/values/prices/*
+data/values/price_vol_changes/*
 data/reports/*
 data/state/*
 visualization/plots/*

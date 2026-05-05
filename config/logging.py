@@ -1,5 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 from rich.logging import RichHandler
 from rich.console import Console
@@ -12,7 +13,7 @@ def setup_logging():
     """
     Конфигурация логирования.
     """
-    LOG_DIR = "logs"
+    LOG_DIR = Path("logs")
     ensure_dir(LOG_DIR)
     
     file_formatter = logging.Formatter(
@@ -29,7 +30,6 @@ def setup_logging():
         show_level=True,
         show_time=True,
         markup=True,
-        rich_tracebacks=True,
         log_time_format="[%H:%M:%S]",
         omit_repeated_times=False
     )

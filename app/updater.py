@@ -17,9 +17,9 @@ from config import get_logger
 logger = get_logger(__name__, "[UPDATER]")
 
 
-class TimeframeUpdater:
+class Updater:
     """
-    Пайплайн обновления данных для конкретного таймфрейма.
+    Пайплайн обновления данных.
 
     Выполняет:
     - загрузку исторических данных свечей
@@ -41,7 +41,7 @@ class TimeframeUpdater:
         self.price_volume_monitor = PriceVolumeMonitor()
         self.report_builder = ReportBuilder()
 
-    async def update(self, timeframe: Timeframe):
+    async def update_timeframe(self, timeframe: Timeframe):
         """
         Выполняет полный цикл обновления данных для заданного таймфрейма.
         """
@@ -52,8 +52,7 @@ class TimeframeUpdater:
         df_candles = await self.market_client.fetch_all_historical_candles(timeframe)
 
         if timeframe == Timeframe.M30:
-            self.price_volume_monitor.calculate_and_save(df_candles)
-            await broadcast({"type": "price_volume"})
+           await self.update_price_volume(df_candles)
 
         if timeframe == Timeframe.H1:
             logger.info(f"{timeframe.label}: Расчет корреляций")
@@ -70,7 +69,10 @@ class TimeframeUpdater:
         
         save_signals(signals, timeframe)
 
-        await broadcast({"type": "signals", "timeframe": timeframe.label})
+        await broadcast({
+            "type": "signals", 
+            "timeframe": timeframe.label
+        })
 
         save_market_data(df_candles, timeframe)
         save_indicators(indicators, timeframe)
@@ -84,6 +86,10 @@ class TimeframeUpdater:
         )
 
         logger.info(f"{timeframe.label}: Обновление завершено")
+
+    async def update_price_volume(self, df):
+        self.price_volume_monitor.calculate_and_save(df)
+        await broadcast({"type": "price_volume"})
 
     def _resolve_correlation_settings(self) -> tuple[float, Literal["asc", "desc"]]:
         settings = load_settings()

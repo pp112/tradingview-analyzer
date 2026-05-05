@@ -1,8 +1,10 @@
+import asyncio
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from config import get_logger
 from models import Timeframe
-from app.updater import TimeframeUpdater
+from app.updater import Updater
 
 logger = get_logger(__name__, "[SCHED]")
 
@@ -15,7 +17,8 @@ class Scheduler:
     """
     def __init__(self):
         self.scheduler = AsyncIOScheduler()
-        self.updater = TimeframeUpdater()
+        self.updater = Updater()
+        self._lock = asyncio.Lock()
 
     def start(self):
         logger.info("Запуск планировщика")
@@ -34,9 +37,11 @@ class Scheduler:
         Запускает обновление данных для заданного таймфрейма.
         Вызывается планировщиком.
         """
-        logger.info(f"{timeframe.label}: Обновление")
-        await self.updater.update(timeframe)
+        async with self._lock:
+            logger.info(f"{timeframe.label}: Обновление")
+            await self.updater.update_timeframe(timeframe)
 
     def shutdown(self):
-        logger.info("Остановка планировщика...")
-        self.scheduler.shutdown(wait=False)
+        if self.scheduler.running:
+            logger.info("Остановка планировщика")
+            self.scheduler.shutdown(wait=False)

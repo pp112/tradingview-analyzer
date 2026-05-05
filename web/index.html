@@ -142,49 +142,27 @@
       <!-- BOTTOM ROW -->
       <div class="bottom-row">
 
-        <!-- Market overview -->
-        <div class="card market-card">
-          <div class="card-header">Обзор рынка</div>
-          <div class="market-metric">
-            <div class="mm-label">Капитализация</div>
-            <div class="mm-value">$2.45T</div>
-            <div class="mm-change pos">+1.32%</div>
-          </div>
-          <div class="market-metric">
-            <div class="mm-label">Объём 24ч</div>
-            <div class="mm-value">$85.32B</div>
-            <div class="mm-change neg">−6.21%</div>
-          </div>
-          <div class="fear-greed">
-            <div class="mm-label">Страх и жадность</div>
-            <div class="fg-bar-wrap">
-              <div class="fg-bar"><div class="fg-fill" style="width:62%"></div></div>
-              <span class="fg-val">62 — Жадность</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top gainers -->
+        <!-- Top up -->
         <div class="card movers-card">
           <div class="card-header">Топ рост</div>
-          <div class="mover-list">
-            <div class="mover-row"><span class="mover-rank">1</span><span class="mover-sym">WIF/USDT</span><span class="mover-pct pos">+24.35%</span></div>
-            <div class="mover-row"><span class="mover-rank">2</span><span class="mover-sym">PEPE/USDT</span><span class="mover-pct pos">+18.72%</span></div>
-            <div class="mover-row"><span class="mover-rank">3</span><span class="mover-sym">ARB/USDT</span><span class="mover-pct pos">+15.23%</span></div>
-            <div class="mover-row"><span class="mover-rank">4</span><span class="mover-sym">SUI/USDT</span><span class="mover-pct pos">+14.11%</span></div>
-            <div class="mover-row"><span class="mover-rank">5</span><span class="mover-sym">LDO/USDT</span><span class="mover-pct pos">+13.89%</span></div>
+          <div class="mover-list" id="topGainersList">
+            <div class="corr-loading">Ожидание данных...</div>
           </div>
         </div>
 
-        <!-- Top losers -->
+        <!-- Top down -->
         <div class="card movers-card">
           <div class="card-header">Топ падение</div>
-          <div class="mover-list">
-            <div class="mover-row"><span class="mover-rank">1</span><span class="mover-sym">FLOKI/USDT</span><span class="mover-pct neg">−18.45%</span></div>
-            <div class="mover-row"><span class="mover-rank">2</span><span class="mover-sym">DYDX/USDT</span><span class="mover-pct neg">−14.32%</span></div>
-            <div class="mover-row"><span class="mover-rank">3</span><span class="mover-sym">BONK/USDT</span><span class="mover-pct neg">−12.73%</span></div>
-            <div class="mover-row"><span class="mover-rank">4</span><span class="mover-sym">GMT/USDT</span><span class="mover-pct neg">−11.21%</span></div>
-            <div class="mover-row"><span class="mover-rank">5</span><span class="mover-sym">OP/USDT</span><span class="mover-pct neg">−10.38%</span></div>
+          <div class="mover-list" id="topLosersList">
+            <div class="corr-loading">Ожидание данных...</div>
+          </div>
+        </div>
+
+        <!-- Volume spikes -->
+        <div class="card movers-card">
+          <div class="card-header">Всплески объёма</div>
+          <div class="mover-list" id="volumeSpikesList">
+            <div class="corr-loading">Ожидание данных...</div>
           </div>
         </div>
 

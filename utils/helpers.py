@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Literal
 
 import pandas as pd
@@ -10,10 +11,10 @@ from models import Timeframe
 
 def load_data(timeframe: Timeframe) -> pd.DataFrame:
     """
-    Загружает исторические данные parquet для указанного таймфрейма.
+    Загружает исторические данные из parquet файла в DataFrame для указанного таймфрейма.
     """
-    data_path = f"data/historical_data/historical_data_{timeframe.label}.parquet"
-    return pd.read_parquet(data_path)
+    path = Path("data/historical_data") / f"historical_data_{timeframe.label}.parquet"
+    return pd.read_parquet(path)
 
 def filter_by_symbol(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -51,7 +52,6 @@ def read_correlations() -> dict[str, float]:
     """
     Возвращает значения корреляций из файла.
     """
-    path_file = "data/values/correlations/correlations.json"
-    with open(path_file, encoding="utf-8") as f:
-        ticker_corr = json.load(f)
-    return ticker_corr
+    path = Path("data/values/correlations/correlations.json")
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)

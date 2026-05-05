@@ -9,7 +9,7 @@ const API = "http://localhost:8000";
 
 // ── SSE подписка на обновления ─────────────────────────────────────────────
 
-export function connectSSE() {
+export function connectSSE(handlers) {
   const eventSource = new EventSource(`${API}/stream`);
 
   eventSource.addEventListener("update", (event) => {
@@ -17,9 +17,9 @@ export function connectSSE() {
     console.log(`Пришло сообщение обновления: ${data.type}`);
     
     if (data.type === "signals") {
-      fetchSignals(data.timeframe);
+      handlers.onSignals(data.timeframe);
     } else if (data.type === "price_volume"){
-      fetchPriceVolume();
+      handlers.onPriceVolume();
     }
   });
 
@@ -30,17 +30,10 @@ export function connectSSE() {
 
 // ── Запрос сигналов по таймфрейму ──────────────────────────────────────────
 
-async function fetchSignals(tf) {
+export async function fetchSignals(tf) {
   try {
     const res  = await fetch(`${API}/signals?tf=${tf}`);
-    const data = await res.json();
-
-    setSignals(tf, data.map(formatSignal));
-    console.log(`Данные обновлены: ${tf}`);
-
-    if (tf === getState().timeframe) {
-      renderTable();
-    }
+    return await res.json();
   } catch (err) {
     console.error(`Ошибка загрузки сигналов (${tf}):`, err);
   }
@@ -48,19 +41,23 @@ async function fetchSignals(tf) {
 
 // ── Запрос изменений цен и объемов ─────────────────────────────────────────
 
-async function fetchPriceVolume() {
+export async function fetchPriceVolume() {
+  try {
     const res  = await fetch(`${API}/price_volume`);
-    const data = await res.json();
-    console.log("Изменения цен и объемов обновлены");
+    return await res.json();
+  } catch {
+    console.error("Ошибка загрузки цен и объёмов:", err)
+  }
 }
 
-// ── Форматирование сырых данных ────────────────────────────────────────────
+// ── Запрос начальных актуальных данных ───────────────────────────────────
 
-function formatSignal(signal) {
-  return {
-    ...signal,
-    symbol:          signal.symbol.replace(".P", "").replace("USDT", "/USDT"),
-    indicator_value: Number(signal.indicator_value.toFixed(2)),
-    vol_ratio:       Number(signal.vol_ratio.toFixed(2)),
-  };
+export async function fetchInitialData() {
+  try {
+    const res = await fetch(`${API}/initial_data`);
+    return await res.json(); // { signals: { "1h": [...] }, price_changes: { ... } | null }
+  } catch (err) {
+    console.error("Ошибка загрузки начальных данных:", err);
+    return { signals: {}, price_changes: null };
+  }
 }

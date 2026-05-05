@@ -1,5 +1,6 @@
 import asyncio
 import json
+from pathlib import Path
 from typing import TypedDict, Required, NotRequired
 
 from fastapi import FastAPI, Request
@@ -65,9 +66,8 @@ def get_signals(tf: str):
     Возвращает сигналы для указанного таймфрейма из JSON файла.
     """
     logger.info(f"Запрос сигналов: {tf}")
-    file_path = f"data/values/signals/signals_{tf}.json"
-    
-    with open(file_path, encoding="utf-8") as f:
+    path = Path("data/values/signals") / f"signals_{tf}.json"
+    with path.open("r", encoding="utf-8") as f:
         return json.load(f)
     
 
@@ -77,10 +77,33 @@ def get_price_volume():
     Возвращает последние изменения цен и объёмов.
     """
     logger.info("Запрос изменений цен и объёмов")
-    file_path = "data/values/prices/price_changes.json"
-    
-    with open(file_path, encoding="utf-8") as f:
+    path = Path("data/values/price_vol_changes/price_vol_changes.json")
+    with path.open("r", encoding="utf-8") as f:
         return json.load(f)
+    
+
+@app.get("/initial_data")
+def get_initial_data():
+    """
+    Возвращает все актуальные данные для клиента при первом подключении:
+    - сигналы по таймфреймам
+    - изменения цен и объёмов
+    """
+    signals = {}
+    for file_path in Path("data/values/signals").glob("signals_*.json"):
+        tf_label = file_path.stem.replace("signals_", "")
+        signals[tf_label] = json.loads(file_path.read_text(encoding="utf-8"))
+
+    price_changes_path = Path("data/values/price_vol_changes/price_vol_changes.json")
+    if price_changes_path.exists():
+        price_changes = json.loads(price_changes_path.read_text(encoding="utf-8"))
+    else:
+        price_changes = None
+
+    return {
+        "signals": signals,
+        "price_changes": price_changes
+    }
 
 
 @app.get("/")

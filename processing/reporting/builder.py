@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal
 from collections import defaultdict
 from multiprocessing import Pool, cpu_count
@@ -134,10 +135,13 @@ class ReportBuilder:
             top_signals = indicator_signals[:max_charts]
             if not top_signals:
                 continue
-
-            charts_folder = (
-                f"data/reports/{timeframe.label}/{group}/"
-                f"{sort_mode.charts_dirname}/{indicator_type}"
+            
+            charts_folder: Path = (
+                Path("data/reports") 
+                / timeframe.label 
+                / group 
+                / sort_mode.charts_dirname 
+                / indicator_type
             )
             ensure_dir(charts_folder)
 

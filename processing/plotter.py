@@ -1,6 +1,6 @@
 import logging
-import os
 import warnings
+from pathlib import Path
 
 import pandas as pd
 import mplfinance as mpf
@@ -42,8 +42,9 @@ class MarketPlotter:
             logger.error(f"Нет данных для {symbol}")
             return
         
-        os.makedirs(save_folder, exist_ok=True)
-        save_path = f"{save_folder}/{filename}.jpg"
+        save_folder = Path(save_folder)
+        save_folder.mkdir(parents=True, exist_ok=True)
+        save_path = save_folder / f"{filename}.jpg"
 
         addplots = []
         

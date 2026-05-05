@@ -1,5 +1,5 @@
-import os
 import json
+from pathlib import Path
 from datetime import datetime, timedelta
 
 from models import Timeframe
@@ -15,12 +15,14 @@ class StateManager:
     Хранит время последнего обновления и определяет,
     какие таймфреймы требуют обновления.
     """
-    STATE_FILE = "data/state/last_updates.json"
+    STATE_FILE = Path("data/state/last_updates.json")
+    SIGNALS_DIR = Path("data/values/signals")
+    PRICE_VOL_CHANGES_FILE = Path("data/values/price_vol_changes/price_vol_changes.json")
 
     TIMEFRAME_INTERVALS = {
         Timeframe.H1: timedelta(hours=1),
-        Timeframe.M15: timedelta(minutes=15),
         Timeframe.M30: timedelta(minutes=30),
+        Timeframe.M15: timedelta(minutes=15),
         Timeframe.H4: timedelta(hours=4),
         Timeframe.D1: timedelta(days=1)
     }
@@ -44,11 +46,9 @@ class StateManager:
                 continue
 
             delta = now - last_update
-
             if delta >= interval:
                 pretty_delta = str(delta).split(".")[0]
                 logger.info(f"Нужно обновить {tf.label} (прошло {pretty_delta})")
-                
                 to_update.append(tf)
 
         return to_update
@@ -63,22 +63,48 @@ class StateManager:
 
         logger.info(f"Сохранено время обновления таймфрейма {timeframe.label}: {now}")
 
-    def _load_state(self) -> dict:
-        if not os.path.exists(self.STATE_FILE):
-            return {}
+    def cleanup_stale_signals(self):
+        """
+        Удаляет файлы сигналов и price_changes, если их данные устарели.
+        Вызывается при старте до запуска сервера.
+        """
+        now = datetime.now()
 
-        with open(self.STATE_FILE, "r", encoding="utf-8") as f:
+        for tf, interval in self.TIMEFRAME_INTERVALS.items():
+            signal_file = self.SIGNALS_DIR / f"signals_{tf.label}.json"
+
+            if not signal_file.exists():
+                continue
+
+            last_update = self._get_last_update(tf)
+            is_stale = last_update is None or (now - last_update) >= interval
+
+            if is_stale:
+                signal_file.unlink()
+                logger.info(f"Удалён устаревший файл сигналов: {tf.label}")
+
+        if self.PRICE_VOL_CHANGES_FILE.exists():
+            last_update = self._get_last_update(Timeframe.M30)
+            m30_interval = self.TIMEFRAME_INTERVALS.get(Timeframe.M30)
+
+            is_stale = last_update is None or (now - last_update) >= m30_interval
+            if is_stale:
+                self.PRICE_VOL_CHANGES_FILE.unlink()
+                logger.info("Удалён устаревший файл изменений цен и объёмов")
+
+    def _load_state(self) -> dict:
+        if not self.STATE_FILE.exists():
+            return {}
+        with self.STATE_FILE.open("r", encoding="utf-8") as f:
             return json.load(f)
 
     def _save_state(self):
-        os.makedirs(os.path.dirname(self.STATE_FILE), exist_ok=True)
-
-        with open(self.STATE_FILE, "w", encoding="utf-8") as f:
+        self.STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with self.STATE_FILE.open("w", encoding="utf-8") as f:
             json.dump(self.state, f, indent=4, ensure_ascii=False)
 
     def _get_last_update(self, timeframe: Timeframe) -> datetime | None:
         value = self.state.get(timeframe.value)
-
         if not value:
             return None
 

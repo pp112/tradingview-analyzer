@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from storage.writer import write_json
@@ -11,7 +13,7 @@ class PriceVolumeMonitor:
     Отслеживает изменения цен между запусками и сохраняет результат.
     """
 
-    CHANGES_PATH = "data/values/prices/price_changes.json"
+    CHANGES_PATH = Path("data/values/price_vol_changes/price_vol_changes.json")
     
     def calculate_and_save(self, df: pd.DataFrame):
         """
@@ -41,11 +43,11 @@ class PriceVolumeMonitor:
             curr_volume = group.iloc[-1]["volume"]
 
             price_delta_pct  = (curr_price  - prev_price)  / prev_price  * 100
-            volume_delta_pct = (curr_volume - prev_volume) / prev_volume * 100
+            volume_delta_pct = max(0, (curr_volume - prev_volume) / prev_volume * 100)
 
             changes[symbol] = {
                 "price_delta_pct":  round(price_delta_pct,  2),
-                "volume_delta_pct": round(volume_delta_pct, 2),
+                "volume_delta_pct": round(volume_delta_pct, 0),
             }
 
         return changes

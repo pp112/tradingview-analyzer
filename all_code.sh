@@ -1,30 +1,20 @@
 #!/bin/bash
 
-# Список директорий для исключения (можно легко добавлять/удалять)
-exclude_dirs=(
-    "./.venv"
-    # "./api"
-    # "./app"
+# Список директорий, которые НУЖНО обрабатывать
+include_dirs=(
+    "./api"
+    "./app"
     "./config"
-    # "./market"
-    # "./models"
-    # "./processing"
+    "./market"
+    "./models"
+    "./processing"
     "./storage"
     "./utils"
     "./web"
 )
 
-# Функция для построения аргументов find с исключениями
-build_find_excludes() {
-    local args=()
-    for dir in "${exclude_dirs[@]}"; do
-        args+=(-path "$dir" -prune -o)
-    done
-    echo "${args[@]}"
-}
-
 # Основная команда
-find . $(build_find_excludes) \
+find "${include_dirs[@]}" \
     -type f \
     \( -name "*.py" -o -name "*.yaml" -o -name "*.js" -o -name "*.css" -o -name "*.html" \) \
     -exec echo \; \
