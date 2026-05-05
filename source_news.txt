@@ -1,0 +1,7 @@
+CoinDesk
+Decrypt
+cryptoslate (https://cryptoslate.com/analysis/)
+cointelegraph (https://cointelegraph.com/category/latest-news)
+cryptonews (https://cryptonews.net/ru/)
+investing (https://ru.investing.com/news/cryptocurrency-news)
+CoinMarketCap
