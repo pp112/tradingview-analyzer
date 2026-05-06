@@ -43,7 +43,6 @@ class StartupUpdater:
 
         for tf in timeframes_to_update:
             await self.updater.update_timeframe(tf)
-            self.state_manager.set_updated(tf)
 
         if Timeframe.M30 not in timeframes_to_update:
             df = load_data(Timeframe.M30)

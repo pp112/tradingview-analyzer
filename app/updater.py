@@ -3,6 +3,7 @@ from typing import Literal
 from models import Timeframe
 from market import MarketDataClient
 from processing import IndicatorEngine, ReportBuilder, CorrelationCalculator, PriceVolumeMonitor
+from storage.state_manager import StateManager
 from config.settings import load_settings
 from utils import read_correlations
 from storage.writer import (
@@ -35,6 +36,7 @@ class Updater:
         self._corr_threshold_override = corr_threshold
         self._corr_sort_order_override = corr_sort_order
 
+        self.state_manager = StateManager()
         self.market_client = MarketDataClient()
         self.indicator_engine = IndicatorEngine()
         self.correlation_calculator = CorrelationCalculator()
@@ -84,6 +86,8 @@ class Updater:
             corr_sort_order=corr_sort_order,
             corr_threshold=corr_threshold
         )
+
+        self.state_manager.set_updated(timeframe)
 
         logger.info(f"{timeframe.label}: Обновление завершено")
 

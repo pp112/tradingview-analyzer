@@ -82,5 +82,5 @@ class PrefixAdapter(logging.LoggerAdapter):
     def process(self, msg, kwargs):
         prefix = self.extra.get("prefix", "")
         if prefix:
-            msg = f"{prefix} - {msg}"
+            msg = f"{prefix:<10} - {msg}"
         return msg, kwargs
