@@ -79,7 +79,13 @@ function filterBySignalType(rows) {
       grouped[row.symbol][row.indicator] = row.indicator_value;
     });
 
-    return Object.values(grouped);
+    const sameDirection = Object.values(grouped).filter(group => {
+      const symbolRows = combined.filter(row => row.symbol === group.symbol);
+      const directions = new Set(symbolRows.map(row => row.direction));
+      return directions.size === 1;
+    });
+
+    return sameDirection;
   }
 }
 
