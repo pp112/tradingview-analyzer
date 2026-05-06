@@ -176,7 +176,7 @@ function buildRow(signal, i) {
     <tr style="animation-delay:${i * 0.03}s">
       <td class="th-fav">☆</td>
       <td class="sym-cell">
-        <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${signal.symbol.replace("/", "")}"
+        <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${signal.symbol.replace("/", "")}.P"
            target="_blank"
            class="sym-link">
           ${signal.symbol}
