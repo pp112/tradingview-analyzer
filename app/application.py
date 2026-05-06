@@ -4,7 +4,7 @@ import webbrowser
 
 import uvicorn
 
-from config import setup_logging, get_logger
+from config import setup_logging, get_logger, console
 from app.startup import StartupUpdater
 from app.scheduler import Scheduler
 from api.api import app as fastapi_app
@@ -39,8 +39,7 @@ class App:
         Запускает приложение и ожидает сигнала завершения.
         """
         setup_logging()
-        logger.info("--------------------------------------------------")
-        logger.info("Запуск приложения")
+        console.print("[bold cyan]──────────────── Запуск приложения ────────────────[/bold cyan]")
 
         self._setup_signal_handlers()
         await self._start_server()

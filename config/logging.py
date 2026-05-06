@@ -9,6 +9,19 @@ from storage.writer import ensure_dir
 
 console = Console()
 
+PREFIX_STYLES = {
+    "APP":       "bold white",        # нейтральный вход
+    "API":       "bold magenta",      # внешний мир / интеграции
+    "UPDATER":   "bold yellow",       # процесс / работа
+    "SCHED":     "bold bright_yellow",# планировщик (важный фон)
+    "STARTUP":   "bold green",        # успешный старт
+    "SIGNALS":   "bold bright_green", # результат / трейдинг
+    "REPORTS":   "bold white",        # нейтральный вывод
+    "STATE":     "bold bright_cyan",  # второстепенное
+    "PRICE_VOL": "bold red",          # деньги / риск
+    "HTTP":      "bold cyan",         # сеть / тех. слой
+}
+
 def setup_logging():
     """
     Конфигурация логирования.
@@ -80,7 +93,8 @@ def get_logger(name: str, prefix: str = ""):
 
 class PrefixAdapter(logging.LoggerAdapter):
     def process(self, msg, kwargs):
-        prefix = self.extra.get("prefix", "")
+        prefix = self.extra.get("prefix", "").strip("[]")
         if prefix:
-            msg = f"{prefix:<10} - {msg}"
+            style = PREFIX_STYLES.get(prefix, "bold green")
+            msg = f"[{style}][{prefix}][/{style}] {msg}"
         return msg, kwargs
