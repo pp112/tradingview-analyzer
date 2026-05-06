@@ -175,13 +175,7 @@ function buildRow(signal, i) {
   return `
     <tr style="animation-delay:${i * 0.03}s">
       <td class="th-fav">☆</td>
-      <td class="sym-cell">
-        <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${signal.symbol.replace("/", "")}.P"
-           target="_blank"
-           class="sym-link">
-          ${signal.symbol}
-        </a>
-      </td>
+      <td class="sym-cell">${buildSymbolLink(signal.symbol)}</td>
       ${buildIndicatorCells(signal)}
       <td>${signal.correlation}</td>
       <td>𓏬</td>
@@ -207,7 +201,7 @@ function buildCombinedRow(signal, i) {
   return `
     <tr style="animation-delay:${i * 0.03}s">
       <td class="th-fav">☆</td>
-      <td class="sym-cell">${signal.symbol}</td>
+      <td class="sym-cell">${buildSymbolLink(signal.symbol)}</td>
       <td>${cell(signal.rsi)}</td>
       <td>${cell(signal.macd)}</td>
       <td>${cell(signal.ema_sma)}</td>
@@ -246,4 +240,17 @@ function buildIndicatorCells(signal) {
     <td><span class="badge ${clsBadge}">${signal.direction}</span></td>
     <td><span class="vol-cell ${clsVolume}">${signal.vol_ratio}</span></td>
   `
+}
+
+// ── Ячейка символа с ссылкой ───────────────────────────────────────────────
+
+function buildSymbolLink(symbol) {
+  const formatted = symbol.replace("/", "");
+  return `
+    <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${formatted}.P"
+       target="_blank"
+       class="sym-link">
+      ${symbol}
+    </a>
+  `;
 }
