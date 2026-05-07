@@ -250,13 +250,13 @@ function buildIndicatorCells(signal) {
 
 // ── Ячейка символа с ссылкой ───────────────────────────────────────────────
 
-function buildSymbolLink(symbol) {
-  const formatted = symbol.replace("/", "");
+export function buildSymbolLink(symbol) {
+  const formatted = symbol.replace("/", "").replace(".P", "");
   return `
-    <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${formatted}.P"
+    <a href="https://ru.tradingview.com/chart/?symbol=BYBIT:${formatted}.P"
        target="_blank"
        class="sym-link">
-      ${symbol}
+      ${formatted}
     </a>
   `;
 }

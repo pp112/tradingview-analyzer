@@ -77,8 +77,11 @@ class App:
         Регистрирует обработчики сигналов SIGINT и SIGTERM для корректного завершения.
         """
         loop = asyncio.get_running_loop()
-        loop.add_signal_handler(signal.SIGINT,  self._shutdown)
-        loop.add_signal_handler(signal.SIGTERM, self._shutdown)
+        try:
+            loop.add_signal_handler(signal.SIGINT,  self._shutdown)
+            loop.add_signal_handler(signal.SIGTERM, self._shutdown)
+        except:
+            pass
 
     def _shutdown(self):
         """

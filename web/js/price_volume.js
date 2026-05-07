@@ -1,5 +1,7 @@
 // ─── Отрисовка карточек цен и объёмов ────────────────────────────────────
 
+import { buildSymbolLink } from "./table.js";
+
 export function renderBottomCards(data) {
   _renderTopGainers(data);
   _renderTopLosers(data);
@@ -19,13 +21,7 @@ function _renderTopGainers(data) {
     return `
       <div class="mover-row">
         <span class="mover-rank">${i + 1}</span>
-        <span class="mover-sym">
-          <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${symbol.replace("/", "")}"
-             target="_blank"
-             class="sym-link">
-            ${_formatSymbol(symbol)}
-          </a>
-        </span>
+        <span class="mover-sym">${buildSymbolLink(symbol)}</span>
         <span class="mover-pct pos">+${values.price_delta_pct}%</span>
       </div>
     `;
@@ -45,13 +41,7 @@ function _renderTopLosers(data) {
     return `
       <div class="mover-row">
         <span class="mover-rank">${i + 1}</span>
-        <span class="mover-sym">
-          <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${symbol.replace("/", "")}"
-             target="_blank"
-             class="sym-link">
-            ${_formatSymbol(symbol)}
-          </a>
-        </span>
+        <span class="mover-sym">${buildSymbolLink(symbol)}</span>
         <span class="mover-pct neg">${values.price_delta_pct}%</span>
       </div>
     `;
@@ -71,19 +61,9 @@ function _renderVolumeSpikes(data) {
     return `
       <div class="mover-row">
         <span class="mover-rank">${i + 1}</span>
-        <span class="mover-sym">
-          <a href="https://www.tradingview.com/chart/?symbol=BYBIT:${symbol.replace("/", "")}"
-             target="_blank"
-             class="sym-link">
-            ${_formatSymbol(symbol)}
-          </a>
-        </span>
+        <span class="mover-sym">${buildSymbolLink(symbol)}</span>
         <span class="mover-pct vol-pct">${values.volume_delta_pct}%</span>
       </div>
     `; 
   }).join("");
-}
-
-function _formatSymbol(symbol) {
-  return symbol.replace("USDT", "/USDT").replace(".P", "");
 }
