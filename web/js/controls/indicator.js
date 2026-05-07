@@ -15,10 +15,15 @@ export function initIndicator() {
     btnsSigtype.querySelector(".active").classList.remove("active");
     btnsSigtype.querySelector("[data-sigt='all']").classList.add("active");
 
+    topNGroup.style.display = "none";
+
     btn.parentElement.querySelector(".active")?.classList.remove("active");
     btn.classList.add("active");
 
-    setState({ indicator: btn.dataset.ind, sigtype: "all" });
+    setState({ 
+      indicator: btn.dataset.ind, 
+      sigtype: "all" 
+    });
     renderTable();
   });
 }

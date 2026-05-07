@@ -21,16 +21,33 @@ export function setState(patch) {
 }
 
 export function setSortState(column) {
-  if (_state.sort.column === column) {
-    _state.sort.direction++;
+  const currentState = getState();
+  const currentIndicator = currentState.indicator;
+  const currentSort = currentState.sort;
+  if ((currentIndicator === "macd" || currentIndicator === "ema_sma") && column === "indicator_value") {
+    if (currentSort.column === column) {
 
-    if (_state.sort.direction > 2) {
-      _state.sort.column = null;
-      _state.sort.direction = 0;
+      if (currentSort.direction === 1) {
+        _state.sort.direction = 0;
+        _state.sort.column = null;
+      } else {
+        _state.sort.direction = 1;
+      }
+    } else {
+      _state.sort.column = column;
+      _state.sort.direction = 1;
     }
-
   } else {
-    _state.sort.column = column;
-    _state.sort.direction = 1;
+    if (currentSort.column === column) {
+      _state.sort.direction++;
+
+      if (_state.sort.direction > 2) {
+        _state.sort.column = null;
+        _state.sort.direction = 0;
+      }
+    } else {
+      _state.sort.column = column;
+      _state.sort.direction = 1;
+    }
   }
 }

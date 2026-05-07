@@ -2,14 +2,14 @@
 
 # Список директорий, которые НУЖНО обрабатывать
 include_dirs=(
-    "./api"
-    "./app"
-    "./config"
-    "./market"
-    "./models"
-    "./processing"
-    "./storage"
-    "./utils"
+    # "./api"
+    # "./app"
+    # "./config"
+    # "./market"
+    # "./models"
+    # "./processing"
+    # "./storage"
+    # "./utils"
     "./web"
 )
 

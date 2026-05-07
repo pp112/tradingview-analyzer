@@ -241,7 +241,7 @@ function buildIndicatorCells(signal) {
   const indicator = signal.indicator.toUpperCase().replace("_", "-")
 
   return `
-    <td><span class="${clsValue}">${signal.indicator_value}</span></td>
+    <td><span class="${clsValue}">${_formatValue(signal.indicator_value)}</span></td>
     <td><span class="badge ${clsBadge}">${indicator}</span></td>
     <td><span class="badge ${clsBadge}">${signal.direction}</span></td>
     <td><span class="vol-cell ${clsVolume}">${signal.vol_ratio}</span></td>
@@ -256,7 +256,19 @@ export function buildSymbolLink(symbol) {
     <a href="https://ru.tradingview.com/chart/?symbol=BYBIT:${formatted}.P"
        target="_blank"
        class="sym-link">
-      ${formatted}
+      ${formatted.replace("USDT", "/USDT")}
     </a>
   `;
+}
+
+// ── Форматирование значения ────────────────────────────────────────────────
+
+function _formatValue(num) {
+  if (num === 0) return "0";
+
+  const abs = Math.abs(num);
+
+  const decimals = abs >= 1 ? 2 : Math.ceil(-Math.log10(abs)) + 1;
+
+  return Number(num.toFixed(decimals));
 }

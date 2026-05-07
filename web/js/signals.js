@@ -36,7 +36,7 @@ function formatSignal(signal) {
   return {
     ...signal,
     symbol:          signal.symbol.replace(".P", "").replace("USDT", "/USDT"),
-    indicator_value: Number(signal.indicator_value.toFixed(2)),
+    indicator_value: signal.indicator_value,
     vol_ratio:       Number(signal.vol_ratio.toFixed(2)),
   };
 }

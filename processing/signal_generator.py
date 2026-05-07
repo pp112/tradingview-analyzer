@@ -67,9 +67,7 @@ class SignalGenerator:
         if prev is None or curr is None:
             return None
 
-        spread = abs(curr["MACD"] - curr["MACD_signal"])
-        base = abs(curr["MACD_signal"]) if curr["MACD_signal"] != 0 else 1e-9
-        value = spread / base
+        value = abs(curr["MACD"])
 
         if (
             prev["MACD"] < prev["MACD_signal"]
@@ -84,7 +82,7 @@ class SignalGenerator:
             and curr["MACD"] > 0
             and curr["MACD_signal"] > 0
         ):
-            direction = Direction.UP
+            direction = Direction.DOWN
         else:
             return None
         
