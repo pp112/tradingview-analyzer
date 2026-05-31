@@ -469,13 +469,23 @@ th.sorted-desc .sort-icon::after {
 .vol-cell, .corr-cell { font-family: var(--font-mono); }
 
 .chart-btn {
-  background: var(--blue-bg); border: 1px solid var(--blue-bd);
-  border-radius: 6px; padding: 4px 10px;
-  color: var(--blue); font-size: 0.72rem; font-weight: 700;
-  cursor: pointer; transition: all 0.15s;
-  font-family: var(--font-mono);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 18px;
+  color: var(--text1);
+  font-family: var(--font-ui);
+  font-size: 0.71rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-block;
+  margin: auto;
 }
-.chart-btn:hover { background: var(--blue); color: #fff; }
+.chart-btn:hover { 
+  border-color: var(--border2);
+  color: var(--text0); 
+}
 
 .loading-cell {
   text-align: center; padding: 40px 20px !important;

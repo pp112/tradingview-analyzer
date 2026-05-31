@@ -184,7 +184,7 @@ function buildRow(signal, i) {
       <td class="sym-cell">${buildSymbolLink(signal.symbol)}</td>
       ${buildIndicatorCells(signal)}
       <td>${signal.correlation}</td>
-      <td>𓏬</td>
+      <td><span class="chart-btn">График</span></td>
     </tr>
   `;
 }
@@ -214,7 +214,7 @@ function buildCombinedRow(signal, i) {
       <td><span class="badge ${clsBadge}">${signal.direction}</span></td>
       <td><span class="vol-cell ${clsVolume}">${signal.vol_ratio}</span></td>
       <td><span class="corr-cell">${signal.correlation}</td>
-      <td>𓏬</td>
+      <td><span class="chart-btn">График</span></td>
     </tr>
   `;
 }
