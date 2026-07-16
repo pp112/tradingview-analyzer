@@ -1,5 +1,6 @@
-import asyncio
-from app.application import App
+def main():
+    print("Hello from tradingview-analyzer!")
+
 
 if __name__ == "__main__":
-    asyncio.run(App().start())
+    main()

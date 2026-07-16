@@ -9,3 +9,6 @@ data/reports/*
 data/state/*
 visualization/plots/*
 logs/
+code.txt
+tree.txt
+web_code.txt

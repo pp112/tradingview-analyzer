@@ -1,0 +1,16 @@
+[project]
+name = "tradingview-analyzer"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "apscheduler",
+    "rich",
+    "pyyaml",
+    "aiohttp",
+    "pandas",
+    "websockets",
+    "pydantic",
+    "mplfinance",
+]
