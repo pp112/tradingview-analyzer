@@ -1,1 +1,1 @@
-find web -type f -exec echo "=== {} ===" \; -exec cat {} \; > web_code.txt
+find frontend -type f -exec echo "=== {} ===" \; -exec cat {} \; > web_code.txt
