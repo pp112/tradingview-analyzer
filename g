@@ -4,7 +4,6 @@ data/historical_data/*
 data/values/indicators/*
 data/values/correlations/*
 data/values/signals/*
-data/reports/*
 data/state/*
 visualization/plots/*
 *.md

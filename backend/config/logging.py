@@ -16,7 +16,6 @@ PREFIX_STYLES = {
     "SCHED":     "bold bright_yellow",# планировщик (важный фон)
     "STARTUP":   "bold green",        # успешный старт
     "SIGNALS":   "bold bright_green", # результат / трейдинг
-    "REPORTS":   "bold white",        # нейтральный вывод
     "STATE":     "bold bright_cyan",  # второстепенное
     "PRICE_VOL": "bold red",          # деньги / риск
     "HTTP":      "bold cyan",         # сеть / тех. слой

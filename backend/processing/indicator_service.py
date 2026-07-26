@@ -188,7 +188,7 @@ class IndicatorService:
             return {
                 "curr": float(curr_volume),
                 "avg": float(avg_volume),
-                "ratio": float(curr_volume / avg_volume)
+                "ratio": round(float(curr_volume / avg_volume), 2)
             }
         except Exception:
             logger.warning(f"VOLUME: ошибка расчета метрик")

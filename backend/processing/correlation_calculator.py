@@ -1,19 +1,13 @@
-from typing import Literal
 import pandas as pd
 
 from backend.processing.indicator_service import IndicatorService
-from backend.utils import sort_correlations
 
 
 class CorrelationCalculator:
     """
     Расчет корреляции между активами.
     """
-    def calculate(
-        self,
-        symbol_df: pd.DataFrame,
-        sort_order: Literal["asc", "desc"] = "desc"
-    ) -> dict[str, float]:
+    def calculate(self, symbol_df: pd.DataFrame) -> dict[str, float]:
         """
         Рассчитывает корреляции всех символов относительно BTC.
         """
@@ -29,4 +23,4 @@ class CorrelationCalculator:
 
             ticker_corrs[symbol] = corr
 
-        return sort_correlations(ticker_corrs, sort_order)
+        return ticker_corrs

@@ -15,9 +15,9 @@ class StateManager:
     Хранит время последнего обновления и определяет,
     какие таймфреймы требуют обновления.
     """
-    STATE_FILE = Path("data/state/last_updates.json")
-    SIGNALS_DIR = Path("data/values/signals")
-    PRICE_VOL_CHANGES_FILE = Path("data/values/price_vol_changes/price_vol_changes.json")
+    STATE_FILE = Path("backend/data/state/last_updates.json")
+    SIGNALS_DIR = Path("backend/data/values/signals")
+    PRICE_VOL_CHANGES_FILE = Path("backend/data/values/price_vol_changes/price_vol_changes.json")
 
     TIMEFRAME_INTERVALS = {
         Timeframe.H1: timedelta(hours=1),

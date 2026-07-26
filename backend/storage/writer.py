@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from backend.models import Timeframe, SortMode, Signal
+from backend.models import Timeframe, Signal
 
 BASE_PATH = Path("data")
 
@@ -79,23 +79,6 @@ def save_correlations(correlations: dict[str, float]):
     file_path = path / "correlations.json"
     with file_path.open("w", encoding="utf-8") as f:
         json.dump(correlations, f, indent=4, ensure_ascii=False)
-
-
-def save_report_txt(
-    lines: list[str],
-    timeframe: Timeframe,
-    group: str,
-    sort_mode: SortMode
-):
-    """
-    Сохраняет текстовый отчёт сигналов.
-    """
-    path = BASE_PATH / "reports" / timeframe.label / group
-    ensure_dir(path)
-    file_path = path / f"{sort_mode.filename}.txt"
-    with file_path.open("w", encoding="utf-8") as f:
-        for line in lines:
-            f.write(line + "\n")
 
 
 def write_json(path: Path | str, data: dict):

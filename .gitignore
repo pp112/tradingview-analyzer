@@ -1,15 +1,9 @@
 .venv/
 node_modules/
 __pycache__/
-data/historical_data/*
-data/values/indicators/*
-data/values/correlations/*
-data/values/signals/*
-data/values/price_vol_changes/*
-data/reports/*
-data/state/*
+backend/data/
 visualization/plots/*
-logs/
+backend/logs/
 code.txt
 tree.txt
 web_code.txt

@@ -13,7 +13,7 @@ class PriceVolumeMonitor:
     Отслеживает изменения цен между запусками и сохраняет результат.
     """
 
-    CHANGES_PATH = Path("data/values/price_vol_changes/price_vol_changes.json")
+    CHANGES_PATH = Path("backend/data/values/price_vol_changes/price_vol_changes.json")
     
     def calculate_and_save(self, df: pd.DataFrame):
         """

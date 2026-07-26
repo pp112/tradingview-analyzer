@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TypedDict, Required, NotRequired
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -13,6 +14,10 @@ logger = get_logger(__name__, "[API]")
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware, 
+    allow_origins=["http://localhost:5173"]
+)
 
 clients: list[asyncio.Queue] = []
 
@@ -66,7 +71,7 @@ def get_signals(tf: str):
     Возвращает сигналы для указанного таймфрейма из JSON файла.
     """
     logger.info(f"Запрос сигналов: {tf}")
-    path = Path("data/values/signals") / f"signals_{tf}.json"
+    path = Path("backend/data/values/signals") / f"signals_{tf}.json"
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
     
@@ -77,7 +82,7 @@ def get_price_volume():
     Возвращает последние изменения цен и объёмов.
     """
     logger.info("Запрос изменений цен и объёмов")
-    path = Path("data/values/price_vol_changes/price_vol_changes.json")
+    path = Path("backend/data/values/price_vol_changes/price_vol_changes.json")
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
     
@@ -90,11 +95,11 @@ def get_initial_data():
     - изменения цен и объёмов
     """
     signals = {}
-    for file_path in Path("data/values/signals").glob("signals_*.json"):
+    for file_path in Path("backend/data/values/signals").glob("signals_*.json"):
         tf_label = file_path.stem.replace("signals_", "")
         signals[tf_label] = json.loads(file_path.read_text(encoding="utf-8"))
 
-    price_changes_path = Path("data/values/price_vol_changes/price_vol_changes.json")
+    price_changes_path = Path("backend/data/values/price_vol_changes/price_vol_changes.json")
     if price_changes_path.exists():
         price_changes = json.loads(price_changes_path.read_text(encoding="utf-8"))
     else:
@@ -108,6 +113,6 @@ def get_initial_data():
 
 @app.get("/")
 def index():
-    return FileResponse("frontend/index.html")
+    return FileResponse("frontend/old_index.html")
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

@@ -26,7 +26,7 @@ class StartupUpdater:
         """
         Обновляет данные
         """
-        signals_dir = Path("data/values/signals")
+        signals_dir = Path("backend/data/values/signals")
         has_signal_files = signals_dir.exists() and any(signals_dir.glob("signals_*.json"))
 
         if has_signal_files:

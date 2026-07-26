@@ -13,4 +13,5 @@ dependencies = [
     "websockets",
     "pydantic",
     "mplfinance",
+    "pyarrow",
 ]
