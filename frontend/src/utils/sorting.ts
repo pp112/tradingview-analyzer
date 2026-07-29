@@ -1,21 +1,6 @@
-import type {
-  CombinedSignal,
-  Signal,
-  Sigtype,
-  SortState,
-} from "../types/signal";
+import type { CombinedSignal, Signal, SortState } from "../types/signal";
 
-export function filterBySignalType(
-  rows: Signal[],
-  sigtype: Sigtype,
-  topN: number | null,
-): Signal[] | CombinedSignal[] {
-  if (sigtype === "all") return rows;
-  if (sigtype === "strong") return filterStrong(rows, topN);
-  return filterCombined(rows);
-}
-
-function filterStrong(rows: Signal[], topN: number | null): Signal[] {
+export function filterStrong(rows: Signal[], topN: number | null): Signal[] {
   const byIndicator = (indicator: Signal["indicator"]) => {
     const sorted = rows
       .filter((row) => row.indicator === indicator)
@@ -31,7 +16,7 @@ function filterStrong(rows: Signal[], topN: number | null): Signal[] {
   ];
 }
 
-function filterCombined(rows: Signal[]): CombinedSignal[] {
+export function filterCombined(rows: Signal[]): CombinedSignal[] {
   const countBySymbol: Record<string, number> = {};
   rows.forEach((row) => {
     countBySymbol[row.symbol] = (countBySymbol[row.symbol] || 0) + 1;
@@ -75,7 +60,7 @@ export function sortByColumn<T extends Record<string, unknown>>(
   sortedRows.sort((a, b) => {
     const v1 = a[column];
     const v2 = b[column];
-    
+
     if (v1 === null) return 1;
     if (v2 === null) return -1;
 

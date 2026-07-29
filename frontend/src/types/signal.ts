@@ -8,7 +8,7 @@ export type Direction = "ВВЕРХ" | "ВНИЗ";
 
 export type Sigtype = "all" | "strong" | "combined";
 
-export interface Signal {
+export type Signal = {
   symbol: string;
   indicator: Exclude<IndicatorType, "vol_ratio">;
   indicator_value: number;
@@ -18,7 +18,7 @@ export interface Signal {
   timeframe: Timeframe;
 }
 
-export interface CombinedSignal {
+export type CombinedSignal = {
   symbol: string;
   direction: Direction;
   rsi: number | null;
@@ -39,7 +39,7 @@ export type SortColumn =
   | "macd"
   | "ema_sma";
 
-export interface SortState {
+export type SortState = {
   column: SortColumn | null;
   direction: 0 | 1 | 2; // 0 = нет сортировки, 1 = убывание, 2 = возрастание
 }
@@ -48,7 +48,7 @@ export type SSEMessage =
   | { type: "signals"; timeframe: Timeframe }
   | { type: "price_volume" };
 
-export interface InitialDataResponse {
+export type InitialDataResponse = {
   signals: Partial<Record<Timeframe, Signal[]>>;
   price_changes: PriceVolumeData | null;
 }
