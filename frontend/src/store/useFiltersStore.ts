@@ -28,7 +28,7 @@ interface FiltersState {
   setIndicator: (ind: IndicatorType) => void;
   setSigtype: (sigtype: Sigtype) => void;
   setCorrelation: (value: number) => void;
-  setTopN: (value: number) => void;
+  setTopN: (value: number | null) => void;
   toggleSort: (column: SortColumn) => void;
 }
 
@@ -58,7 +58,11 @@ export const useFiltersStore = create<FiltersState>((set, get) => ({
   },
 
   setTopN: (value) => {
-    const clamped = Math.max(1, Math.min(50, value));
+    if (value === null) {
+      set({ topN: null });
+      return
+    }
+    const clamped = Math.max(1, value);
     set({ topN: clamped });
   },
 

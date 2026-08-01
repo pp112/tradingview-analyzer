@@ -1,0 +1,77 @@
+crypto-scope/
+├── public/
+│   └── favicon.ico
+│
+├── src/
+│   ├── types/
+│   │   ├── signal.ts
+│   │   └── priceVolume.ts
+│   │
+│   ├── api/
+│   │   ├── client.ts
+│   │   ├── signals.ts
+│   │   ├── priceVolume.ts
+│   │   └── sse.ts
+│   │
+│   ├── store/
+│   │   ├── useFiltersStore.ts
+│   │   └── useSignalsStore.ts
+│   │
+│   ├── hooks/
+│   │   ├── useSSE.ts
+│   │   └── useFilteredSignals.ts
+│   │
+│   ├── utils/
+│   │   ├── formatValue.ts
+│   │   └── sorting.ts
+│   │
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── Loader.tsx
+│   │   │   ├── Badge.tsx
+│   │   │   ├── StepperInput.tsx
+│   │   │   └── SymbolLink.tsx
+│   │   ├── layout/
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Topbar.tsx
+│   │   │   └── TickerBar.tsx
+│   │   └── SignalModal.tsx
+│   │
+│   ├── features/
+│   │   ├── signal-controls/
+│   │   │   ├── SignalControls.tsx
+│   │   │   ├── TimeframeSwitch.tsx
+│   │   │   ├── IndicatorSwitch.tsx
+│   │   │   ├── SigtypeSwitch.tsx
+│   │   │   ├── TopNInput.tsx
+│   │   │   └── CorrelationInput.tsx
+│   │   ├── signal-table/
+│   │   │   ├── SignalTable.tsx
+│   │   │   ├── SignalTableHeader.tsx
+│   │   │   ├── SignalRow.tsx
+│   │   │   └── CombinedRow.tsx
+│   │   ├── movers/
+│   │   │   ├── MoversCard.tsx
+│   │   │   └── MoverRow.tsx
+│   │   ├── news/
+│   │   │   ├── NewsCard.tsx
+│   │   │   └── NewsItem.tsx
+│   │   ├── positions/
+│   │   │   ├── PositionsCard.tsx
+│   │   │   └── PositionRow.tsx
+│   │   └── correlations/
+│   │       └── CorrelationsCard.tsx
+│   │
+│   ├── styles/
+│   │   ├── variables.css
+│   │   └── global.css
+│   │
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── vite-env.d.ts
+│
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
