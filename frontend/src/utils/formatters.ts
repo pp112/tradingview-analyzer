@@ -6,3 +6,10 @@ export function formatValue(num: number): number {
 
   return Number(num.toFixed(decimals));
 }
+
+export function volumeClass(volRatio: number): string {
+  if (volRatio >= 4) return "vol-red";
+  if (volRatio >= 3) return "vol-orange";
+  if (volRatio >= 2) return "vol-yellow";
+  return "vol-default";
+}

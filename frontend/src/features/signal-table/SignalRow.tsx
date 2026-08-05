@@ -1,20 +1,13 @@
 import { Badge } from "../../components/ui/Badge";
 import { SymbolLink } from "../../components/ui/SymbolLink";
 import { useFiltersStore } from "../../store/useFiltersStore";
+import { formatValue, volumeClass } from "../../utils/formatters";
 import type { Signal } from "../../types/signal";
-import { formatValue } from "../../utils/formatValue";
 
 type SignalRowProps = {
   signal: Signal;
   index: number;
 };
-
-function volumeClass(volRatio: number): string {
-  if (volRatio >= 4) return "vol-red";
-  if (volRatio >= 3) return "vol-orange";
-  if (volRatio >= 2) return "vol-yellow";
-  return "vol-default";
-}
 
 export function SignalRow({ signal, index }: SignalRowProps) {
   const indicator = useFiltersStore((s) => s.indicator);
@@ -34,9 +27,7 @@ export function SignalRow({ signal, index }: SignalRowProps) {
       {isVolume ? (
         <>
           <td>
-            <span className={`vol-cell ${volClass}`}>
-              {signal.vol_ratio}
-            </span>
+            <span className={`vol-cell ${volClass}`}>{signal.vol_ratio}</span>
           </td>
           <td>
             <Badge variant="volume">VOLUME</Badge>
@@ -55,14 +46,10 @@ export function SignalRow({ signal, index }: SignalRowProps) {
             </Badge>
           </td>
           <td>
-            <Badge variant={badgeVariant}>
-              {signal.direction}
-            </Badge>
+            <Badge variant={badgeVariant}>{signal.direction}</Badge>
           </td>
           <td>
-            <span className={`vol-cell ${volClass}`}>
-              {signal.vol_ratio}
-            </span>
+            <span className={`vol-cell ${volClass}`}>{signal.vol_ratio}</span>
           </td>
         </>
       )}
