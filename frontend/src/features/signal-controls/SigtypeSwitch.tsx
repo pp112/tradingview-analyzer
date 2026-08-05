@@ -1,5 +1,5 @@
-import { useFiltersStore } from "../../../store/useFiltersStore";
-import type { Sigtype } from "../../../types/signal";
+import { useFiltersStore } from "../../store/useFiltersStore";
+import type { Sigtype } from "../../types/signal";
 
 const SIGTYPES: { value: Sigtype, label: string }[] = [
   { value: "all", label: "Все" },

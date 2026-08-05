@@ -1,5 +1,5 @@
-import { useFiltersStore } from "../../../store/useFiltersStore";
-import { StepperInput } from "../../ui/StepperInput";
+import { useFiltersStore } from "../../store/useFiltersStore";
+import { StepperInput } from "../../components/ui/StepperInput";
 
 export function TopNInput() {
   const topN = useFiltersStore((s) => s.topN);

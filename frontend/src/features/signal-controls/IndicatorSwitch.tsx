@@ -1,5 +1,5 @@
-import { useFiltersStore } from "../../../store/useFiltersStore";
-import type { IndicatorType } from "../../../types/signal";
+import { useFiltersStore } from "../../store/useFiltersStore";
+import type { IndicatorType } from "../../types/signal";
 
 const INDICATORS: { value: IndicatorType; label: string }[] = [
   { value: "rsi", label: "RSI" },

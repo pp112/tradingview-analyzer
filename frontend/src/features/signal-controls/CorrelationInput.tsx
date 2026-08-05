@@ -1,5 +1,5 @@
-import { useFiltersStore } from "../../../store/useFiltersStore";
-import { StepperInput } from "../../ui/StepperInput"
+import { useFiltersStore } from "../../store/useFiltersStore";
+import { StepperInput } from "../../components/ui/StepperInput";
 
 function formatCorrelation(value: number): string {
   return value.toFixed(2).replace(/\.00$/, "");

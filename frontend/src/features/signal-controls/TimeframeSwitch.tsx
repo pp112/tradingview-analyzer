@@ -1,5 +1,5 @@
-import { useFiltersStore } from "../../../store/useFiltersStore";
-import type { Timeframe } from "../../../types/signal";
+import { useFiltersStore } from "../../store/useFiltersStore";
+import type { Timeframe } from "../../types/signal";
 
 const TIMEFRAMES: Timeframe[] = ["15m", "30m", "1h", "4h", "1d"];
 
