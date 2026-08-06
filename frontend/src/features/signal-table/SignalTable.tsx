@@ -4,9 +4,11 @@ import { CombinedRow } from "./CombinedRow";
 import { SignalRow } from "./SignalRow";
 import { SignalTableHeader } from "./SignalTableHeader";
 import type { CombinedSignal, Signal } from "../../types/signal";
+import { useSignalsStore } from "../../store/useSignalsStore";
 
 export function SignalTable() {
   const sigtype = useFiltersStore((s) => s.sigtype);
+  const connectionStatus = useSignalsStore((s) => s.connectionStatus);
   const rows = useFilteredSignals();
 
   return (
@@ -16,7 +18,20 @@ export function SignalTable() {
           <SignalTableHeader />
         </thead>
         <tbody>
-          {rows.length === 0 ? (
+          {connectionStatus === "connecting" ? (
+            <tr>
+              <td colSpan={8} className="loading-cell">
+                <div className="loader" />
+                <span>Загрузка сигналов...</span>
+              </td>
+            </tr>
+          ) : connectionStatus === "error" ? (
+            <tr>
+              <td colSpan={8} className="loading-cell">
+                Не удалось подключиться к серверу. Проверьте, запущен ли бэкенд.
+              </td>
+            </tr>
+          ) : rows.length === 0 ? (
             <tr>
               <td colSpan={8} className="loading-cell">
                 Нет данных для выбранных фильтров

@@ -31,7 +31,6 @@
   --yellow-bg:   rgba(245,166,35,0.10);
   --sidebar-w:    200px;
   --topbar-h:     44px;
-  --ticker-h:     36px;
   --radius:       10px;
   --font-ui:      'Syne', sans-serif;
   --font-mono:    'JetBrains Mono NL Light', monospace;
@@ -676,72 +675,12 @@ th.sorted-desc .sort-icon::after {
 .corr-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
 .corr-val { font-family: var(--font-mono); font-weight: 700; font-size: 0.7rem; width: 38px; text-align: right; }
 
-/* ── Ticker bar ───────────────────────────────────────────────────────────── */
-.ticker-bar {
-  height: var(--ticker-h); flex-shrink: 0;
-  background: var(--bg1); border-top: 1px solid var(--border);
-  overflow: hidden; display: flex; align-items: center;
-}
-.ticker-track {
-  display: flex; gap: 0; align-items: center;
-  animation: ticker 35s linear infinite;
-  white-space: nowrap;
-  font-family: var(--font-mono); font-size: 0.72rem;
-}
-.ticker-item {
-  display: inline-flex; gap: 6px; align-items: center;
-  padding: 0 24px;
-  border-right: 1px solid var(--border);
-}
-.ticker-item b { color: var(--text0); }
-@keyframes ticker {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
 
 /* ── Utility ──────────────────────────────────────────────────────────────── */
 .pos     { color: var(--green); }
 .neg     { color: var(--red);   }
 .vol-pct { color: var(--v-pct); }
 .muted   { color: var(--text2); }
-
-/* ── Modal ────────────────────────────────────────────────────────────────── */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.2s;
-}
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal {
-  background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: 14px; width: 520px; max-width: 95vw;
-  box-shadow: var(--shadow);
-  transform: scale(0.95); transition: transform 0.2s;
-}
-.modal-overlay.open .modal { transform: scale(1); }
-.modal-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid var(--border);
-}
-.modal-title { font-size: 1rem; font-weight: 800; color: var(--text0); }
-.modal-close {
-  background: none; border: none; color: var(--text2);
-  font-size: 1rem; cursor: pointer; padding: 4px 6px;
-  border-radius: 6px; transition: all 0.15s;
-}
-.modal-close:hover { background: var(--bg4); color: var(--text0); }
-.modal-body { padding: 18px 20px 22px; }
-
-.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.modal-metric {
-  background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 14px;
-}
-.modal-metric .m-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text2); font-family: var(--font-mono); margin-bottom: 3px; }
-.modal-metric .m-val   { font-size: 1rem; font-weight: 800; font-family: var(--font-mono); }
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 1200px) {

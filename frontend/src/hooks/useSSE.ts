@@ -8,12 +8,20 @@ export function useSSE() {
   useEffect(() => {
     const eventSource = connectSSE({
       onSignals: async (timeframe) => {
-        const data = await fetchSignals(timeframe);
-        useSignalsStore.getState().setSignals(timeframe, data);
+        try {
+          const data = await fetchSignals(timeframe);
+          useSignalsStore.getState().setSignals(timeframe, data);
+        } catch (err) {
+          console.error("Ошибка получения сигналов через SSE:", err);
+        }
       },
       onPriceVolume: async () => {
-        const data = await fetchPriceVolume();
-        useSignalsStore.getState().setPriceVolume(data);
+        try {
+          const data = await fetchPriceVolume();
+          useSignalsStore.getState().setPriceVolume(data);
+        } catch (err) {
+          console.error("Ошибка получения price/volume через SSE:", err);
+        }
       },
     });
 
