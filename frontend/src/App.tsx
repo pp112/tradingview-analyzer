@@ -6,6 +6,7 @@ import { SignalTable } from "./features/signal-table/SignalTable";
 import { useSSE } from "./hooks/useSSE";
 import { fetchInitialData } from "./api/signals";
 import { useSignalsStore } from "./store/useSignalsStore";
+import { MoversCard } from "./features/movers/MoversCard";
 
 const PAGE_TITLES: Record<string, string> = {
   home: "Главная",
@@ -45,6 +46,12 @@ export default function App() {
           <div className="panel-left">
             <SignalControls />
             <SignalTable />
+            
+            <div className="bottom-row">
+              <MoversCard title="Топ рост" variant="gainers" />
+              <MoversCard title="Топ падение" variant="losers" />
+              <MoversCard title="Всплески объема" variant="volume" />
+            </div>
           </div>
         </div>
       </main>

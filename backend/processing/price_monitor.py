@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from backend.models import PriceVolume
 from backend.storage.writer import write_json
 from backend.config import get_logger
 
@@ -21,7 +22,8 @@ class PriceVolumeMonitor:
         """
         logger.info("Расчёт изменений цен и объёмов")
         changes = self._calculate_changes(df)
-        write_json(self.CHANGES_PATH, changes)
+        data = [c.model_dump(mode="json") for c in changes]
+        write_json(self.CHANGES_PATH, data)
         logger.info(f"Изменения цен и объемов сохранены")
         
     @staticmethod
@@ -29,7 +31,7 @@ class PriceVolumeMonitor:
         """
         Вычисляет процентное изменение цены и объёма для каждого символа.
         """
-        changes = {}
+        changes = []
 
         for symbol, group in df.groupby("symbol"):
             group = group.sort_values("timestamp")
@@ -45,9 +47,10 @@ class PriceVolumeMonitor:
             price_delta_pct  = (curr_price  - prev_price)  / prev_price  * 100
             volume_delta_pct = max(0, (curr_volume - prev_volume) / prev_volume * 100)
 
-            changes[symbol] = {
-                "price_delta_pct":  round(price_delta_pct,  2),
-                "volume_delta_pct": round(volume_delta_pct, 0),
-            }
+            changes.append(PriceVolume(
+                symbol=symbol,
+                price_delta_pct=round(price_delta_pct, 2),
+                volume_delta_pct=round(volume_delta_pct, 0),
+            ))
 
         return changes

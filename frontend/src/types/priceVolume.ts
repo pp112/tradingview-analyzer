@@ -1,6 +1,7 @@
 export interface PriceVolumeEntry {
-  price_delta_prc: number;
-  volume_delta_prc: number;
+  symbol: string;
+  price_delta_pct: number;
+  volume_delta_pct: number;
 }
 
-export type PriceVolumeData = Record<string, PriceVolumeEntry>;
+export type PriceVolumeData = PriceVolumeEntry[];
