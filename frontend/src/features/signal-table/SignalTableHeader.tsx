@@ -56,16 +56,21 @@ function getColumns(
     ];
   }
 
-  const isVolume = indicator === "vol_ratio";
+  if (indicator === "vol_ratio") {
+    return [
+      { key: "symbol", label: "Монета" },
+      { key: "vol_ratio", label: "Значение" },
+      { key: "indicator", label: "Индикатор" },
+      { key: "correlation", label: "Корреляция" },
+    ];
+  }
 
   return [
     { key: "symbol", label: "Монета" },
     { key: "indicator_value", label: "Значение" },
     { key: "indicator", label: "Индикатор" },
-    ...(isVolume
-      ? []
-      : [{ key: "direction" as SortColumn, label: "Направление" }]),
-    ...(isVolume ? [] : [{ key: "vol_ratio" as SortColumn, label: "Объем" }]),
+    { key: "direction" as SortColumn, label: "Направление" },
+    { key: "vol_ratio" as SortColumn, label: "Объем" },
     { key: "correlation", label: "Корреляция" },
   ];
 }

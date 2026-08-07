@@ -19,7 +19,7 @@ export function useFilteredSignals(): Signal[] | CombinedSignal[] {
   return useMemo(() => {
     let rows: Signal[] = signals;
 
-    if (sigtype == "all" && indicator !== null) {
+    if (indicator !== "vol_ratio" && sigtype == "all" && indicator !== null) {
       rows = rows.filter((s) => s.indicator === indicator);
     }
 

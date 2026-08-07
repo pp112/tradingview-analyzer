@@ -54,7 +54,7 @@ export function SignalRow({ signal, index }: SignalRowProps) {
         </>
       )}
 
-      <td>${signal.correlation}</td>
+      <td>{signal.correlation}</td>
       <td>
         <span className="chart-btn">График</span>
       </td>

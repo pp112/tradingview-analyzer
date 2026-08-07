@@ -7,7 +7,7 @@ interface SSEHandlers {
 }
 
 export function connectSSE(handlers: SSEHandlers): EventSource {
-  const eventSource = new EventSource(`${API_BASE_URL}`);
+  const eventSource = new EventSource(`${API_BASE_URL}/stream`);
 
   eventSource.addEventListener("update", (event: MessageEvent) => {
     const data: SSEMessage = JSON.parse(event.data);

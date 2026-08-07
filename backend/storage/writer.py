@@ -6,7 +6,7 @@ import pandas as pd
 
 from backend.models import Timeframe, Signal
 
-BASE_PATH = Path("data")
+BASE_PATH = Path("backend/data")
 
 
 def ensure_dir(path: Path | str):
