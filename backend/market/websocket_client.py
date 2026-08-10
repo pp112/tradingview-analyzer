@@ -18,6 +18,8 @@ class TradingViewWebSocket:
 
     Используется для получения исторических свечей.
     """
+    DEFAULT_BARS_COUNT = 5000
+
     def __init__(self):
         self._ws = None
         self._chart_session = None
@@ -37,6 +39,7 @@ class TradingViewWebSocket:
         f_update_progress,
         symbols: list[str],
         timeframe: Timeframe,
+        bars_count: int = DEFAULT_BARS_COUNT
     ) -> dict[str, list[Candle]]:
         """
         Получает исторические данные свечей сразу для группы символов.
@@ -44,7 +47,7 @@ class TradingViewWebSocket:
         results = {}
 
         for symbol in symbols:
-            data = await self._fetch_historical_bars(symbol, timeframe)
+            data = await self._fetch_historical_bars(symbol, timeframe, bars_count)
             if data:
                 results[symbol] = data
             
@@ -55,12 +58,13 @@ class TradingViewWebSocket:
     async def _fetch_historical_bars(
         self,
         symbol: str,
-        timeframe: Timeframe
+        timeframe: Timeframe,
+        bars_count: int
     ) -> list[Candle] | None:
         """
         Запрашивает и получает исторические свечи для одного символа.
         """
-        await self._request_historical_data(symbol, timeframe)
+        await self._request_historical_data(symbol, timeframe, bars_count)
         result = await self._receive_historical_bars(symbol)
         
         self._i += 1
@@ -97,7 +101,7 @@ class TradingViewWebSocket:
         await self._send_message("quote_create_session", [self._quote_session])
         await self._send_message("quote_set_fields", [self._quote_session])
 
-    async def _request_historical_data(self, symbol: str, timeframe: Timeframe):
+    async def _request_historical_data(self, symbol: str, timeframe: Timeframe, bars_count: int):
         """
         Отпраявляет сообщения для получения исторических данных.
         """
@@ -113,7 +117,7 @@ class TradingViewWebSocket:
         else:
             await self._send_message(
                 "create_series", 
-                [self._chart_session, "sds_1", "s1", "sds_sym_1", timeframe.value, 600, ""]
+                [self._chart_session, "sds_1", "s1", "sds_sym_1", timeframe.value, bars_count, ""]
             )
 
     async def _receive_historical_bars(self, symbol: str) -> list[dict] | None:
