@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 
 class ExchangeClient(ABC):
-    """Абстрактный интерфейс биржевого клиента"""
-
+    """
+    Абстрактный интерфейс биржевого клиента.
+    """
     @abstractmethod
     async def get_positions(self):
         ...

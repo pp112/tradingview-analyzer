@@ -15,4 +15,5 @@ dependencies = [
     "mplfinance",
     "pyarrow",
     "python-dotenv",
+    "pybit>=5.17.0",
 ]
