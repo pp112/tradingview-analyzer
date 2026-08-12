@@ -1,6 +1,8 @@
 from backend.exchanges.base import ExchangeClient
 from pybit.unified_trading import HTTP
 
+from backend.exchanges.models import Order, Side
+
 
 class ByBitClient(ExchangeClient):
     """
@@ -18,8 +20,15 @@ class ByBitClient(ExchangeClient):
         res = self.session.get_positions(category="linear", settleCoin="USDT")
         return res
 
-    async def get_orders(self):
-        pass
+    async def get_orders(self) -> list[Order]:
+        res = self.session.get_open_orders(category="linear", settleCoin="USDT")
+        return [
+            Order(
+                symbol=data["symbol"],
+                side=Side.LONG if data["side"] == "Buy" else Side.SHORT
+            )
+            for data in res["result"]["list"]
+        ]
 
     async def get_balance(self) -> float:
         res = self.session.get_wallet_balance(accountType="UNIFIED")
@@ -42,4 +51,4 @@ if __name__ == "__main__":
     client = ByBitClient(api_key=os.getenv("API_KEY_BYBIT"),
                          api_secret=os.getenv("API_SECRET_BYBIT"))
 
-    pprint(asyncio.run(client.get_positions()))
+    pprint(asyncio.run(client.get_orders()))
