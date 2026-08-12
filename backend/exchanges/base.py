@@ -9,9 +9,17 @@ class ExchangeClient(ABC):
         ...
 
     @abstractmethod
+    async def get_orders(self):
+        ...
+
+    @abstractmethod
     async def get_balance(self):
         ...
 
     @abstractmethod
     async def close_position(self):
+        ...
+
+    @abstractmethod
+    async def cancel_order(self):
         ...
