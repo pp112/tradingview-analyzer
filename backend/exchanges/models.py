@@ -6,6 +6,7 @@ class Side(Enum):
     SHORT = "short"
 
 class Order(BaseModel):
+    id: str
     symbol: str
     side: Side
     
@@ -13,3 +14,5 @@ class Order(BaseModel):
 class Position(BaseModel):
     symbol: str
     side: Side
+    pnl: float
+    size: float
