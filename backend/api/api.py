@@ -3,12 +3,14 @@ import json
 from pathlib import Path
 from typing import TypedDict, Required, NotRequired
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from backend.api.dependencies import get_bybit_client
 from backend.config import get_logger
+from backend.exchanges.base import ExchangeClient
 
 logger = get_logger(__name__, "[API]")
 
@@ -111,8 +113,72 @@ def get_initial_data():
     }
 
 
+@app.get("/positions")
+async def get_positions(client: ExchangeClient = Depends(get_bybit_client)):
+    """
+    Возвращает список открытых позиций.
+    """
+    logger.info("Запрос открытых позиций")
+    return await client.get_positions()
+
+
+@app.get("/orders")
+async def get_orders(client: ExchangeClient = Depends(get_bybit_client)):
+    """
+    Возвращает список открытых ордеров.
+    """
+    logger.info("Запрос открытых ордеров")
+    return await client.get_orders()
+
+
+@app.get("/balance")
+async def get_balance(client: ExchangeClient = Depends(get_bybit_client)):
+    """
+    Возвращает баланс аккаунта.
+    """
+    logger.info("Запрос баланса")
+    return await client.get_balance()
+
+
+@app.post("/orders/{order_id}/cancel")
+async def cancel_order(order_id: str, client: ExchangeClient = Depends(get_bybit_client)):
+    """
+    Отменяет открытый ордер по его ID.
+    """
+    orders = await client.get_orders()
+    order = next((o for o in orders if o.id == order_id), None)
+
+    if order is None:
+        raise HTTPException(status_code=404, detail="Ордер не найден")
+
+    success = await client.cancel_order(order)
+    if not success:
+        raise HTTPException(status_code=502, detail="Не удалось отменить ордер")
+
+    return {"success": True}
+
+
+@app.post("/positions/{symbol}/close")
+async def close_position(symbol: str, client: ExchangeClient = Depends(get_bybit_client)):
+    """
+    Закрывает открытую позицию по символу.
+    """
+    positions = await client.get_positions()
+    position = next((p for p in positions if p.symbol == symbol), None)
+
+    if position is None:
+        raise HTTPException(status_code=404, detail="Позиция не найдена")
+
+    success = await client.close_position(position)
+    if not success:
+        raise HTTPException(status_code=502, detail="Не удалось закрыть позицию")
+
+    return {"success": True}
+
+
 @app.get("/")
 def index():
-    return FileResponse("frontend/old_index.html")
+    return FileResponse("frontend/index.html")
+
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
