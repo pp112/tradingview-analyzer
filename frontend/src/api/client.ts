@@ -19,3 +19,13 @@ export async function apiGet<T>(path: string): Promise<T> {
 
   return res.json() as Promise<T>;
 }
+
+export async function apiPost<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, { method: "POST" });
+
+  if (!res.ok) {
+    throw new ApiError(`Ошибка запроса ${path}: ${res.status}`, res.status);
+  }
+
+  return res.json() as Promise<T>;
+}

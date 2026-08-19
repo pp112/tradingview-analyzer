@@ -11,6 +11,8 @@ from fastapi.staticfiles import StaticFiles
 from backend.api.dependencies import get_bybit_client
 from backend.config import get_logger
 from backend.exchanges.base import ExchangeClient
+from backend.exchanges.models import PositionOut
+
 
 logger = get_logger(__name__, "[API]")
 
@@ -113,7 +115,7 @@ def get_initial_data():
     }
 
 
-@app.get("/positions")
+@app.get("/positions", response_model=list[PositionOut])
 async def get_positions(client: ExchangeClient = Depends(get_bybit_client)):
     """
     Возвращает список открытых позиций.
@@ -137,7 +139,7 @@ async def get_balance(client: ExchangeClient = Depends(get_bybit_client)):
     Возвращает баланс аккаунта.
     """
     logger.info("Запрос баланса")
-    return await client.get_balance()
+    return {"balance": await client.get_balance()}
 
 
 @app.post("/orders/{order_id}/cancel")

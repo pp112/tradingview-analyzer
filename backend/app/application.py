@@ -1,6 +1,5 @@
 import asyncio
 import signal
-import webbrowser
 
 import uvicorn
 
@@ -52,13 +51,11 @@ class App:
 
     async def _start_server(self):
         """
-        Запускает uvicorn сервер и открывает браузер через 1 секунду.
+        Запускает uvicorn сервер.
         """
         asyncio.create_task(self.server.serve())
-        loop = asyncio.get_running_loop()
 
         logger.info(f"Запуск веб-интерфейса: http://{self.HOST}:{self.PORT}")
-        loop.call_later(1, webbrowser.open, f"http://{self.HOST}:{self.PORT}")
 
     async def _run_startup(self):
         """

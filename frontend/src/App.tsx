@@ -7,6 +7,7 @@ import { useSSE } from "./hooks/useSSE";
 import { fetchInitialData } from "./api/signals";
 import { useSignalsStore } from "./store/useSignalsStore";
 import { MoversCard } from "./features/movers/MoversCard";
+import { PositionsOrdersCard } from "./features/positions-orders/PositionsOrdersCard";
 
 const PAGE_TITLES: Record<string, string> = {
   home: "Главная",
@@ -52,6 +53,10 @@ export default function App() {
               <MoversCard title="Топ падение" variant="losers" />
               <MoversCard title="Всплески объема" variant="volume" />
             </div>
+          </div>
+
+          <div className="panel-right">
+            <PositionsOrdersCard />
           </div>
         </div>
       </main>

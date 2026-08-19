@@ -171,9 +171,55 @@
 
     <!-- RIGHT PANEL -->
     <div class="panel-right">
+        <!-- Replace the current .positions-card block with this section. -->
+        <section class="po-card card" id="positionsOrders">
+        <div class="po-header">
+            <div>
+            <div class="po-title-row">
+                <h2 class="po-title">Позиции и ордера</h2>
+            </div>
+            <div class="po-summary"><strong id="poTotalPnl">+1,247.35 USDT</strong><span>Общий PnL <b>(+12.45%)</b></span></div>
+            </div>
+            <button class="po-refresh" type="button" data-po-action="refresh">↻ Обновить</button>
+        </div>
+
+        <div class="po-tabs" role="tablist">
+            <button class="po-tab is-active" type="button" role="tab" aria-selected="true" data-po-tab="positions">Позиции <span id="poPositionsCount">4</span></button>
+            <button class="po-tab" type="button" role="tab" aria-selected="false" data-po-tab="orders">Ордера <span id="poOrdersCount">5</span></button>
+        </div>
+
+        <div class="po-panel is-active" data-po-panel="positions">
+            <div class="po-table-scroll">
+            <table class="po-table po-positions-table">
+                <thead><tr><th>#</th><th>Символ</th><th>Нереализ. PnL</th><th>Привязанный сигнал</th><th>Действия</th></tr></thead>
+                <tbody id="poPositionsBody"></tbody>
+            </table>
+            </div>
+        </div>
+
+        <div class="po-panel" data-po-panel="orders" hidden>
+            <div class="po-table-scroll">
+            <table class="po-table po-orders-table">
+                <thead><tr><th>#</th><th>Символ</th><th>Тип</th><th>Цена</th><th>Привязанный сигнал</th><th>Действия</th></tr></thead>
+                <tbody id="poOrdersBody"></tbody>
+            </table>
+            </div>
+        </div>
+        </section>
+
+        <div class="po-modal" id="poBindModal" hidden>
+        <div class="po-modal-backdrop" data-po-close-modal></div>
+        <div class="po-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="poBindTitle">
+            <div class="po-modal-header"><div><h3 id="poBindTitle">Привязать сигнал</h3><p id="poBindSubtitle"></p></div><button class="po-icon-btn" type="button" data-po-close-modal>×</button></div>
+            <label class="po-field-label" for="poSignalSelect">Сигнал</label>
+            <select class="po-select" id="poSignalSelect"></select>
+            <div class="po-snapshot-preview"><span>При привязке будут зафиксированы:</span><strong id="poSignalPreview"></strong></div>
+            <div class="po-modal-actions"><button class="po-secondary-btn" type="button" data-po-close-modal>Отмена</button><button class="po-primary-btn" type="button" id="poConfirmBind">Привязать сигнал</button></div>
+        </div>
+        </div>
 
       <!-- News -->
-      <div class="card news-card-wrap">
+      <!-- <div class="card news-card-wrap">
         <div class="card-header-row">
           <span class="card-header">Последние новости</span>
           <a class="card-link">Все новости →</a>
@@ -220,10 +266,10 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Positions -->
-      <div class="card positions-card">
+      <!-- <div class="card positions-card">
         <div class="card-header-row">
           <span class="card-header">Мои позиции</span>
           <a class="card-link">Все позиции →</a>
@@ -242,10 +288,10 @@
           </tbody>
         </table>
         <button class="manage-btn">⚙ Управление позициями</button>
-      </div>
+      </div> -->
 
       <!-- Correlations preview -->
-      <div class="card corr-card" id="corrCard">
+      <!-- <div class="card corr-card" id="corrCard">
         <div class="card-header-row">
           <span class="card-header">Топ корреляции с BTC</span>
           <a class="card-link" data-page="correlations">Все →</a>
@@ -253,7 +299,7 @@
         <div class="corr-list" id="corrList">
           <div class="corr-loading">Загрузка...</div>
         </div>
-      </div>
+      </div> -->
 
     </div><!-- /panel-right -->
   </div><!-- /content -->

@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 from enum import Enum
 
+
 class Side(Enum):
     LONG = "long"
     SHORT = "short"
+
 
 class Order(BaseModel):
     id: str
@@ -15,4 +17,12 @@ class Position(BaseModel):
     symbol: str
     side: Side
     pnl: float
+    pnlPct: float
     size: float
+
+
+class PositionOut(BaseModel):
+    symbol: str
+    side: Side
+    pnl: float
+    pnlPct: float

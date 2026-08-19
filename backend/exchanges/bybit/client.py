@@ -64,12 +64,17 @@ class ByBitClient(ExchangeClient):
         res = self._check_response(res, "получение позиций")
         if res is None:
             return []
-        
+
         return [
             Position(
                 symbol=data["symbol"],
                 side=Side.LONG if data["side"] == "Buy" else Side.SHORT,
                 pnl=round(float(data["unrealisedPnl"]), 2),
+                pnlPct=(
+                    round(float(data["unrealisedPnl"]) / float(data["positionIM"]) * 100, 2)
+                    if float(data["positionIM"])
+                    else 0.0
+                ),
                 size=float(data["size"]),
             )
             for data in res["result"]["list"]
