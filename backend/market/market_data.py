@@ -20,6 +20,8 @@ class MarketDataClient:
     - загрузку данных свечей (WebSocket)
     - сбор результатов в DataFrame
     """
+    MIN_CANDLES = 2500
+
     def __init__(self):
         self.http_client = TradingViewHttpClient()
         self.ws_client = TradingViewWebSocket()
@@ -81,9 +83,10 @@ class MarketDataClient:
                                 progress.update(task_id, advance=1)
 
                             data = await ws.fetch_historical_batch(update_progress, chunk, timeframe)
+                            filtered = self._filter_by_candle_count(data)
 
                             async with lock:
-                                results.update(data)
+                                results.update(filtered)
 
                     except Exception as e:
                         logger.error(f"Ошибка в WS worker {worker_id}: {e}")
@@ -113,6 +116,16 @@ class MarketDataClient:
             return pd.DataFrame()
 
         return pd.concat(df_list, ignore_index=True)
+
+    def _filter_by_candle_count(
+        self, 
+        data: dict[str, list[Candle]]
+    ) -> dict[str, list[Candle]]:
+        return {
+            symbol: candles 
+            for symbol, candles in data.items() 
+            if len(candles) >= self.MIN_CANDLES
+        }
 
     @staticmethod
     def _chunk_list(data: list[str], chunk_size: int) -> list[list[str]]:
