@@ -16,4 +16,5 @@ dependencies = [
     "pyarrow",
     "python-dotenv",
     "pybit>=5.17.0",
+    "sqlmodel>=0.0.39",
 ]

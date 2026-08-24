@@ -172,7 +172,7 @@ html, body {
 .content {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 620px;
+  grid-template-columns: 1fr 520px;
   gap: 16px;
   padding: 16px 20px;
   overflow: hidden;
