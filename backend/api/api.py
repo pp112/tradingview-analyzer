@@ -12,12 +12,14 @@ from backend.api.dependencies import get_bybit_client
 from backend.config import get_logger
 from backend.exchanges.base import ExchangeClient
 from backend.exchanges.models import PositionOut
+from backend.api.signal_links import router as signal_links_router
 
 
 logger = get_logger(__name__, "[API]")
 
 
 app = FastAPI()
+app.include_router(signal_links_router)
 app.add_middleware(
     CORSMiddleware, 
     allow_origins=["http://localhost:5173"]

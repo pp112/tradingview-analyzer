@@ -7,6 +7,7 @@ from backend.config import setup_logging, get_logger, console
 from backend.app.startup import StartupUpdater
 from backend.app.scheduler import Scheduler
 from backend.api.api import app as fastapi_app
+from backend.storage.database import init_db
 
 logger = get_logger(__name__, "[APP]")
 
@@ -38,6 +39,7 @@ class App:
         Запускает приложение и ожидает сигнала завершения.
         """
         setup_logging()
+        init_db()
         console.print("[bold cyan]──────────────── Запуск приложения ────────────────[/bold cyan]")
 
         self._setup_signal_handlers()

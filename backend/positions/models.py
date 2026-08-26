@@ -28,12 +28,12 @@ class CloseCondition(SQLModel, table=True):
     target_value: float
 
 
-class TrackedPosition(SQLModel, table=True):
+class PositionSignalLink(SQLModel, table=True):
     """
     Привязка открытой позиции к сигналу + опциональное условие автозакрытия.
     Позиция идентифицируется по symbol
     """
-    __tablename__ = "tracked_positions"
+    __tablename__ = "position_signal_links"
 
     id: int | None = Field(default=None, primary_key=True)
     symbol: str
@@ -43,12 +43,12 @@ class TrackedPosition(SQLModel, table=True):
     closed_at: datetime | None = None
 
 
-class TrackedOrder(SQLModel, table=True):
+class OrderSignalLink(SQLModel, table=True):
     """
     Привязка открытого ордера к сигналу + опциональное условие автоотмены.
     Ордер идентифицируется по order_id
     """
-    __tablename__ = "tracked_orders"
+    __tablename__ = "order_signal_links"
 
     id: int | None = Field(default=None, primary_key=True)
     symbol: str

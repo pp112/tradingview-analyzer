@@ -3,8 +3,8 @@ from sqlmodel import Session, select
 from backend.positions.models import (
     CloseCondition, 
     SignalSnapshot, 
-    TrackedOrder, 
-    TrackedPosition,
+    OrderSignalLink, 
+    PositionSignalLink,
 )
 
 
@@ -20,6 +20,12 @@ class SignalSnapshotRepository:
 
     def get_by_id(self, snapshot_id: int) -> SignalSnapshot | None:
         return self.session.get(SignalSnapshot, snapshot_id)
+
+    def delete(self, snapshot_id: int):
+        snapshot = self.session.get(SignalSnapshot, snapshot_id)
+        if snapshot:
+            self.session.delete(snapshot)
+            self.session.commit()
 
 
 class CloseConditionRepository:
@@ -42,35 +48,67 @@ class CloseConditionRepository:
             self.session.commit()
 
 
-class TrackedPositionRepository:
+class PositionSignalLinkRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def create(self, tracked: TrackedPosition) -> TrackedPosition:
-        self.session.add(tracked)
+    def create(self, link: PositionSignalLink) -> PositionSignalLink:
+        self.session.add(link)
         self.session.commit()
-        self.session.refresh(tracked)
-        return tracked
+        self.session.refresh(link)
+        return link
 
-    def get_all_active(self) -> list[TrackedPosition]:
-        query = select(TrackedPosition).where(
-            TrackedPosition.closed_at.is_(None)
+    def get_by_id(self, link_id: int) -> PositionSignalLink | None:
+        return self.session.get(PositionSignalLink, link_id)
+
+    def get_all_active(self) -> list[PositionSignalLink]:
+        query = select(PositionSignalLink).where(
+            PositionSignalLink.closed_at.is_(None)
         )
         return list(self.session.exec(query))
 
+    def get_by_symbol(self, symbol: str) -> PositionSignalLink | None:
+        query = select(PositionSignalLink).where(
+            PositionSignalLink.symbol == symbol,
+            PositionSignalLink.closed_at.is_(None),
+        )
+        return self.session.exec(query).first()
 
-class TrackedOrderRepository:
+    def delete(self, link_id: int):
+        link = self.session.get(PositionSignalLink, link_id)
+        if link:
+            self.session.delete(link)
+            self.session.commit()
+
+
+class OrderSignalLinkRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def create(self, tracked: TrackedOrder) -> TrackedOrder:
-        self.session.add(tracked)
+    def create(self, link: OrderSignalLink) -> OrderSignalLink:
+        self.session.add(link)
         self.session.commit()
-        self.session.refresh(tracked)
-        return tracked
+        self.session.refresh(link)
+        return link
 
-    def get_all_active(self) -> list[TrackedOrder]:
-        query = select(TrackedOrder).where(
-            TrackedOrder.cancelled_at.is_(None)
+    def get_all_active(self) -> list[OrderSignalLink]:
+        query = select(OrderSignalLink).where(
+            OrderSignalLink.cancelled_at.is_(None)
         )
         return list(self.session.exec(query))
+
+    def get_by_id(self, order_id: str) -> OrderSignalLink | None:
+        return self.session.get(OrderSignalLink, order_id)
+
+    def get_by_order_id(self, order_id: str) -> OrderSignalLink | None:
+        query = select(OrderSignalLink).where(
+            OrderSignalLink.order_id == order_id,
+            OrderSignalLink.cancelled_at.is_(None),
+        )
+        return self.session.exec(query).first()
+
+    def delete(self, link_id: int):
+        link = self.session.get(OrderSignalLink, link_id)
+        if link:
+            self.session.delete(link)
+            self.session.commit()
