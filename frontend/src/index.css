@@ -1109,21 +1109,23 @@ th.sorted-desc .sort-icon::after {
   color: var(--text0);
   font: 600 0.7rem var(--font-mono);
 }
-.po-snapshot-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 12px;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--bg1);
-  color: var(--text2);
-  font-size: 0.65rem;
+.po-checkbox {
+    margin-bottom: 14px;
 }
-.po-snapshot-preview strong {
-  color: var(--green);
-  font: 700 0.64rem var(--font-mono);
+.po-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.po-close-condition {
+  display: "flex";
+  gap: 8px;
+  margin-top: 10px;
+}
+.po-error-text {
+    color: var(--red); 
+    font-size: 0.7rem; 
+    margin-top: 10px;
 }
 .po-modal-actions {
   display: flex;

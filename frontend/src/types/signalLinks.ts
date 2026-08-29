@@ -1,15 +1,15 @@
 import type { Direction, IndicatorType, Timeframe } from "./signal";
 
-type CloseOperator = ">=" | "<=";
+export type CloseOperator = ">=" | "<=";
 
-type SignalSnapshotInput = {
+export type SignalSnapshotInput = {
   indicator: IndicatorType;
   timeframe: Timeframe;
   value: number;
   direction: Direction;
 };
 
-type CloseConditionInput = {
+export type CloseConditionInput = {
   operator: CloseOperator;
   target_value: number;
 };
