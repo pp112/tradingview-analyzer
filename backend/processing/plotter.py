@@ -132,15 +132,3 @@ class MarketPlotter:
         addplots.append(mpf.make_addplot(macd_df["HIST"], type="bar", panel=panel, alpha=0.5))
 
         return addplots
-
-
-if __name__ == "__main__":
-    plotter = MarketPlotter()
-    img = plotter.plot_candles(
-        symbol="BTCUSDT.P",
-        timeframe=Timeframe.H1,
-        save_folder="visualization",
-        filename="1",
-        ema_sma=True, 
-        rsi=True, 
-        macd=True)

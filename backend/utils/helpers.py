@@ -15,11 +15,18 @@ def load_data(timeframe: Timeframe) -> pd.DataFrame:
     path = Path("backend/data/historical_data") / f"historical_data_{timeframe.label}.parquet"
     return pd.read_parquet(path)
 
+
 def filter_by_symbol(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
     """
     Фильтрует DataFrame по символу.
     """
     return df[df["symbol"] == symbol]
+
+
+def format_display_symbol(symbol: str) -> str:
+    """BTCUSDT.P → BTC/USDT"""
+    return symbol.replace(".P", "").replace("USDT", "/USDT")
+
 
 def create_progress() -> Progress:
     """
@@ -34,6 +41,7 @@ def create_progress() -> Progress:
         TimeRemainingColumn(),
         console=console
     )
+
 
 def read_correlations() -> dict[str, float]:
     """

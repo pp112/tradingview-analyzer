@@ -28,7 +28,3 @@ class Signal(BaseModel):
     @field_serializer("timeframe")
     def serialize_timeframe(self, tf: Timeframe):
         return tf.label
-
-    @field_serializer("symbol")
-    def serialize_symbol(self, symbol: str):
-        return symbol.replace(".P", "").replace("USDT", "/USDT")

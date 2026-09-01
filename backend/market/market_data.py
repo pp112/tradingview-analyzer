@@ -6,7 +6,7 @@ import pandas as pd
 
 from backend.market import TradingViewHttpClient, TradingViewWebSocket
 from backend.models import Timeframe, Candle
-from backend.utils import create_progress
+from backend.utils import create_progress, format_display_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ class MarketDataClient:
 
         for symbol, candles in all_data.items():
             df = pd.DataFrame.from_records(asdict(c) for c in candles)
-            df["symbol"] = symbol
+            df["symbol"] = format_display_symbol(symbol)
             df_list.append(df)
 
         if not df_list:
@@ -133,11 +133,3 @@ class MarketDataClient:
             data[i:i + chunk_size]
             for i in range(0, len(data), chunk_size)
         ]
-    
-    
-if __name__ == "__main__":
-    market_client = MarketDataClient()
-    import time
-    start = time.time()
-    data = asyncio.run(market_client.fetch_all_historical_candles())
-    print(f"Затрачено: {time.time() - start}")

@@ -132,15 +132,3 @@ class ByBitClient(ExchangeClient):
             return None
         
         return float(res["result"]["list"][0]["totalEquity"])
-
-if __name__ == "__main__":
-    import os
-    from dotenv import load_dotenv
-    from pprint import pprint
-    load_dotenv()
-
-    client = ByBitClient(api_key=os.getenv("API_KEY_BYBIT"),
-                         api_secret=os.getenv("API_SECRET_BYBIT"))
-
-    # pprint(asyncio.run(client.get_positions()))
-    # pprint(asyncio.run(client.cancel_order()))

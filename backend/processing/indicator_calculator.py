@@ -17,7 +17,6 @@ class IndicatorCalculator:
     def calculate(
         self, 
         df: pd.DataFrame,
-        correlations: dict[str, float],
         timeframe: Timeframe
     ) -> dict[str, dict]:
         indicators = {}
@@ -26,9 +25,6 @@ class IndicatorCalculator:
 
         for symbol in symbols:
             symbol_df = filter_by_symbol(symbol, df)
-
-            if symbol not in correlations:
-                continue
             
             indicator_values = {
                 "rsi": IndicatorService.rsi_last(symbol_df),

@@ -57,11 +57,3 @@ class TradingViewHttpClient:
             }
             
         return result
-
-
-if __name__ == "__main__":
-    import asyncio
-    http_client = TradingViewHttpClient()
-    result = asyncio.run(http_client.fetch_data())
-    with open("market/rersponse.json", "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=4, ensure_ascii=False)

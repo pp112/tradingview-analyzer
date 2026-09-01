@@ -173,12 +173,3 @@ class TradingViewWebSocket:
     def _generate_string_session(prefix: str) -> str:
         random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
         return prefix + random_string
-
-
-if __name__ == "__main__":
-    with TradingViewWebSocket() as ws:
-        symbols = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P", "HYPEUSDT.P"]
-        for symbol in symbols:
-            candles = ws.get_historical_bars(symbol)
-            with open(f"{symbol}.json", "w", encoding="utf-8") as f:
-                json.dump(candles, f, indent=4, ensure_ascii=False)

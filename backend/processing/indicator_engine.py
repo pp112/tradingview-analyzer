@@ -34,7 +34,7 @@ class IndicatorEngine:
         """
         logger.info(f"{timeframe.label}: Расчёт индикаторов")
 
-        indicators = self.indicator_calculator.calculate(df, correlations, timeframe)
+        indicators = self.indicator_calculator.calculate(df, timeframe)
 
         logger.info(f"{timeframe.label}: Генерация сигналов")
 

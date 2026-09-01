@@ -200,7 +200,7 @@ class IndicatorService:
         Корреляция с BTC
         """
         try:
-            df_btc = filter_by_symbol("BTCUSDT.P", symbol_df)
+            df_btc = filter_by_symbol("BTC/USDT", symbol_df)
             df_alt = filter_by_symbol(symbol, symbol_df)
 
             df_btc["Date"] = pd.to_datetime(df_btc["timestamp"], unit="s")
