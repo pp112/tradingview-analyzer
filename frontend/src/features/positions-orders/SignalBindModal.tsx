@@ -1,20 +1,27 @@
 import { useMemo, useState } from "react";
 import { useSignalsStore } from "../../store/useSignalsStore";
-import type { Signal } from "../../types/signal";
+import type { Direction, Signal } from "../../types/signal";
 import type { CloseConditionInput, CloseOperator } from "../../types/signalLinks";
 import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
 
 type EntityType = "position" | "order";
 
-type SignalBindModalPorps = {
+type SignalBindModalProps = {
   symbol: string;
   entityType: EntityType;
   orderId?: string;
+  direction: Direction;
   onClose: () => void;
 };
 
-export function SignalBindModal({ symbol, entityType, orderId, onClose }: SignalBindModalPorps) {
+export function SignalBindModal({ 
+  symbol, 
+  entityType, 
+  orderId, 
+  direction, 
+  onClose 
+}: SignalBindModalProps) {
   const allSignals = useSignalsStore((s) => s.signals);
   const addPositionLink = useSignalLinksStore((s) => s.addPositionLink);
   const addOrderLink = useSignalLinksStore((s) => s.addOrderLink);
@@ -30,10 +37,12 @@ export function SignalBindModal({ symbol, entityType, orderId, onClose }: Signal
     const result: Signal[] = [];
     for (const list of Object.values(allSignals)) {
       if (!list) continue;
-      result.push(...list.filter((l) => l.symbol === symbol));
+      result.push(
+        ...list.filter((s) => s.symbol === symbol && s.direction === direction)
+      );
     }
     return result;
-  }, [allSignals, symbol]);
+  }, [allSignals, symbol, direction]);
 
   const selected = selectedIndex !== null ? availableSignals[selectedIndex] : null;
 
@@ -61,7 +70,9 @@ export function SignalBindModal({ symbol, entityType, orderId, onClose }: Signal
           signal: {
             indicator: selected.indicator,
             timeframe: selected.timeframe,
-            value: selected.indicator_value,
+            value: selected.indicator === "vol_ratio"
+              ? selected.vol_ratio
+              : selected.indicator_value,
             direction: selected.direction,
           },
           close_condition: closeCondition,
@@ -75,7 +86,9 @@ export function SignalBindModal({ symbol, entityType, orderId, onClose }: Signal
           signal: {
             indicator: selected.indicator,
             timeframe: selected.timeframe,
-            value: selected.indicator_value,
+            value: selected.indicator === "vol_ratio"
+              ? selected.vol_ratio
+              : selected.indicator_value,
             direction: selected.direction,
           },
           close_condition: closeCondition,
@@ -95,7 +108,7 @@ export function SignalBindModal({ symbol, entityType, orderId, onClose }: Signal
   };
 
   return (
-    <div className="po=modal">
+    <div className="po-modal">
       <div className="po-modal-backdrop" onClick={onClose} />
       <div className="po-modal-dialog" role="dialog" aria-modal="true">
         <div className="po-modal-header">
@@ -150,7 +163,7 @@ export function SignalBindModal({ symbol, entityType, orderId, onClose }: Signal
               <div className="po-close-condition">
                 <select
                   className="po-select"
-                  style={{ width: 80 }}
+                  style={{ width: 90 }}
                   value={closeOperator}
                   onChange={(e) =>
                     setCloseOperator(e.target.value as CloseOperator)

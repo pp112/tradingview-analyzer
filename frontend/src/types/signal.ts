@@ -10,7 +10,7 @@ export type Sigtype = "all" | "strong" | "combined";
 
 export type Signal = {
   symbol: string;
-  indicator: Exclude<IndicatorType, "vol_ratio">;
+  indicator: IndicatorType;
   indicator_value: number;
   direction: Direction;
   vol_ratio: number;

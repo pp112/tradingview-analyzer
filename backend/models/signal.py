@@ -13,6 +13,7 @@ class Indicator(str, Enum):
     RSI = "rsi"
     MACD = "macd"
     EMA_SMA = "ema_sma"
+    VOL_RATIO = "vol_ratio"
 
 
 class Signal(BaseModel):

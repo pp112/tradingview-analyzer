@@ -8,3 +8,5 @@ backend/logs/
 code.txt
 tree.txt
 web_code.txt
+*storybook.log
+storybook-static
