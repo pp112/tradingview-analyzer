@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSignalsStore } from "../../store/useSignalsStore";
-import type { Direction, Signal } from "../../types/signal";
+import type { Direction, Signal, Timeframe } from "../../types/signal";
 import type { CloseConditionInput, CloseOperator } from "../../types/signalLinks";
 import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
@@ -14,6 +14,10 @@ type SignalBindModalProps = {
   direction: Direction;
   onClose: () => void;
 };
+
+type AvailableSignals = Signal & {
+  timeframe: Timeframe;
+}
 
 export function SignalBindModal({ 
   symbol, 
@@ -34,11 +38,16 @@ export function SignalBindModal({
   const [loading, setLoading] = useState(false);
 
   const availableSignals = useMemo(() => {
-    const result: Signal[] = [];
-    for (const list of Object.values(allSignals)) {
+    const result: AvailableSignals[] = [];
+    for (const [timeframe, list] of Object.entries(allSignals)) {
       if (!list) continue;
       result.push(
-        ...list.filter((s) => s.symbol === symbol && s.direction === direction)
+        ...list
+          .filter((s) => s.symbol === symbol && s.direction === direction)
+          .map((signal) => ({
+            ...signal,
+            timeframe: timeframe as Timeframe,
+          }))
       );
     }
     return result;
