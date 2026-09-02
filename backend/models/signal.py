@@ -1,7 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel, field_serializer
-
-from .timeframe import Timeframe
+from pydantic import BaseModel
 
 
 class Direction(str, Enum):
@@ -23,8 +21,3 @@ class Signal(BaseModel):
     direction: Direction
     vol_ratio: float
     correlation: float
-    timeframe: Timeframe
-
-    @field_serializer("timeframe")
-    def serialize_timeframe(self, tf: Timeframe):
-        return tf.label

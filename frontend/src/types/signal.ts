@@ -15,7 +15,6 @@ export type Signal = {
   direction: Direction;
   vol_ratio: number;
   correlation: number;
-  timeframe: Timeframe;
 }
 
 export type CombinedSignal = {

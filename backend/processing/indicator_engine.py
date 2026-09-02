@@ -38,6 +38,6 @@ class IndicatorEngine:
 
         logger.info(f"{timeframe.label}: Генерация сигналов")
 
-        signals = self.signal_generator.generate(indicators, correlations, timeframe)
+        signals = self.signal_generator.generate(indicators, correlations)
 
         return indicators, signals

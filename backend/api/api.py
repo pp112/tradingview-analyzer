@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.api.dependencies import get_bybit_client
 from backend.config import get_logger
 from backend.exchanges.base import ExchangeClient
-from backend.exchanges.models import PositionOut
+from backend.exchanges.models import Order, PositionOut
 from backend.api.signal_links import router as signal_links_router
 
 
@@ -126,7 +126,7 @@ async def get_positions(client: ExchangeClient = Depends(get_bybit_client)):
     return await client.get_positions()
 
 
-@app.get("/orders")
+@app.get("/orders", response_model=list[Order])
 async def get_orders(client: ExchangeClient = Depends(get_bybit_client)):
     """
     Возвращает список открытых ордеров.

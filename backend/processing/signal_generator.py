@@ -1,4 +1,4 @@
-from backend.models import Signal, Timeframe, Direction, Indicator
+from backend.models import Signal, Direction, Indicator
 
 
 class SignalGenerator:
@@ -12,8 +12,7 @@ class SignalGenerator:
     def generate(
         self,
         indicators: dict[str, dict],
-        correlations: dict[str, float],
-        timeframe: Timeframe
+        correlations: dict[str, float]
     ) -> list[Signal]:
         """
         Генерирует список сигналов по всем символам.
@@ -37,8 +36,7 @@ class SignalGenerator:
                         indicator_value=indicator_value,
                         direction=direction,
                         vol_ratio=indicators[symbol]["volume"]["ratio"],
-                        correlation=correlations[symbol],
-                        timeframe=timeframe
+                        correlation=correlations[symbol]
                     )
                 )
 
