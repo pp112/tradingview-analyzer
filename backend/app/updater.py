@@ -1,10 +1,15 @@
+from sqlmodel import Session
+
+from backend.storage.database import engine
+from backend.processing.linked_indicator_values import extract_linked_indicator_values
 from backend.models import Timeframe
 from backend.market import MarketDataClient
-from backend.processing import IndicatorEngine, CorrelationCalculator, PriceVolumeMonitor
+from backend.processing import process_indicators, PriceVolumeMonitor, calculate_correlations
 from backend.storage.state_manager import StateManager
 from backend.utils import read_correlations
 from backend.storage.writer import (
     save_indicators,
+    save_linked_values,
     save_signals,
     save_correlations,
     save_market_data
@@ -28,8 +33,6 @@ class Updater:
     def __init__(self):
         self.state_manager = StateManager()
         self.market_client = MarketDataClient()
-        self.indicator_engine = IndicatorEngine()
-        self.correlation_calculator = CorrelationCalculator()
         self.price_volume_monitor = PriceVolumeMonitor()
 
     async def update_timeframe(self, timeframe: Timeframe):
@@ -45,28 +48,33 @@ class Updater:
 
         if timeframe == Timeframe.H1:
             logger.info(f"{timeframe.label}: Расчет корреляций")
-            correlations = self.correlation_calculator.calculate(df_candles)
+            correlations = calculate_correlations(df_candles)
             save_correlations(correlations)
         else:
             correlations = read_correlations()
 
-        indicators, signals = self.indicator_engine.process(
+        indicators, signals = process_indicators(
             df_candles, correlations, timeframe
         )
-        
-        logger.info(f"{timeframe.label}: Сохранение результатов в файлы")
-        
-        save_signals(signals, timeframe)
 
+        with Session(engine) as session:
+            linked_values = extract_linked_indicator_values(
+                indicators, timeframe, session
+            )
+   
+        logger.info(f"{timeframe.label}: Сохранение результатов в файлы")
+
+        save_market_data(df_candles, timeframe)
+        save_signals(signals, timeframe)
+        save_indicators(indicators, timeframe)
+        save_linked_values(linked_values, timeframe)
+
+        self.state_manager.set_updated(timeframe)
+        
         await broadcast({
             "type": "signals", 
             "timeframe": timeframe.label
         })
-
-        save_market_data(df_candles, timeframe)
-        save_indicators(indicators, timeframe)
-
-        self.state_manager.set_updated(timeframe)
 
         logger.info(f"{timeframe.label}: Обновление завершено")
 

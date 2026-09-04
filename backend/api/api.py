@@ -13,6 +13,7 @@ from backend.config import get_logger
 from backend.exchanges.base import ExchangeClient
 from backend.exchanges.models import Order, PositionOut
 from backend.api.signal_links import router as signal_links_router
+from backend.models.linked_values import CurrentIndicatorValue
 
 
 logger = get_logger(__name__, "[API]")
@@ -178,6 +179,21 @@ async def close_position(symbol: str, client: ExchangeClient = Depends(get_bybit
         raise HTTPException(status_code=502, detail="Не удалось закрыть позицию")
 
     return {"success": True}
+
+
+@app.get("/linked-signal-values", response_model=list[CurrentIndicatorValue])
+async def get_linked_signal_values(tf: str):
+    """
+    Возвращает текущие значения индикаторов для привязанных сигналов
+    указанного таймфрейма.
+    """
+    path = Path(f"/data/values/linked_values/linked_values_{tf}.json")
+
+    if not path.exists():
+        return []
+
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 @app.get("/")

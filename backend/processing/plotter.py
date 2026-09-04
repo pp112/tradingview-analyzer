@@ -7,7 +7,7 @@ import mplfinance as mpf
 
 from backend.models import Timeframe
 from backend.utils import load_data, filter_by_symbol
-from backend.processing.indicator_service import IndicatorService
+from backend.processing import indicator_service
 
 logger = logging.getLogger(__name__)
 
@@ -93,8 +93,8 @@ class MarketPlotter:
         """
         Добавляет на график EMA и SMA линии для заданного таймфрейма.
         """
-        ema_series = IndicatorService.ema_series(df, timeframe)
-        sma_series = IndicatorService.sma_series(df, timeframe)
+        ema_series = ema_series(df, timeframe)
+        sma_series = sma_series(df, timeframe)
         
         addplots.append(mpf.make_addplot(ema_series, width=1, color="orange"))
         addplots.append(mpf.make_addplot(sma_series, width=1, color="blue"))
@@ -106,7 +106,7 @@ class MarketPlotter:
         Рассчитывает RSI и добавляет его на отдельную панель графика.
         Также добавляет уровни перекупленности и перепроданности.
         """
-        rsi = IndicatorService.rsi_series(df)
+        rsi = indicator_service.rsi_series(df)
 
         if rsi is None:
             return addplots
@@ -122,7 +122,7 @@ class MarketPlotter:
         Рассчитывает MACD, сигнальную линию и гистограмму.
         Добавляет их на отдельную панель графика.
         """
-        macd_df = IndicatorService.macd_series(df)
+        macd_df = indicator_service.macd_series(df)
 
         if macd_df is None:
             return addplots

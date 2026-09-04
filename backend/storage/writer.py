@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from backend.models import Timeframe, Signal
+from backend.models.linked_values import CurrentIndicatorValue
 
 BASE_PATH = Path("backend/data")
 
@@ -88,4 +89,16 @@ def write_json(path: Path | str, data: dict):
     path = Path(path)
     ensure_dir(path.parent)
     with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+
+def save_linked_values(values: list[CurrentIndicatorValue], timeframe: Timeframe):
+    """
+    Сохраняет текущие значения индикаторов для привязанных сигналов.
+    """
+    path = BASE_PATH / "values" / "linked_values"
+    ensure_dir(path)
+    file_path = path / f"linked_values_{timeframe.label}.json"
+    data = [v.model_dump() for v in values]
+    with file_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)

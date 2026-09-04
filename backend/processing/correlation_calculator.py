@@ -1,26 +1,19 @@
 import pandas as pd
 
-from backend.processing.indicator_service import IndicatorService
+from backend.processing.indicator_service import correlation
 
 
-class CorrelationCalculator:
+def calculate_correlations(symbol_df: pd.DataFrame) -> dict[str, float]:
     """
-    Расчет корреляции между активами.
+    Рассчитывает корреляции всех символов относительно BTC.
     """
-    def calculate(self, symbol_df: pd.DataFrame) -> dict[str, float]:
-        """
-        Рассчитывает корреляции всех символов относительно BTC.
-        """
-        ticker_corrs: dict[str, float] = {}
+    ticker_corrs = {}
 
-        symbols = symbol_df["symbol"].unique()
+    symbols = symbol_df["symbol"].unique()
 
-        for symbol in symbols:
-            corr = IndicatorService.correlation(symbol_df, symbol)
-
-            if corr is None:
-                continue
-
+    for symbol in symbols:
+        corr = correlation(symbol_df, symbol)
+        if corr is not None:
             ticker_corrs[symbol] = corr
 
-        return ticker_corrs
+    return ticker_corrs

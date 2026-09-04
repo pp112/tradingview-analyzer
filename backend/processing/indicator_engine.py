@@ -1,43 +1,27 @@
 import pandas as pd
 
-from backend.processing import IndicatorCalculator, SignalGenerator
+from backend.processing import calculate_indicators, generate_signals
 from backend.models import Timeframe, Signal
 from backend.config import get_logger
 
 logger = get_logger(__name__, "[SIGNALS]")
 
 
-class IndicatorEngine:
+def process_indicators(
+    df: pd.DataFrame,
+    correlations: dict[str, float],
+    timeframe: Timeframe
+) -> tuple[
+    dict[str, dict],
+    list[Signal],
+]:
     """
-    Оркестратор аналитического пайплайна.
-
-    Отвечает за координацию процессов:
-    1. Расчёт индикаторов (IndicatorCalculator)
-    2. Генерация торговых сигналов (SignalGenerator)
-    3. Расчёт корреляций между активами
+    Возвращает расчитанные индикаторы и сгенерированные сигналы
     """
-    def __init__(self, upper_rsi = 70, lower_rsi = 30):
-        self.indicator_calculator = IndicatorCalculator()
-        self.signal_generator = SignalGenerator(upper_rsi, lower_rsi)
+    logger.info(f"{timeframe.label}: Расчёт индикаторов")
+    indicators = calculate_indicators(df, timeframe)
 
-    def process(
-        self,
-        df: pd.DataFrame,
-        correlations: dict[str, float],
-        timeframe: Timeframe
-    ) -> tuple[
-        dict[str, dict],
-        list[Signal],
-    ]:
-        """
-        Возвращает расчитанные индикаторы и сгенерированные сигналы
-        """
-        logger.info(f"{timeframe.label}: Расчёт индикаторов")
+    logger.info(f"{timeframe.label}: Генерация сигналов")
+    signals = generate_signals(indicators, correlations)
 
-        indicators = self.indicator_calculator.calculate(df, timeframe)
-
-        logger.info(f"{timeframe.label}: Генерация сигналов")
-
-        signals = self.signal_generator.generate(indicators, correlations)
-
-        return indicators, signals
+    return indicators, signals

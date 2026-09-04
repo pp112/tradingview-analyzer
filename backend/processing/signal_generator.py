@@ -1,107 +1,98 @@
 from backend.models import Signal, Direction, Indicator
 
 
-class SignalGenerator:
+def generate_signals(
+    indicators: dict[str, dict],
+    correlations: dict[str, float]
+) -> list[Signal]:
     """
-    Генерирует торговые сигналы на основе уже рассчитанных индикаторов.
+    Генерирует список сигналов по всем символам.
     """
-    def __init__(self, upper_rsi: float, lower_rsi: float):
-        self.upper_rsi = upper_rsi
-        self.lower_rsi = lower_rsi
+    signals = []
+    
+    for symbol, data in indicators.items():
+        for signal_data in (
+            _rsi(data),
+            _macd(data),
+            _ma(data),
+        ):
+            if signal_data is None:
+                continue
 
-    def generate(
-        self,
-        indicators: dict[str, dict],
-        correlations: dict[str, float]
-    ) -> list[Signal]:
-        """
-        Генерирует список сигналов по всем символам.
-        """
-        signals = []
-        
-        for symbol, data in indicators.items():
-            for signal_data in (
-                self._rsi(data),
-                self._macd(data),
-                self._ma(data),
-            ):
-                if signal_data is None:
-                    continue
-
-                indicator, indicator_value, direction = signal_data
-                signals.append(
-                    Signal(
-                        symbol=symbol,
-                        indicator=indicator,
-                        indicator_value=indicator_value,
-                        direction=direction,
-                        vol_ratio=indicators[symbol]["volume"]["ratio"],
-                        correlation=correlations[symbol]
-                    )
+            indicator, indicator_value, direction = signal_data
+            signals.append(
+                Signal(
+                    symbol=symbol,
+                    indicator=indicator,
+                    indicator_value=indicator_value,
+                    direction=direction,
+                    vol_ratio=indicators[symbol]["volume"]["ratio"],
+                    correlation=correlations[symbol]
                 )
+            )
 
-        return signals
+    return signals
 
-    def _rsi(self, data: dict[str, dict]) -> list[Signal] | None:
-        value = data.get("rsi")
+def _rsi(data: dict[str, dict]) -> tuple[Indicator, float, Direction] | None:
+    value = data.get("rsi")
 
-        if value is None:
-            return None
+    if value is None:
+        return None
 
-        if value > self.upper_rsi:
-            direction = Direction.DOWN
-        elif value < self.lower_rsi:
-            direction = Direction.UP
-        else:
-            return None
-        
-        return Indicator.RSI, value, direction
+    if value > 70:
+        direction = Direction.DOWN
+    elif value < 30:
+        direction = Direction.UP
+    else:
+        return None
+    
+    return Indicator.RSI, value, direction
 
-    def _macd(self, data: dict[str, dict]) -> list[Signal] | None:
-        block = data.get("macd") or {}
-        prev = block.get("prev")
-        curr = block.get("curr")
+def _macd(data: dict[str, dict]) -> tuple[Indicator, float, Direction] | None:
+    block = data.get("macd") or {}
+    prev = block.get("prev")
+    curr = block.get("curr")
 
-        if prev is None or curr is None:
-            return None
+    if prev is None or curr is None:
+        return None
 
-        value = abs(curr["MACD"])
+    value = abs(curr["MACD"])
 
-        if (
-            prev["MACD"] < prev["MACD_signal"]
-            and curr["MACD"] > curr["MACD_signal"]
-            and curr["MACD"] < 0
-            and curr["MACD_signal"] < 0
-        ):
-            direction = Direction.UP
-        elif (
-            prev["MACD"] > prev["MACD_signal"]
-            and curr["MACD"] < curr["MACD_signal"]
-            and curr["MACD"] > 0
-            and curr["MACD_signal"] > 0
-        ):
-            direction = Direction.DOWN
-        else:
-            return None
-        
-        return Indicator.MACD, value, direction
+    if (
+        prev["MACD"] < prev["MACD_signal"]
+        and curr["MACD"] > curr["MACD_signal"]
+        and curr["MACD"] < 0
+        and curr["MACD_signal"] < 0
+    ):
+        direction = Direction.UP
+    elif (
+        prev["MACD"] > prev["MACD_signal"]
+        and curr["MACD"] < curr["MACD_signal"]
+        and curr["MACD"] > 0
+        and curr["MACD_signal"] > 0
+    ):
+        direction = Direction.DOWN
+    else:
+        return None
+    
+    return Indicator.MACD, value, direction
 
-    def _ma(self, data: dict[str, dict]) -> list[Signal] | None:
-        ema = data.get("ema")
-        sma = data.get("sma")
+def _ma(data: dict[str, dict]) -> tuple[Indicator, float, Direction] | None:
+    ema = data.get("ema")
+    sma = data.get("sma")
 
-        if ema is None or sma is None:
-            return None
+    if ema is None or sma is None:
+        return None
 
-        ema_prev, ema_curr = ema
-        sma_prev, sma_curr = sma
-        value = abs(ema_curr - sma_curr)
+    ema_prev, ema_curr = ema
+    sma_prev, sma_curr = sma
+    value = abs(ema_curr - sma_curr)
 
-        if ema_prev < sma_prev and ema_curr > sma_curr:
-            direction = Direction.UP
-        elif ema_prev > sma_prev and ema_curr < sma_curr:
-            direction = Direction.DOWN
-        else:
-            return None
-        
-        return Indicator.EMA_SMA, value, direction
+    if ema_prev < sma_prev and ema_curr > sma_curr:
+        direction = Direction.UP
+    elif ema_prev > sma_prev and ema_curr < sma_curr:
+        direction = Direction.DOWN
+    else:
+        return None
+    
+    return Indicator.EMA_SMA, value, direction
