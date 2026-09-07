@@ -20,10 +20,20 @@ logger = get_logger(__name__, "[API]")
 
 
 app = FastAPI()
+
+# Разрешаем фронт-end dev-серверы на любых локальных портах (5173, 5174, ...).
+DEV_ORIGINS = [
+    f"http://localhost:{port}"
+    for port in range(5173, 5211)
+] + [
+    f"http://127.0.0.1:{port}"
+    for port in range(5173, 5211)
+]
+
 app.include_router(signal_links_router)
 app.add_middleware(
     CORSMiddleware, 
-    allow_origins=["http://localhost:5173"]
+    allow_origins=DEV_ORIGINS
 )
 
 clients: list[asyncio.Queue] = []
@@ -124,7 +134,15 @@ async def get_positions(client: ExchangeClient = Depends(get_bybit_client)):
     Возвращает список открытых позиций.
     """
     logger.info("Запрос открытых позиций")
-    return await client.get_positions()
+    return [
+        PositionOut(
+            symbol=position.symbol,
+            side=position.side,
+            pnl=position.pnl,
+            pnlPct=position.pnlPct,
+        )
+        for position in await client.get_positions()
+    ]
 
 
 @app.get("/orders", response_model=list[Order])

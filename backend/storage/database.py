@@ -1,6 +1,10 @@
+from pathlib import Path
 from sqlmodel import SQLModel, Session, create_engine
 
-DATABASE_URL = "sqlite:///data/db/cryptoscope.db"
+DB_DIR = Path(__file__).resolve().parent.parent / "data" / "db"
+DB_DIR.mkdir(parents=True, exist_ok=True)
+
+DATABASE_URL = f"sqlite:///{DB_DIR / 'cryptoscope.db'}"
 
 engine = create_engine(
     DATABASE_URL, 

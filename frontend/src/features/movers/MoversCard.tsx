@@ -61,6 +61,7 @@ export function MoversCard({ title, variant }: MoversCardProps) {
             const { text, className } = formatValue(entry, variant);
             return (
               <MoverRow
+                key={entry.symbol}
                 index={i}
                 symbol={entry.symbol}
                 value={text}

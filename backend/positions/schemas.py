@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -45,6 +47,7 @@ class PositionSignalLinkResponse(BaseModel):
     symbol: str
     signal: SignalSnapshotResponse
     close_condition: CloseConditionResponse | None = None
+    created_at: datetime
 
 
 class OrderSignalLinkResponse(BaseModel):
@@ -53,3 +56,4 @@ class OrderSignalLinkResponse(BaseModel):
     order_id: str
     signal: SignalSnapshotResponse
     close_condition: CloseConditionResponse | None = None
+    created_at: datetime

@@ -12,10 +12,10 @@ export function PositionsOrdersCard() {
   const totalPnl = positions.reduce((sum, p) => sum + p.pnl, 0);
   
   return (
-    <section className="po-card card">
+    <section className="po-card">
       <div className="po-header">
         <div className="po-title-row">
-            <h2 className="po-title">Позиции и ордера</h2>
+          <h2 className="po-title">Позиции и ордера</h2>
         </div>
         <div className="po-stats-group">
           <div className="po-stat-divider" />
@@ -40,8 +40,19 @@ export function PositionsOrdersCard() {
       </div>
 
       <div className="po-panel">
+        <div className="po-panel-header">
+          <h3>Позиции</h3>
+          <span>{positions.length}</span>
+        </div>
         <div className="po-table-scroll">
           <table className="po-table po-positions-table">
+            <colgroup>
+              <col className="po-index-col" />
+              <col className="po-symbol-col" />
+              <col className="po-pnl-col" />
+              <col />
+              <col />
+            </colgroup>
             <thead>
               <tr>
                 <th>#</th>
@@ -65,8 +76,18 @@ export function PositionsOrdersCard() {
       </div>
 
       <div className="po-panel">
+        <div className="po-panel-header">
+          <h3>Ордера</h3>
+          <span>{orders.length}</span>
+        </div>
         <div className="po-table-scroll">
           <table className="po-table po-orders-table">
+            <colgroup>
+              <col className="po-index-col" />
+              <col className="po-symbol-col" />
+              <col />
+              <col />
+            </colgroup>
             <thead>
               <tr>
                 <th>#</th>

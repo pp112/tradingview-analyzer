@@ -111,7 +111,8 @@ def link_signal_to_position(req: LinkPositionSignalRequest, session: Session = D
         id=position_link.id,
         symbol=position_link.symbol,
         signal=_make_snapshot_response(snapshot),
-        close_condition=_make_condition_response(condition)
+        close_condition=_make_condition_response(condition),
+        created_at=position_link.created_at
     )
 
 
@@ -140,7 +141,8 @@ def get_position_signals(session: Session = Depends(get_session)):
             id=position_link.id,
             symbol=position_link.symbol,
             signal=_make_snapshot_response(snapshot),
-            close_condition=_make_condition_response(condition)
+            close_condition=_make_condition_response(condition),
+            created_at=position_link.created_at
         ))
 
     return result
@@ -202,7 +204,8 @@ def link_signal_to_order(req: LinkOrderSignalRequest, session: Session = Depends
         symbol=order_link.symbol,
         order_id=order_link.order_id,
         signal=_make_snapshot_response(snapshot),
-        close_condition=_make_condition_response(condition)
+        close_condition=_make_condition_response(condition),
+        created_at=order_link.created_at
     )
 
 
@@ -232,7 +235,8 @@ def get_order_signals(session: Session = Depends(get_session)):
             symbol=order_link.symbol,
             order_id=order_link.order_id,
             signal=_make_snapshot_response(snapshot),
-            close_condition=_make_condition_response(condition)
+            close_condition=_make_condition_response(condition),
+            created_at=order_link.created_at
         ))
 
     return result

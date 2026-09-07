@@ -11,6 +11,9 @@ def generate_signals(
     signals = []
     
     for symbol, data in indicators.items():
+        if symbol not in correlations:
+            continue
+
         for signal_data in (
             _rsi(data),
             _macd(data),

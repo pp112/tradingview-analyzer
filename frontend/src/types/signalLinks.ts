@@ -46,6 +46,7 @@ export type PositionSignalLinkResponse = {
   symbol: string;
   signal: SignalSnapshotResponse;
   close_condition: CloseConditionResponse;
+  created_at: string;
 };
 
 export type OrderSignalLinkResponse = {
@@ -54,4 +55,11 @@ export type OrderSignalLinkResponse = {
   order_id: string;
   signal: SignalSnapshotResponse;
   close_condition: CloseConditionResponse;
+  created_at: string;
 };
+
+export type CurrentIndicatorValue = {
+  symbol: string;
+  indicator: IndicatorType;
+  value: number;
+}

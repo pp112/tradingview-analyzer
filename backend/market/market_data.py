@@ -20,7 +20,10 @@ class MarketDataClient:
     - загрузку данных свечей (WebSocket)
     - сбор результатов в DataFrame
     """
-    MIN_CANDLES = 2500
+    DEFAULT_MIN_CANDLES = 2250
+    MIN_CANDLES_BY_TIMEFRAME = {
+        Timeframe.D1: 1700
+    }
 
     def __init__(self):
         self.http_client = TradingViewHttpClient()
@@ -83,7 +86,7 @@ class MarketDataClient:
                                 progress.update(task_id, advance=1)
 
                             data = await ws.fetch_historical_batch(update_progress, chunk, timeframe)
-                            filtered = self._filter_by_candle_count(data)
+                            filtered = self._filter_by_candle_count(data, timeframe)
 
                             async with lock:
                                 results.update(filtered)
@@ -119,12 +122,14 @@ class MarketDataClient:
 
     def _filter_by_candle_count(
         self, 
-        data: dict[str, list[Candle]]
+        data: dict[str, list[Candle]],
+        timeframe: Timeframe
     ) -> dict[str, list[Candle]]:
+        min_candles = self.MIN_CANDLES_BY_TIMEFRAME.get(timeframe, self.DEFAULT_MIN_CANDLES)
         return {
             symbol: candles 
             for symbol, candles in data.items() 
-            if len(candles) >= self.MIN_CANDLES
+            if len(candles) >= min_candles
         }
 
     @staticmethod
