@@ -3,6 +3,7 @@ import asyncio
 from backend.exchanges.base import ExchangeClient
 from backend.exchanges.models import Order, Position, Side
 from backend.config import get_logger
+from backend.utils import to_display_symbol, to_exchange_symbol
 
 from pybit.unified_trading import HTTP
 
@@ -46,7 +47,7 @@ class ByBitClient(ExchangeClient):
         return [
             Order(
                 id=data["orderId"],
-                symbol=data["symbol"],
+                symbol=to_display_symbol(data["symbol"]),
                 side=Side.LONG if data["side"] == "Buy" else Side.SHORT,
             )
             for data in res["result"]["list"]
@@ -67,7 +68,7 @@ class ByBitClient(ExchangeClient):
 
         return [
             Position(
-                symbol=data["symbol"],
+                symbol=to_display_symbol(data["symbol"]),
                 side=Side.LONG if data["side"] == "Buy" else Side.SHORT,
                 pnl=round(float(data["unrealisedPnl"]), 2),
                 pnlPct=(
@@ -83,7 +84,10 @@ class ByBitClient(ExchangeClient):
     async def cancel_order(self, order: Order) -> bool:
         try:
             res = await asyncio.to_thread(
-                self.session.cancel_order, category="linear", symbol=order.symbol, orderId=order.id
+                self.session.cancel_order, 
+                category="linear", 
+                symbol=to_exchange_symbol(order.symbol), 
+                orderId=order.id
             )
         except Exception as e:
             logger.error(f"Не удалось отменить ордер {order.symbol} (сетевая ошибка): {e}")
@@ -101,7 +105,7 @@ class ByBitClient(ExchangeClient):
             res = await asyncio.to_thread(
                 self.session.place_order,
                 category="linear",
-                symbol=position.symbol,
+                symbol=to_exchange_symbol(position.symbol),
                 side="Sell" if position.side == Side.LONG else "Buy",
                 orderType="Market",
                 qty=position.size,

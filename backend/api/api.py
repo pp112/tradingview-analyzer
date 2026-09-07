@@ -181,7 +181,7 @@ async def cancel_order(order_id: str, client: ExchangeClient = Depends(get_bybit
     return {"success": True}
 
 
-@app.post("/positions/{symbol}/close")
+@app.post("/positions/close")
 async def close_position(symbol: str, client: ExchangeClient = Depends(get_bybit_client)):
     """
     Закрывает открытую позицию по символу.

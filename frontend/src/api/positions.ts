@@ -19,5 +19,5 @@ export async function cancelOrder(orderId: string): Promise<ActionResponse> {
 }
 
 export async function closePosition(symbol: string): Promise<ActionResponse> {
-  return apiPost<ActionResponse>(`/positions/${symbol}/close`);
+  return apiPost<ActionResponse>(`/positions/close?symbol=${encodeURIComponent(symbol)}`);
 }

@@ -3,5 +3,6 @@ from .helpers import (
     filter_by_symbol, 
     read_correlations,
     create_progress,
-    format_display_symbol,
+    to_display_symbol,
+    to_exchange_symbol,
 )

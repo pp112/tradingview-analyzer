@@ -6,7 +6,7 @@ import pandas as pd
 
 from backend.market import TradingViewHttpClient, TradingViewWebSocket
 from backend.models import Timeframe, Candle
-from backend.utils import create_progress, format_display_symbol
+from backend.utils import create_progress, to_display_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class MarketDataClient:
 
         for symbol, candles in all_data.items():
             df = pd.DataFrame.from_records(asdict(c) for c in candles)
-            df["symbol"] = format_display_symbol(symbol)
+            df["symbol"] = to_display_symbol(symbol)
             df_list.append(df)
 
         if not df_list:

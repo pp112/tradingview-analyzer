@@ -23,9 +23,19 @@ def filter_by_symbol(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
     return df[df["symbol"] == symbol]
 
 
-def format_display_symbol(symbol: str) -> str:
+def to_display_symbol(symbol: str) -> str:
     """BTCUSDT.P → BTC/USDT"""
-    return symbol.replace(".P", "").replace("USDT", "/USDT")
+    if "/" in symbol:
+        return symbol
+    symbol = symbol.replace(".P", "")
+    if symbol.endswith("USDT"):
+        return f"{symbol[:-4]}/USDT"
+    return symbol
+
+
+def to_exchange_symbol(symbol: str) -> str:
+    """BTC/USDT → BTCUSDT"""
+    return symbol.replace("/", "")
 
 
 def create_progress() -> Progress:
