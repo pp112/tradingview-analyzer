@@ -33,7 +33,9 @@ DEV_ORIGINS = [
 app.include_router(signal_links_router)
 app.add_middleware(
     CORSMiddleware, 
-    allow_origins=DEV_ORIGINS
+    allow_origins=DEV_ORIGINS,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type"],
 )
 
 clients: list[asyncio.Queue] = []
