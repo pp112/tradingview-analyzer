@@ -1240,6 +1240,22 @@ th.sorted-desc .sort-icon::after {
   margin: 0;
   font-size: 0.81rem;
 }
+.po-panel-count {
+  display: flex;
+  border-radius: 5px;
+  padding: 3px 6px;
+  color: var(--green);
+  background-color: var(--green-bd);
+  font: 800 0.66rem var(--font-mono);
+}
+.po-panel-count.positions {
+  color: var(--green);
+  background-color: var(--green-bd);
+}
+.po-panel-count.orders {
+  color: var(--blue);
+  background-color: var(--blue-bd);
+}
 /* .po-table-scroll {
   overflow: auto;
   max-height: calc(100vh - 245px);

@@ -42,7 +42,7 @@ export function PositionsOrdersCard() {
       <div className="po-panel">
         <div className="po-panel-header">
           <h3>Позиции</h3>
-          <span>{positions.length}</span>
+          <span className="po-panel-count positions">{positions.length}</span>
         </div>
         <div className="po-table-scroll">
           <table className="po-table po-positions-table">
@@ -78,7 +78,7 @@ export function PositionsOrdersCard() {
       <div className="po-panel">
         <div className="po-panel-header">
           <h3>Ордера</h3>
-          <span>{orders.length}</span>
+          <span className="po-panel-count orders">{orders.length}</span>
         </div>
         <div className="po-table-scroll">
           <table className="po-table po-orders-table">
