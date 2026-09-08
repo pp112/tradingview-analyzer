@@ -1,3 +1,5 @@
+import { SymbolLogo } from "./SymbolLogo";
+
 interface SymbolLinkProps {
   symbol: string;
 }
@@ -11,6 +13,7 @@ export function SymbolLink({ symbol }: SymbolLinkProps) {
       target="_blank"
       className="sym-link"
     >
+      <SymbolLogo symbol={symbol}/>
       {symbol}
     </a>
   );
