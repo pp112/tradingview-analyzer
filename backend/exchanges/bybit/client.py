@@ -1,6 +1,6 @@
 import asyncio
 
-from backend.exchanges.base import ExchangeClient
+from backend.exchanges.base import ExchangeApiError, ExchangeClient
 from backend.exchanges.models import Order, Position, Side
 from backend.config import get_logger
 from backend.utils import to_display_symbol, to_exchange_symbol
@@ -22,13 +22,13 @@ class ByBitClient(ExchangeClient):
             api_secret=api_secret
         )
 
-    def _check_response(self, res: dict, action: str) -> dict | None:
+    def _check_response(self, res: dict, action: str) -> dict:
         """Проверяет ответ Bybit."""
         ret_code = res.get("retCode")
         if ret_code != 0:
             ret_msg = res.get("retMsg", "неизвестная ошибка")
             logger.error(f"{action}: ошибка Bybit API ({ret_code}): {ret_msg}")
-            return None
+            raise ExchangeApiError(f"{action}: {ret_msg}")
         return res
 
     async def get_orders(self) -> list[Order]:
@@ -38,11 +38,9 @@ class ByBitClient(ExchangeClient):
             )
         except Exception as e:
             logger.error(f"Не удалось получить ордера (сетевая ошибка): {e}")
-            return []
+            raise ExchangeApiError("Не удалось получить ордера") from e
 
         res = self._check_response(res, "получение ордеров")
-        if res is None:
-            return []
         
         return [
             Order(
@@ -60,11 +58,9 @@ class ByBitClient(ExchangeClient):
             )
         except Exception as e:
             logger.error(f"Не удалось получить позиции (сетевая ошибка): {e}")
-            return []
+            raise ExchangeApiError("Не удалось получить позиции") from e
 
         res = self._check_response(res, "получение позиций")
-        if res is None:
-            return []
 
         return [
             Position(
@@ -129,10 +125,8 @@ class ByBitClient(ExchangeClient):
             )
         except Exception as e:
             logger.error(f"Не удалось получить баланс (сетевая ошибка): {e}")
-            return None
+            raise ExchangeApiError("Не удалось получить баланс") from e
 
         res = self._check_response(res, "получение баланса")
-        if res is None:
-            return None
         
         return float(res["result"]["list"][0]["totalEquity"])

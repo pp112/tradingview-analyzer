@@ -3,6 +3,11 @@ from abc import ABC, abstractmethod
 from backend.exchanges.models import Order, Position
 
 
+class ExchangeApiError(Exception):
+    """Ошибка получения данных от внешней биржи."""
+    pass
+
+
 class ExchangeClient(ABC):
     """
     Абстрактный интерфейс биржевого клиента.
@@ -11,7 +16,7 @@ class ExchangeClient(ABC):
     async def get_positions(self) -> list[Position]:
         """
         Возвращает список открытых позиций.
-        При ошибке — пустой список.
+        При ошибке — выбрасывает ExchangeApiError.
         """
         ...
 
@@ -19,7 +24,7 @@ class ExchangeClient(ABC):
     async def get_orders(self) -> list[Order]:
         """
         Возвращает список открытых ордеров.
-        При ошибке — пустой список.
+        При ошибке — выбрасывает ExchangeApiError.
         """
         ...
 
@@ -27,7 +32,7 @@ class ExchangeClient(ABC):
     async def get_balance(self) -> float | None:
         """
         Возвращает текущий баланс аккаунта.
-        При ошибке — None.
+        При ошибке — выбрасывает ExchangeApiError.
         """
         ...
 

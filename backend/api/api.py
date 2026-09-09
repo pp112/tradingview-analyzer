@@ -5,12 +5,12 @@ from typing import TypedDict, Required, NotRequired
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.api.dependencies import get_bybit_client
 from backend.config import get_logger
-from backend.exchanges.base import ExchangeClient
+from backend.exchanges.base import ExchangeApiError, ExchangeClient
 from backend.exchanges.models import Order, PositionOut
 from backend.api.signal_links import router as signal_links_router
 from backend.models.linked_values import CurrentIndicatorValue
@@ -21,7 +21,11 @@ logger = get_logger(__name__, "[API]")
 
 app = FastAPI()
 
-# Разрешаем фронт-end dev-серверы на любых локальных портах (5173, 5174, ...).
+
+@app.exception_handler(ExchangeApiError)
+async def exchange_api_error_handler(request: Request, exc: ExchangeApiError):
+    return JSONResponse(status_code=502, content={"detail": str(exc)})
+
 DEV_ORIGINS = [
     f"http://localhost:{port}"
     for port in range(5173, 5211)
@@ -44,6 +48,11 @@ clients: list[asyncio.Queue] = []
 class BroadcastMessage(TypedDict):
     type: Required[str]
     timeframe: NotRequired[str]
+
+
+@app.exception_handler(ExchangeApiError)
+async def exchange_api_error_handler(request: Request, exc: ExchangeApiError):
+    return JSONResponse(status_code=502, content={"detail": str(exc)})
 
 
 async def broadcast(message: BroadcastMessage):
