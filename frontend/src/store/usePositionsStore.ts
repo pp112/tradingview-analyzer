@@ -1,18 +1,16 @@
 import { create } from "zustand";
 import type { Order, Position } from "../types/positions";
 
-type LoadStatus = "idle" | "loading" | "loaded" | "error";
-
 interface PositionsState {
   positions: Position[];
   orders: Order[];
   balance: number | null;
-  status: LoadStatus;
+  updatedAt: number | null;
 
   setPositions: (positions: Position[]) => void;
   setOrders: (orders: Order[]) => void;
   setBalance: (balance: number | null) => void;
-  setStatus: (status: LoadStatus) => void;
+  setUpdatedAt: (updateAt: number) => void;
   removeOrder: (orderId: string) => void;
   removePosition: (symbol: string) => void;
 }
@@ -21,12 +19,13 @@ export const usePositionsStore = create<PositionsState>((set) => ({
   positions: [],
   orders: [],
   balance: null,
+  updatedAt: null,
   status: "idle",
 
   setPositions: (positions) => set({ positions }),
   setOrders: (orders) => set({ orders }),
   setBalance: (balance) => set({ balance }),
-  setStatus: (status) => set({ status }),
+  setUpdatedAt: (updatedAt) => set({ updatedAt }),
 
   removeOrder: (orderId) =>
     set((state) => ({

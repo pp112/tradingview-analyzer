@@ -8,7 +8,7 @@ export function usePositionsData() {
   const setPositions = usePositionsStore((s) => s.setPositions);
   const setOrders = usePositionsStore((s) => s.setOrders);
   const setBalance = usePositionsStore((s) => s.setBalance);
-  const setStatus = usePositionsStore((s) => s.setStatus);
+  const setUpdatedAt = usePositionsStore((s) => s.setUpdatedAt);
 
   const load = useCallback(async () => {
     try {
@@ -20,15 +20,13 @@ export function usePositionsData() {
       setPositions(positions);
       setOrders(orders);
       setBalance(balance.balance);
-      setStatus("loaded");
+      setUpdatedAt(Date.now());
     } catch (err) {
       console.error("Не удалось загрузить позиции/ордера:", err);
-      setStatus("error");
     }
-  }, [setPositions, setOrders, setBalance, setStatus]);
+  }, [setPositions, setOrders, setBalance, setUpdatedAt]);
 
   useEffect(() => {
-    setStatus("loading");
     load();
 
     const intervalId = setInterval(load, POLL_INTERVAL_MS);
@@ -36,7 +34,6 @@ export function usePositionsData() {
     return () => {
       clearInterval(intervalId);
     }
-  }, [load, setStatus]);
+  }, [load]);
 
-  return { reload: load };
 }

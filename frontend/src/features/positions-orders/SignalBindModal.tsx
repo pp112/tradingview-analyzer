@@ -43,7 +43,8 @@ export function SignalBindModal({
       if (!list) continue;
       result.push(
         ...list
-          .filter((s) => s.symbol === symbol && s.direction === direction)
+          // .filter((s) => s.symbol === symbol && s.direction === direction)
+          .filter((s) => s.symbol !== "qwe")
           .map((signal) => ({
             ...signal,
             timeframe: timeframe as Timeframe,
@@ -152,7 +153,7 @@ export function SignalBindModal({
               {availableSignals.map((s, i) => (
                 <option key={`${s.indicator}-${s.timeframe}-${i}`} value={i}>
                   {s.indicator.toUpperCase()} · {s.timeframe} ·{" "}
-                  {s.indicator_value} · {s.direction}
+                  {s.indicator_value.toFixed(2)} · {s.direction}
                 </option>
               ))}
             </select>

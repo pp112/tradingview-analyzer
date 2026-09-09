@@ -262,7 +262,7 @@ body {
 .content {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 580px;
+  grid-template-columns: 1fr 600px;
   gap: 16px;
   padding: 16px 20px;
   overflow: hidden;
@@ -1120,11 +1120,10 @@ th.sorted-desc .sort-icon::after {
 }
 .po-header {
   display: flex;
-  justify-content: space-between;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  gap: 16px;
   padding: 14px 18px;
+  gap: 20px;
   background: 
     linear-gradient(
       135deg,
@@ -1136,8 +1135,6 @@ th.sorted-desc .sort-icon::after {
 .po-title-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 .po-title {
   color: var(--text0);
@@ -1146,23 +1143,15 @@ th.sorted-desc .sort-icon::after {
   white-space: nowrap;
   letter-spacing: -0.01em;
 }
-.po-connection {
-  display: inline-flex;
+.po-header-right {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text2);
-  font: 600 0.62rem var(--font-mono);
-}
-.po-connection i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 10px rgba(41, 201, 138, 0.6);
+  justify-content: space-between;
+  flex: 1;
 }
 .po-stats-group {
   display: flex;
-  gap: 9px;
+  gap: 16px;
   align-items: center;
 }
 .po-stat-item {
@@ -1197,7 +1186,6 @@ th.sorted-desc .sort-icon::after {
   width: 1px;
   height: 36px;
   background: var(--border2);
-  margin: 0px 12px;
 }
 .po-stat-value.balance-value {
   color: var(--text0);
@@ -1206,7 +1194,44 @@ th.sorted-desc .sort-icon::after {
 .po-stat-value.balance-value .currency {
   color: var(--text1);
 }
-.po-refresh,
+.po-update-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  white-space: nowrap;
+}
+.po-update-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow:
+    0 0 0 2px var(--green-bg),
+    0 0 7px var(--green);
+}
+.po-update-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1;
+}
+.po-update-text span:first-child {
+  color: var(--text2);
+  font-size: 0.58rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.po-update-text span:last-child {
+  color: var(--green);
+  font-size: 0.69rem;
+  font-weight: 600;
+}
 .po-secondary-btn,
 .po-primary-btn,
 .po-action-btn,
@@ -1220,11 +1245,6 @@ th.sorted-desc .sort-icon::after {
   transition: 0.15s ease;
   white-space: nowrap;
 }
-.po-refresh {
-  align-self: center;
-  padding: 7px 10px;
-}
-.po-refresh:hover,
 .po-secondary-btn:hover,
 .po-icon-btn:hover {
   border-color: var(--border2);
