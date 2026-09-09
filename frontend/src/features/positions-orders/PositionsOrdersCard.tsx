@@ -46,18 +46,11 @@ export function PositionsOrdersCard() {
         </div>
         <div className="po-table-scroll">
           <table className="po-table po-positions-table">
-            <colgroup>
-              <col className="po-index-col" />
-              <col className="po-symbol-col" />
-              <col className="po-pnl-col" />
-              <col />
-              <col />
-            </colgroup>
             <thead>
               <tr>
                 <th>#</th>
                 <th>Символ</th>
-                <th>Нереализ. PnL</th>
+                <th>PnL</th>
                 <th>Сигнал</th>
                 <th>Действия</th>
               </tr>
@@ -82,12 +75,6 @@ export function PositionsOrdersCard() {
         </div>
         <div className="po-table-scroll">
           <table className="po-table po-orders-table">
-            <colgroup>
-              <col className="po-index-col" />
-              <col className="po-symbol-col" />
-              <col />
-              <col />
-            </colgroup>
             <thead>
               <tr>
                 <th>#</th>

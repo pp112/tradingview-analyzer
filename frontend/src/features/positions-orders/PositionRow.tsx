@@ -56,10 +56,12 @@ export function PositionRow({ position, index }: PositionRowProps) {
         </td>
         <td>
           <span className={`po-pnl ${isProfit ? "pos" : "neg"}`}>
-            {isProfit ? "+" : ""}
-            {position.pnl.toFixed(2)} USDT
-            ({isProfit ? "+" : ""}
-            {position.pnlPct}%)
+            <span className="po-pnl-main">
+              {isProfit ? "+" : ""}{position.pnl.toFixed(2)} USDT
+            </span>
+            <span className="po-pnl-percent">
+              ({isProfit ? "+" : ""}{position.pnlPct}%)
+            </span>
           </span>
         </td>
         <td>

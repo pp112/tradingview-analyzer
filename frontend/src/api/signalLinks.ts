@@ -38,5 +38,5 @@ export async function unlinkSignalFromOrder(link_id: number): Promise<ActionResp
 }
 
 export async function fetchLinkedSinglaValues(timeframe: Timeframe): Promise<CurrentIndicatorValue[]> {
-  return apiGet<CurrentIndicatorValue>(`/linked-signal-values?tf=${timeframe}`);
+  return apiGet<CurrentIndicatorValue[]>(`/linked-signal-values?tf=${timeframe}`);
 }

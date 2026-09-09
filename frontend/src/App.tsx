@@ -8,6 +8,7 @@ import { fetchInitialData } from "./api/signals";
 import { useSignalsStore } from "./store/useSignalsStore";
 import { MoversCard } from "./features/movers/MoversCard";
 import { PositionsOrdersCard } from "./features/positions-orders/PositionsOrdersCard";
+import { useSignalLinks } from "./hooks/useSignalLinks";
 
 const PAGE_TITLES: Record<string, string> = {
   home: "Главная",
@@ -20,6 +21,7 @@ export default function App() {
   const setConnectionStatus = useSignalsStore((s) => s.setConnectionStatus);
 
   useSSE();
+  useSignalLinks();
 
   useEffect(() => {
     fetchInitialData()
