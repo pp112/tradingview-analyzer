@@ -12,6 +12,7 @@ export function SymbolLink({ symbol }: SymbolLinkProps) {
       href={`https://ru.tradingview.com/chart/?symbol=BYBIT:${formatted}.P`}
       target="_blank"
       className="sym-link"
+      title={symbol}
     >
       <SymbolLogo symbol={symbol}/>
       {symbol}

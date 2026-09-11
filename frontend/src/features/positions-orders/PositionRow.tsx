@@ -51,7 +51,7 @@ export function PositionRow({ position, index }: PositionRowProps) {
           <div className="po-symbol">
             <SymbolLink symbol={position.symbol} />
             <span className={`po-direction ${position.side}`}>
-              {position.side === "long" ? "Long" : "Short"}
+              {position.side === "long" ? "L" : "S"}
             </span>
           </div>
         </td>

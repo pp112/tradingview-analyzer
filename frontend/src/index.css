@@ -262,7 +262,7 @@ body {
 .content {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 600px;
+  grid-template-columns: 1fr 540px;
   gap: 16px;
   padding: 16px 20px;
   overflow: hidden;
@@ -1122,8 +1122,8 @@ th.sorted-desc .sort-icon::after {
   display: flex;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px 18px;
-  gap: 20px;
+  padding: 14px 15px;
+  gap: 13px;
   background: 
     linear-gradient(
       135deg,
@@ -1138,7 +1138,7 @@ th.sorted-desc .sort-icon::after {
 }
 .po-title {
   color: var(--text0);
-  font-size: 1rem;
+  font-size: 0.97rem;
   font-weight: 800;
   white-space: nowrap;
   letter-spacing: -0.01em;
@@ -1146,12 +1146,11 @@ th.sorted-desc .sort-icon::after {
 .po-header-right {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex: 1;
+  gap: 12px;
 }
 .po-stats-group {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
 }
 .po-stat-item {
@@ -1174,13 +1173,14 @@ th.sorted-desc .sort-icon::after {
   width: fit-content;
 }
 .po-stat-value {
-  font: 800 1.05rem var(--font-mono);
+  font: 800 1rem var(--font-mono);
   letter-spacing: -0.01em;
 }
 .po-stat-value .currency {
-  font-size: 0.87rem;
+  font-size: 0.7rem;
   font-weight: 500;
   margin-left: 7px;
+  letter-spacing: 0.01rem;
 }
 .po-stat-divider {
   width: 1px;
@@ -1197,22 +1197,11 @@ th.sorted-desc .sort-icon::after {
 .po-update-status {
   display: flex;
   align-items: center;
-  gap: 7px;
   padding: 5px 8px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--bg3);
   white-space: nowrap;
-}
-.po-update-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow:
-    0 0 0 2px var(--green-bg),
-    0 0 7px var(--green);
 }
 .po-update-text {
   display: flex;
@@ -1316,7 +1305,7 @@ th.sorted-desc .sort-icon::after {
 }
 .po-table th,
 .po-table td {
-  padding: 8px 9px;
+  padding: 8px;
   text-align: center;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -1340,8 +1329,8 @@ th.sorted-desc .sort-icon::after {
   align-items: center;
   justify-content: center;   
   gap: 8px;
+  max-width: 131px;
   white-space: nowrap;
-  overflow: hidden;
   font: 800 0.76rem var(--font-mono);
   color: var(--text0);
 }
@@ -1350,10 +1339,9 @@ th.sorted-desc .sort-icon::after {
   overflow: hidden;
 }
 .po-direction {
-  padding: 3px 6px;
-  border-radius: 5px;
+  padding: 3px 5px;
+  border-radius: 4px;
   font: 800 0.56rem var(--font-mono);
-  letter-spacing: 0.04em;
 }
 .po-direction.long {
   color: var(--green);

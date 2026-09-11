@@ -58,9 +58,10 @@ export function PositionsOrdersCard() {
                 <span className="currency">USDT</span>
               </div>
             </div>
+            <div className="po-stat-divider" />
           </div>
           <div className="po-update-status">
-            <span className="po-update-dot" />
+            {/* <span className="po-update-dot" /> */}
             <span className="po-update-text">
               <span>Обновлено:</span>
               <span>{updatedText}</span>
