@@ -82,7 +82,7 @@ export function PositionsOrdersCard() {
                 <th>Символ</th>
                 <th>PnL</th>
                 <th>Сигнал</th>
-                <th>Действия</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -114,7 +114,7 @@ export function PositionsOrdersCard() {
                 <th>#</th>
                 <th>Символ</th>
                 <th>Сигнал</th>
-                <th>Действия</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>

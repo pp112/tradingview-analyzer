@@ -7,6 +7,7 @@ import type { Position } from "../../types/positions";
 import { LinkedSignalCell } from "./LinkedSignalCell";
 import { unlinkSignalFromPosition } from "../../api/signalLinks";
 import { SignalBindModal } from "./SignalBindModal";
+import { X } from "lucide-react";
 
 type PositionRowProps = {
   position: Position;
@@ -73,8 +74,12 @@ export function PositionRow({ position, index }: PositionRowProps) {
         </td>
         <td>
           <div className="po-actions">
-            <button className="po-action-btn close" onClick={handleClose}>
-              Закрыть
+            <button 
+              className="po-icon-btn close" 
+              onClick={handleClose}
+              title="Закрыть позицию"
+            >
+              <X size={14} strokeWidth={2.5} />
             </button>
           </div>
         </td>

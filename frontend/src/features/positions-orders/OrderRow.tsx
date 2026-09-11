@@ -7,6 +7,7 @@ import { useSignalLinksStore } from "../../store/useSignalLinksStore";
 import { useState } from "react";
 import { unlinkSignalFromOrder } from "../../api/signalLinks";
 import { SignalBindModal } from "./SignalBindModal";
+import { X } from "lucide-react";
 
 type OrderRowPorps = {
   order: Order;
@@ -62,8 +63,12 @@ export function OrderRow({ order, index }: OrderRowPorps) {
         </td>
         <td>
           <div className="po-actions">
-            <button className="po-action-btn close" onClick={handleCancel}>
-              Отменить
+            <button 
+              className="po-icon-btn close" 
+              onClick={handleCancel}
+              title="Отменить ордер"  
+            >
+              <X size={14} strokeWidth={2.5} />
             </button>
           </div>
         </td>

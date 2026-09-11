@@ -5,6 +5,7 @@ import type {
   OrderSignalLinkResponse,
   PositionSignalLinkResponse,
 } from "../../types/signalLinks";
+import { X } from "lucide-react";
 
 type LinkType = PositionSignalLinkResponse | OrderSignalLinkResponse;
 
@@ -88,7 +89,7 @@ export function LinkedSignalCell({
           onClick={onUnbindClick}
           title="Отвязать сигнал"
         >
-          ×
+          <X size={12} strokeWidth={2.5} />
         </button>
       </div>
 

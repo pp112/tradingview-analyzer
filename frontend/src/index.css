@@ -1478,17 +1478,16 @@ th.sorted-desc .sort-icon::after {
   font-size: 0.9rem;
   border-radius: 3px;
 }
-.po-action-btn {
-  padding: 7px 9px;
-}
-.po-action-btn.close,
-.po-action-btn.cancel {
+.po-icon-btn.close,
+.po-icon-btn.cancel {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
   color: #ffb4b5;
-  background: var(--red-bg);
+  background: var(--red-bd);
 }
-.po-action-btn.close:hover,
-.po-action-btn.cancel:hover,
-.po-icon-btn.unlink:hover {
+.po-icon-btn.close:hover,
+.po-icon-btn.cancel:hover {
   color: #fff;
   background: var(--red);
 }
