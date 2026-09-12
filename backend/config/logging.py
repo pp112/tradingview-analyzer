@@ -73,10 +73,6 @@ def setup_logging():
 
     # ── Отдельные логгеры ─────────────────────────────────────────────────────
 
-    # Логгер processing/indicator_service.py
-    logging.getLogger("processing.indicator_service").addHandler(indicator_service_file_handler)
-    logging.getLogger("processing.indicator_service").propagate = False
-
     # Отключаем шумные логгеры загрузки данных
     logging.getLogger("market.market_data").disabled = True
     logging.getLogger("market.websocket_client").disabled = True

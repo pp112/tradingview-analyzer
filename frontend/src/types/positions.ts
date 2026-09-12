@@ -10,7 +10,7 @@ export type Position = {
   symbol: string;
   side: Side;
   pnl: number;
-  pnlPct: number;
+  pnlPct: number | null;
 };
 
 export type BalanceResponse = {

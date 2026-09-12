@@ -2,9 +2,6 @@ import pandas as pd
 
 from backend.models import Timeframe
 from backend.utils import filter_by_symbol
-from backend.config import get_logger
-
-logger = get_logger(__name__)
 
 
 def rsi_series(symbol_df: pd.DataFrame) -> pd.Series:

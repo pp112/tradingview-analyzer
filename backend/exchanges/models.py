@@ -17,7 +17,7 @@ class Position(BaseModel):
     symbol: str
     side: Side
     pnl: float
-    pnlPct: float
+    pnlPct: float | None
     size: float
 
 
@@ -25,4 +25,4 @@ class PositionOut(BaseModel):
     symbol: str
     side: Side
     pnl: float
-    pnlPct: float
+    pnlPct: float | None

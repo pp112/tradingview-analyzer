@@ -60,9 +60,11 @@ export function PositionRow({ position, index }: PositionRowProps) {
             <span className="po-pnl-main">
               {isProfit ? "+" : ""}{position.pnl.toFixed(2)} USDT
             </span>
-            <span className="po-pnl-percent">
-              ({isProfit ? "+" : ""}{position.pnlPct}%)
-            </span>
+            {position.pnlPct !== null && (
+              <span className="po-pnl-percent">
+                ({isProfit ? "+" : ""}{position.pnlPct}%)
+              </span>
+            )}
           </span>
         </td>
         <td>
