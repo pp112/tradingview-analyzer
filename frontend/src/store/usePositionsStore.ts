@@ -22,8 +22,10 @@ export const usePositionsStore = create<PositionsState>((set) => ({
   updatedAt: null,
   status: "idle",
 
-  setPositions: (positions) => set({ positions }),
-  setOrders: (orders) => set({ orders }),
+  setPositions: (positions) => 
+    set({ positions: [...positions].sort((a, b) => a.createdAt - b.createdAt) }),
+  setOrders: (orders) => 
+    set({ orders: [...orders].sort((a, b) => a.createdAt - b.createdAt) }),
   setBalance: (balance) => set({ balance }),
   setUpdatedAt: (updatedAt) => set({ updatedAt }),
 

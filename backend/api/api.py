@@ -151,6 +151,7 @@ async def get_positions(client: ExchangeClient = Depends(get_bybit_client)):
             side=position.side,
             pnl=position.pnl,
             pnlPct=position.pnlPct,
+            created_at=position.created_at,
         )
         for position in await client.get_positions()
     ]

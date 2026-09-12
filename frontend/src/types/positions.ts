@@ -4,6 +4,7 @@ export type Order = {
   id: string;
   symbol: string;
   side: Side;
+  createdAt: number;
 };
 
 export type Position = {
@@ -11,6 +12,7 @@ export type Position = {
   side: Side;
   pnl: number;
   pnlPct: number | null;
+  createdAt: number;
 };
 
 export type BalanceResponse = {
