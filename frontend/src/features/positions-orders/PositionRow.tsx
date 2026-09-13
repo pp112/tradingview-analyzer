@@ -7,14 +7,16 @@ import type { Position } from "../../types/positions";
 import { LinkedSignalCell } from "./LinkedSignalCell";
 import { unlinkSignalFromPosition } from "../../api/signalLinks";
 import { SignalBindModal } from "./SignalBindModal";
+import { formatTimeAgo } from "../../utils/formatTimeAgo";
 import { X } from "lucide-react";
 
 type PositionRowProps = {
   position: Position;
   index: number;
+  now: number;
 };
 
-export function PositionRow({ position, index }: PositionRowProps) {
+export function PositionRow({ position, index, now }: PositionRowProps) {
   const removePosition = usePositionsStore((s) => s.removePosition);
   const removePositionLink = useSignalLinksStore((s) => s.removePositionLink);
   const link = useSignalLinksStore((s) => 
@@ -54,6 +56,9 @@ export function PositionRow({ position, index }: PositionRowProps) {
               {position.side === "long" ? "L" : "S"}
             </span>
           </div>
+          <span className="po-created-at" title={new Date(position.createdAt).toLocaleString("ru-RU")}>
+            {formatTimeAgo(position.createdAt, now)}
+          </span>
         </td>
         <td>
           <span className={`po-pnl ${isProfit ? "pos" : "neg"}`}>

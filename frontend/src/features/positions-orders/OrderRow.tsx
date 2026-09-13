@@ -8,13 +8,15 @@ import { useState } from "react";
 import { unlinkSignalFromOrder } from "../../api/signalLinks";
 import { SignalBindModal } from "./SignalBindModal";
 import { X } from "lucide-react";
+import { formatTimeAgo } from "../../utils/formatTimeAgo";
 
 type OrderRowPorps = {
   order: Order;
   index: number;
+  now: number;
 }
 
-export function OrderRow({ order, index }: OrderRowPorps) {
+export function OrderRow({ order, index, now }: OrderRowPorps) {
   const removeOrder = usePositionsStore((s) => s.removeOrder);
   const removeOrderLink = useSignalLinksStore((s) => s.removeOrderLink);
   const link = useSignalLinksStore((s) =>
@@ -53,6 +55,9 @@ export function OrderRow({ order, index }: OrderRowPorps) {
               {order.side === "long" ? "Long" : "Short"}
             </span>
           </div>
+          <span className="po-created-at" title={new Date(order.createdAt).toLocaleString("ru-RU")}>
+            {formatTimeAgo(order.createdAt, now)}
+          </span>
         </td>
         <td>
           <LinkedSignalCell

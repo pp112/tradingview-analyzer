@@ -3,6 +3,7 @@ import { usePositionsData } from "../../hooks/usePositionsData";
 import { usePositionsStore } from "../../store/usePositionsStore";
 import { OrderRow } from "./OrderRow";
 import { PositionRow } from "./PositionRow";
+import { useMinuteTick } from "../../hooks/useMinuteTick";
 
 export function PositionsOrdersCard() {
   const positions = usePositionsStore((s) => s.positions);
@@ -12,7 +13,8 @@ export function PositionsOrdersCard() {
 
   usePositionsData();
 
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now()); // для "Обновлено: N сек назад"
+  const minuteNow = useMinuteTick(); // для времени создания позиций/ордеров
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -61,7 +63,6 @@ export function PositionsOrdersCard() {
             <div className="po-stat-divider" />
           </div>
           <div className="po-update-status">
-            {/* <span className="po-update-dot" /> */}
             <span className="po-update-text">
               <span>Обновлено:</span>
               <span>{updatedText}</span>
@@ -95,7 +96,7 @@ export function PositionsOrdersCard() {
                 </tr>
               ) : (
                 positions.map((p, i) => (
-                  <PositionRow key={p.symbol} position={p} index={i} />
+                  <PositionRow key={p.symbol} position={p} index={i} now={minuteNow} />
                 ))
               )}
             </tbody>
@@ -127,7 +128,7 @@ export function PositionsOrdersCard() {
                 </tr>
               ) : (
                 orders.map((o, i) => (
-                  <OrderRow key={o.id} order={o} index={i} />
+                  <OrderRow key={o.id} order={o} index={i} now={minuteNow} />
                 ))
               )}
             </tbody>

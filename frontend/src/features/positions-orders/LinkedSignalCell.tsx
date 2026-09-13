@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
+import { formatTimeAgo } from "../../utils/formatTimeAgo";
 import type { IndicatorType } from "../../types/signal";
 import type {
   OrderSignalLinkResponse,
@@ -25,17 +26,6 @@ const INDICATOR_LABELS: Record<IndicatorType, string> = {
 const getIndicatorDisplayName = (indicator: IndicatorType): string =>
   INDICATOR_LABELS[indicator].toUpperCase().replace("-", "+");
 
-function formatTimeAgo(isoString: string, now: number): string {
-  const date = new Date(isoString);
-  const minutes = Math.floor((now - date.getTime()) / 60_000);
-  if (minutes < 1) return "только что";
-  if (minutes < 60) return `${minutes} мин назад`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} ч назад`;
-  const days = Math.floor(hours / 24);
-  return `${days} дн назад`
-}
-
 export function LinkedSignalCell({
   link,
   onBindClick,
@@ -44,6 +34,7 @@ export function LinkedSignalCell({
   const getCurrentValue = useSignalLinksStore((s) => s.getCurrentValue);
 
   const [now, setNow] = useState(() => Date.now());
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(Date.now());

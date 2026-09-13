@@ -1353,6 +1353,12 @@ th.sorted-desc .sort-icon::after {
   background: var(--red-bg);
   border: 1px solid var(--red-bd);
 }
+.po-created-at {
+  display: block;
+  font: 500 0.55rem var(--font-mono);
+  color: var(--text2);
+  margin-top: 4px;
+}
 .po-pnl {
   font: 600 0.72rem var(--font-mono);
   line-height: 1.35;

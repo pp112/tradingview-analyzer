@@ -11,7 +11,7 @@ class Order(BaseModel):
     id: str
     symbol: str
     side: Side
-    created_at: int
+    createdAt: int
     
 
 class Position(BaseModel):
@@ -20,7 +20,7 @@ class Position(BaseModel):
     pnl: float
     pnlPct: float | None
     size: float
-    created_at: int
+    createdAt: int
 
 
 class PositionOut(BaseModel):
@@ -28,4 +28,4 @@ class PositionOut(BaseModel):
     side: Side
     pnl: float
     pnlPct: float | None
-    created_at: int
+    createdAt: int

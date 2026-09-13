@@ -87,7 +87,7 @@ class ByBitClient(ExchangeClient):
                 id=data["orderId"],
                 symbol=to_display_symbol(data["symbol"]),
                 side=Side.LONG if data["side"] == "Buy" else Side.SHORT,
-                created_at=int(data["createdTime"]),
+                createdAt=int(data["createdTime"]),
             )
             for data in res["result"]["list"]
         ]
@@ -128,7 +128,7 @@ class ByBitClient(ExchangeClient):
                     pnl=pnl,
                     pnlPct=pnl_pct,
                     size=float(data["size"]),
-                    created_at=int(data["createdTime"]),
+                    createdAt=int(data["openTime"]),
                 )
             )
 
