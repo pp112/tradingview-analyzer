@@ -4,11 +4,12 @@ import { SymbolLink } from "../../components/ui/SymbolLink";
 import { LinkedSignalCell } from "./LinkedSignalCell";
 import type { Order } from "../../types/positions";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { unlinkSignalFromOrder } from "../../api/signalLinks";
 import { SignalBindModal } from "./SignalBindModal";
 import { X } from "lucide-react";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
+import { ConfirmPopover } from "../../components/ui/ConfirmPopover";
 
 type OrderRowPorps = {
   order: Order;
@@ -24,6 +25,9 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
   );
 
   const [showModal, setShowModal] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+
+  const cancelBtnRef = useRef<HTMLButtonElement>(null);
   
   const handleCancel = async () => {
     try {
@@ -68,13 +72,25 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
         </td>
         <td>
           <div className="po-actions">
-            <button 
-              className="po-icon-btn close" 
-              onClick={handleCancel}
+            <button
+              ref={cancelBtnRef}
+              className="po-btn action" 
+              onClick={() => setConfirmCancel((prev) => !prev)}
               title="Отменить ордер"  
             >
               <X size={14} strokeWidth={2.5} />
             </button>
+            {confirmCancel && (
+              <ConfirmPopover 
+                anchorRef={cancelBtnRef}
+                message="Отменить ордер?"
+                onConfirm={() => {
+                  setConfirmCancel(false);
+                  handleCancel();
+                }}
+                onCancel={() => setConfirmCancel(false)}
+              />
+            )}
           </div>
         </td>
       </tr>

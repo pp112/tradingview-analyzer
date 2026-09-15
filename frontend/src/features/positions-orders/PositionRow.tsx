@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { closePosition } from "../../api/positions";
 import { SymbolLink } from "../../components/ui/SymbolLink";
 import { usePositionsStore } from "../../store/usePositionsStore";
@@ -9,6 +9,7 @@ import { unlinkSignalFromPosition } from "../../api/signalLinks";
 import { SignalBindModal } from "./SignalBindModal";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 import { X } from "lucide-react";
+import { ConfirmPopover } from "../../components/ui/ConfirmPopover";
 
 type PositionRowProps = {
   position: Position;
@@ -24,7 +25,11 @@ export function PositionRow({ position, index, now }: PositionRowProps) {
   );
 
   const [showModal, setShowModal] = useState(false);
+  const [confirmClose, setConfirmClose] = useState(false);
+  
   const isProfit = position.pnl >= 0;
+
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   const handleClose = async () => {
     try {
@@ -81,13 +86,25 @@ export function PositionRow({ position, index, now }: PositionRowProps) {
         </td>
         <td>
           <div className="po-actions">
-            <button 
-              className="po-icon-btn close" 
-              onClick={handleClose}
+            <button
+              ref={closeBtnRef}
+              className="po-btn action" 
+              onClick={() => {setConfirmClose((prev) => !prev)}}
               title="Закрыть позицию"
             >
               <X size={14} strokeWidth={2.5} />
             </button>
+            {confirmClose && (
+              <ConfirmPopover
+                anchorRef={closeBtnRef}
+                message="Закрыть позицию?"
+                onConfirm={() => {
+                  setConfirmClose(false);
+                  handleClose();
+                }}
+                onCancel={() => setConfirmClose(false)}
+              />
+            )}
           </div>
         </td>
       </tr>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 import type { IndicatorType } from "../../types/signal";
@@ -6,7 +6,8 @@ import type {
   OrderSignalLinkResponse,
   PositionSignalLinkResponse,
 } from "../../types/signalLinks";
-import { X } from "lucide-react";
+import { MoveRight, X } from "lucide-react";
+import { ConfirmPopover } from "../../components/ui/ConfirmPopover";
 
 type LinkType = PositionSignalLinkResponse | OrderSignalLinkResponse;
 
@@ -26,6 +27,7 @@ const INDICATOR_LABELS: Record<IndicatorType, string> = {
 const getIndicatorDisplayName = (indicator: IndicatorType): string =>
   INDICATOR_LABELS[indicator].toUpperCase().replace("-", "+");
 
+
 export function LinkedSignalCell({
   link,
   onBindClick,
@@ -34,7 +36,10 @@ export function LinkedSignalCell({
   const getCurrentValue = useSignalLinksStore((s) => s.getCurrentValue);
 
   const [now, setNow] = useState(() => Date.now());
+  const [confirmUnbind, setConfirmUnbind] = useState(false);
   
+  const unbindBtnRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(Date.now());
@@ -45,7 +50,7 @@ export function LinkedSignalCell({
 
   if (!link) {
     return (
-      <button className="po-action-btn" onClick={onBindClick}>
+      <button className="po-btn bind" onClick={onBindClick}>
         + Привязать сигнал
       </button>
     );
@@ -76,12 +81,24 @@ export function LinkedSignalCell({
           {formatTimeAgo(link.created_at, now)}
         </span>
         <button
-          className="po-icon-btn unlink"
-          onClick={onUnbindClick}
+          ref={unbindBtnRef}
+          className="po-btn unbind"
+          onClick={() => setConfirmUnbind((prev) => !prev)}
           title="Отвязать сигнал"
         >
           <X size={12} strokeWidth={2.5} />
         </button>
+        {confirmUnbind && (
+          <ConfirmPopover
+            anchorRef={unbindBtnRef}
+            message="Отвязать сигнал?"
+            onConfirm={() => {
+              setConfirmUnbind(false);
+              onUnbindClick();
+            }}
+            onCancel={() => setConfirmUnbind(false)}
+          />
+        )}
       </div>
 
       <div className="po-signal-values">
@@ -89,7 +106,7 @@ export function LinkedSignalCell({
           {getIndicatorDisplayName(link.signal.indicator)}:
         </span>
         <span className="value">{fixedValue}</span>
-        <span className="arrow">→</span>
+        <MoveRight className="arrow" size={15} />
         <span className="value">{currentValue ?? fixedValue}</span>
         <span className={differenceClass}>
           ({difference >= 0 ? "+" : ""}

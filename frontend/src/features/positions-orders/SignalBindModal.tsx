@@ -4,6 +4,7 @@ import type { Direction, Signal, Timeframe } from "../../types/signal";
 import type { CloseConditionInput, CloseOperator } from "../../types/signalLinks";
 import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
+import { X } from "lucide-react";
 
 type EntityType = "position" | "order";
 
@@ -126,8 +127,8 @@ export function SignalBindModal({
             <h3>Привязать сигнал</h3>
             <p>{symbol}</p>
           </div>
-          <button className="po-icon-btn" onClick={onClose}>
-            ×
+          <button className="po-btn close" onClick={onClose}>
+            <X size={14} strokeWidth={2.5} />
           </button>
         </div>
 
@@ -197,11 +198,11 @@ export function SignalBindModal({
         {error && <p className="po-error-text">{error}</p>}
 
         <div className="po-modal-actions">
-          <button className="po-secondary-btn" onClick={onClose}>
+          <button className="po-btn secondary" onClick={onClose}>
             Отмена
           </button>
           <button 
-            className="po-primary-btn" 
+            className="po-btn primary" 
             onClick={handleConfirm}
             disabled={!selected || loading}  
           >
