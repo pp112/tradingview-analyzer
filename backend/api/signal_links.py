@@ -181,11 +181,11 @@ def link_signal_to_order(req: LinkOrderSignalRequest, session: Session = Depends
     condition_repo = CloseConditionRepository(session)
     order_repo = OrderSignalLinkRepository(session)
 
-    existing = order_repo.get_by_order_id(req.order_id)
+    existing = order_repo.get_by_exchange_order_id(req.exchange_order_id)
     if existing:
         raise HTTPException(
             status_code=409, 
-            detail=f"Ордер {req.order_id} уже привязан к сигналу"
+            detail=f"Ордер {req.exchange_order_id} уже привязан к сигналу"
         )
 
     snapshot, condition = _create_snapshot_and_condition(
@@ -194,7 +194,7 @@ def link_signal_to_order(req: LinkOrderSignalRequest, session: Session = Depends
 
     order_link = order_repo.create(OrderSignalLink(
         symbol=req.symbol,
-        order_id=req.order_id,
+        exchange_order_id=req.exchange_order_id,
         signal_snapshot_id=snapshot.id,
         close_condition_id=condition.id if condition else None
     ))
@@ -202,7 +202,7 @@ def link_signal_to_order(req: LinkOrderSignalRequest, session: Session = Depends
     return OrderSignalLinkResponse(
         id=order_link.id,
         symbol=order_link.symbol,
-        order_id=order_link.order_id,
+        exchange_order_id=order_link.exchange_order_id,
         signal=_make_snapshot_response(snapshot),
         close_condition=_make_condition_response(condition),
         created_at=order_link.created_at
@@ -233,7 +233,7 @@ def get_order_signals(session: Session = Depends(get_session)):
         result.append(OrderSignalLinkResponse(
             id=order_link.id,
             symbol=order_link.symbol,
-            order_id=order_link.order_id,
+            exchange_order_id=order_link.exchange_order_id,
             signal=_make_snapshot_response(snapshot),
             close_condition=_make_condition_response(condition),
             created_at=order_link.created_at

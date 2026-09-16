@@ -46,13 +46,13 @@ class PositionSignalLink(SQLModel, table=True):
 class OrderSignalLink(SQLModel, table=True):
     """
     Привязка открытого ордера к сигналу + опциональное условие автоотмены.
-    Ордер идентифицируется по order_id
+    Ордер идентифицируется по exchange_order_id
     """
     __tablename__ = "order_signal_links"
 
     id: int | None = Field(default=None, primary_key=True)
     symbol: str
-    order_id: str   # реальный UUID ордера на бирже
+    exchange_order_id: str   # реальный UUID ордера на бирже
     signal_snapshot_id: int = Field(foreign_key="signal_snapshots.id")
     close_condition_id: int | None = Field(default=None, foreign_key="close_conditions.id")
     created_at: datetime = Field(default_factory=datetime.now)

@@ -175,13 +175,16 @@ async def get_balance(client: ExchangeClient = Depends(get_bybit_client)):
     return {"balance": await client.get_balance()}
 
 
-@app.post("/orders/{order_id}/cancel")
-async def cancel_order(order_id: str, client: ExchangeClient = Depends(get_bybit_client)):
+@app.post("/orders/{exchange_order_id}/cancel")
+async def cancel_order(
+    exchange_order_id: str, 
+    client: ExchangeClient = Depends(get_bybit_client)
+):
     """
     Отменяет открытый ордер по его ID.
     """
     orders = await client.get_orders()
-    order = next((o for o in orders if o.id == order_id), None)
+    order = next((o for o in orders if o.exchange_order_id == exchange_order_id), None)
 
     if order is None:
         raise HTTPException(status_code=404, detail="Ордер не найден")

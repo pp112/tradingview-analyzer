@@ -8,7 +8,7 @@ class Side(Enum):
 
 
 class Order(BaseModel):
-    id: str
+    exchange_order_id: str
     symbol: str
     side: Side
     createdAt: int

@@ -84,7 +84,7 @@ class ByBitClient(ExchangeClient):
         
         return [
             Order(
-                id=data["orderId"],
+                exchange_order_id=data["orderId"],
                 symbol=to_display_symbol(data["symbol"]),
                 side=Side.LONG if data["side"] == "Buy" else Side.SHORT,
                 createdAt=int(data["createdTime"]),
@@ -140,7 +140,7 @@ class ByBitClient(ExchangeClient):
                 self.session.cancel_order, 
                 category="linear", 
                 symbol=to_exchange_symbol(order.symbol), 
-                orderId=order.id
+                orderId=order.exchange_order_id
             )
         except Exception as e:
             logger.error(f"Не удалось отменить ордер {order.symbol} (сетевая ошибка): {e}")

@@ -1,3 +1,11 @@
+"""
+Pydantic-схемы API для привязки сигналов к позициям и ордерам.
+
+Используются в backend.api.signal_links для:
+- валидации входящих запросов;
+- формирования ответов API;
+"""
+
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -16,14 +24,16 @@ class CloseConditionInput(BaseModel):
 
 
 class LinkPositionSignalRequest(BaseModel):
+    """Запрос на привязку сигнала к открытой позиции."""
     symbol: str
     signal: SignalSnapshotInput
     close_condition: CloseConditionInput | None = None
 
 
 class LinkOrderSignalRequest(BaseModel):
+    """Запрос на привязку сигнала к открытому ордеру."""
     symbol: str
-    order_id: str
+    exchange_order_id: str
     signal: SignalSnapshotInput
     close_condition: CloseConditionInput | None = None
 
@@ -43,6 +53,7 @@ class CloseConditionResponse(BaseModel):
 
 
 class PositionSignalLinkResponse(BaseModel):
+    """Ответ с данными привязки сигнала к позиции."""
     id: int
     symbol: str
     signal: SignalSnapshotResponse
@@ -51,9 +62,10 @@ class PositionSignalLinkResponse(BaseModel):
 
 
 class OrderSignalLinkResponse(BaseModel):
+    """Ответ с данными привязки сигнала к ордеру."""
     id: int
     symbol: str
-    order_id: str
+    exchange_order_id: str
     signal: SignalSnapshotResponse
     close_condition: CloseConditionResponse | None = None
     created_at: datetime

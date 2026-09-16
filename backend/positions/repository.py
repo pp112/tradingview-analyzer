@@ -97,12 +97,15 @@ class OrderSignalLinkRepository:
         )
         return list(self.session.exec(query))
 
-    def get_by_id(self, order_id: str) -> OrderSignalLink | None:
-        return self.session.get(OrderSignalLink, order_id)
+    def get_by_id(self, link_id: int) -> OrderSignalLink | None:
+        return self.session.get(OrderSignalLink, link_id)
 
-    def get_by_order_id(self, order_id: str) -> OrderSignalLink | None:
+    def get_by_exchange_order_id(
+        self,
+        exchange_order_id: str,
+    ) -> OrderSignalLink | None:
         query = select(OrderSignalLink).where(
-            OrderSignalLink.order_id == order_id,
+            OrderSignalLink.exchange_order_id == exchange_order_id,
             OrderSignalLink.cancelled_at.is_(None),
         )
         return self.session.exec(query).first()
