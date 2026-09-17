@@ -1,11 +1,12 @@
 import asyncio
 
-from backend.exchanges.base import ExchangeApiError, ExchangeClient
-from backend.exchanges.models import Order, Position, Side
 from backend.config import get_logger
 from backend.utils import to_display_symbol, to_exchange_symbol
+from backend.exchanges.base import ExchangeApiError, ExchangeClient
+from backend.exchanges.models import Side, Order, Position
 
 from pybit.unified_trading import HTTP
+
 
 logger = get_logger(__name__, "[BYBIT]")
 
@@ -87,7 +88,7 @@ class ByBitClient(ExchangeClient):
                 exchange_order_id=data["orderId"],
                 symbol=to_display_symbol(data["symbol"]),
                 side=Side.LONG if data["side"] == "Buy" else Side.SHORT,
-                createdAt=int(data["createdTime"]),
+                created_at=int(data["createdTime"]),
             )
             for data in res["result"]["list"]
         ]
@@ -126,9 +127,9 @@ class ByBitClient(ExchangeClient):
                     symbol=to_display_symbol(data["symbol"]),
                     side=side,
                     pnl=pnl,
-                    pnlPct=pnl_pct,
+                    pnl_pct=pnl_pct,
                     size=float(data["size"]),
-                    createdAt=int(data["openTime"]),
+                    created_at=int(data["openTime"]),
                 )
             )
 

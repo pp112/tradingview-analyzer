@@ -8,29 +8,29 @@ Pydantic-схемы API для привязки сигналов к позици
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from backend.schemas.base import ApiModel
 
 
-class SignalSnapshotInput(BaseModel):
+class SignalSnapshotInput(ApiModel):
     indicator: str
     timeframe: str
     value: float
     direction: str
 
 
-class CloseConditionInput(BaseModel):
+class CloseConditionInput(ApiModel):
     operator: str
     target_value: float
 
 
-class LinkPositionSignalRequest(BaseModel):
+class LinkPositionSignalRequest(ApiModel):
     """Запрос на привязку сигнала к открытой позиции."""
     symbol: str
     signal: SignalSnapshotInput
     close_condition: CloseConditionInput | None = None
 
 
-class LinkOrderSignalRequest(BaseModel):
+class LinkOrderSignalRequest(ApiModel):
     """Запрос на привязку сигнала к открытому ордеру."""
     symbol: str
     exchange_order_id: str
@@ -38,7 +38,7 @@ class LinkOrderSignalRequest(BaseModel):
     close_condition: CloseConditionInput | None = None
 
 
-class SignalSnapshotResponse(BaseModel):
+class SignalSnapshotResponse(ApiModel):
     id: int
     indicator: str
     timeframe: str
@@ -46,13 +46,13 @@ class SignalSnapshotResponse(BaseModel):
     direction: str
 
 
-class CloseConditionResponse(BaseModel):
+class CloseConditionResponse(ApiModel):
     id: int
     operator: str
     target_value: float
 
 
-class PositionSignalLinkResponse(BaseModel):
+class PositionSignalLinkResponse(ApiModel):
     """Ответ с данными привязки сигнала к позиции."""
     id: int
     symbol: str
@@ -61,7 +61,7 @@ class PositionSignalLinkResponse(BaseModel):
     created_at: datetime
 
 
-class OrderSignalLinkResponse(BaseModel):
+class OrderSignalLinkResponse(ApiModel):
     """Ответ с данными привязки сигнала к ордеру."""
     id: int
     symbol: str

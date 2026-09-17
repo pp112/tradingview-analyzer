@@ -7,13 +7,20 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import TypeAdapter
 
 from backend.api.dependencies import get_bybit_client
+from backend.api.signal_links import router as signal_links_router
 from backend.config import get_logger
 from backend.exchanges.base import ExchangeApiError, ExchangeClient
-from backend.exchanges.models import Order, PositionOut
-from backend.api.signal_links import router as signal_links_router
-from backend.models.linked_values import CurrentIndicatorValue
+from backend.schemas.signals import SignalResponse
+from backend.schemas.price_volume import PriceVolumeResponse
+from backend.schemas.positions import PositionResponse
+from backend.schemas.orders import OrderResponse
+from backend.schemas.linked_values import CurrentIndicatorValueResponse
+from backend.schemas.initial_data import InitialDataResponse
+from backend.schemas.balance import BalanceResponse
+from backend.schemas.common import ActionResponse
 
 
 logger = get_logger(__name__, "[API]")
@@ -22,9 +29,12 @@ logger = get_logger(__name__, "[API]")
 app = FastAPI()
 
 
-@app.exception_handler(ExchangeApiError)
-async def exchange_api_error_handler(request: Request, exc: ExchangeApiError):
-    return JSONResponse(status_code=502, content={"detail": str(exc)})
+BASE_DIR = Path("backend/data/values")
+
+SIGNALS_ADAPTER = TypeAdapter(list[SignalResponse])
+PRICE_VOLUME_ADAPTER = TypeAdapter(list[PriceVolumeResponse])
+LINKED_VALUES_ADAPTER = TypeAdapter(list[CurrentIndicatorValueResponse])
+
 
 DEV_ORIGINS = [
     f"http://localhost:{port}"
@@ -33,8 +43,6 @@ DEV_ORIGINS = [
     f"http://127.0.0.1:{port}"
     for port in range(5173, 5211)
 ]
-
-app.include_router(signal_links_router)
 app.add_middleware(
     CORSMiddleware, 
     allow_origins=DEV_ORIGINS,
@@ -42,18 +50,14 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
-clients: list[asyncio.Queue] = []
+app.include_router(signal_links_router)
 
+
+clients: list[asyncio.Queue] = []
 
 class BroadcastMessage(TypedDict):
     type: Required[str]
     timeframe: NotRequired[str]
-
-
-@app.exception_handler(ExchangeApiError)
-async def exchange_api_error_handler(request: Request, exc: ExchangeApiError):
-    return JSONResponse(status_code=502, content={"detail": str(exc)})
-
 
 async def broadcast(message: BroadcastMessage):
     """
@@ -64,6 +68,11 @@ async def broadcast(message: BroadcastMessage):
 
     for queue in clients:
         await queue.put(("update", json_message))
+
+
+@app.exception_handler(ExchangeApiError)
+async def exchange_api_error_handler(request: Request, exc: ExchangeApiError):
+    return JSONResponse(status_code=502, content={"detail": str(exc)})
 
 
 @app.get("/stream")
@@ -93,89 +102,87 @@ async def stream(request: Request):
     return StreamingResponse(signal_update_stream(), media_type="text/event-stream")
 
 
-@app.get("/signals")
+@app.get("/signals", response_model=list[SignalResponse])
 def get_signals(tf: str):
     """
     Возвращает сигналы для указанного таймфрейма из JSON файла.
     """
     logger.info(f"Запрос сигналов: {tf}")
-    path = Path("backend/data/values/signals") / f"signals_{tf}.json"
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    path = BASE_DIR / "signals" / f"signals_{tf}.json"
+    json_data = path.read_text(encoding="utf-8")
+    return SIGNALS_ADAPTER.validate_json(json_data)
     
 
-@app.get("/price_volume")
+@app.get("/price_volume", response_model=list[PriceVolumeResponse])
 def get_price_volume():
     """
     Возвращает последние изменения цен и объёмов.
     """
     logger.info("Запрос изменений цен и объёмов")
-    path = Path("backend/data/values/price_vol_changes/price_vol_changes.json")
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    path = BASE_DIR / "price_vol_changes" / "price_vol_changes.json"
+    json_data = path.read_text(encoding="utf-8")
+    return PRICE_VOLUME_ADAPTER.validate_json(json_data)
     
 
-@app.get("/initial_data")
+@app.get("/initial_data", response_model=InitialDataResponse)
 def get_initial_data():
     """
     Возвращает все актуальные данные для клиента при первом подключении:
     - сигналы по таймфреймам
     - изменения цен и объёмов
     """
-    signals = {}
-    for file_path in Path("backend/data/values/signals").glob("signals_*.json"):
-        tf_label = file_path.stem.replace("signals_", "")
-        signals[tf_label] = json.loads(file_path.read_text(encoding="utf-8"))
+    signals: dict[str, list[SignalResponse]] = {}
 
-    price_changes_path = Path("backend/data/values/price_vol_changes/price_vol_changes.json")
+    signals_dir = BASE_DIR / "signals"
+    for file_path in signals_dir.glob("signals_*.json"):
+        tf_label = file_path.stem.removeprefix("signals_")
+        json_data = file_path.read_text(encoding="utf-8")
+        signals[tf_label] = SIGNALS_ADAPTER.validate_json(json_data)
+
+    price_changes = None
+    price_changes_path = BASE_DIR / "price_vol_changes" / "price_vol_changes.json"
     if price_changes_path.exists():
-        price_changes = json.loads(price_changes_path.read_text(encoding="utf-8"))
-    else:
-        price_changes = None
+        json_data = price_changes_path.read_text(encoding="utf-8")
+        price_changes = PRICE_VOLUME_ADAPTER.validate_json(json_data)
 
-    return {
-        "signals": signals,
-        "price_changes": price_changes
-    }
+    return InitialDataResponse(signals=signals, price_changes=price_changes)
 
-
-@app.get("/positions", response_model=list[PositionOut])
+@app.get("/positions", response_model=list[PositionResponse])
 async def get_positions(client: ExchangeClient = Depends(get_bybit_client)):
     """
     Возвращает список открытых позиций.
     """
     logger.info("Запрос открытых позиций")
+    positions = await client.get_positions()
     return [
-        PositionOut(
-            symbol=position.symbol,
-            side=position.side,
-            pnl=position.pnl,
-            pnlPct=position.pnlPct,
-            createdAt=position.createdAt,
-        )
-        for position in await client.get_positions()
+        PositionResponse.model_validate(position, from_attributes=True)
+        for position in positions
     ]
 
 
-@app.get("/orders", response_model=list[Order])
+@app.get("/orders", response_model=list[OrderResponse])
 async def get_orders(client: ExchangeClient = Depends(get_bybit_client)):
     """
     Возвращает список открытых ордеров.
     """
     logger.info("Запрос открытых ордеров")
-    return await client.get_orders()
+    orders = client.get_orders()
+    return [
+        OrderResponse.model_validate(order, from_attributes=True)
+        for order in orders
+    ]
 
 
-@app.get("/balance")
+@app.get("/balance", response_model=BalanceResponse)
 async def get_balance(client: ExchangeClient = Depends(get_bybit_client)):
     """
     Возвращает баланс аккаунта.
     """
     logger.info("Запрос баланса")
-    return {"balance": await client.get_balance()}
+    return BalanceResponse(balance=await client.get_balance())
 
 
-@app.post("/orders/{exchange_order_id}/cancel")
+@app.post("/orders/{exchange_order_id}/cancel", response_model=ActionResponse)
 async def cancel_order(
     exchange_order_id: str, 
     client: ExchangeClient = Depends(get_bybit_client)
@@ -193,10 +200,10 @@ async def cancel_order(
     if not success:
         raise HTTPException(status_code=502, detail="Не удалось отменить ордер")
 
-    return {"success": True}
+    return ActionResponse(success=True)
 
 
-@app.post("/positions/close")
+@app.post("/positions/close", response_model=ActionResponse)
 async def close_position(symbol: str, client: ExchangeClient = Depends(get_bybit_client)):
     """
     Закрывает открытую позицию по символу.
@@ -211,22 +218,20 @@ async def close_position(symbol: str, client: ExchangeClient = Depends(get_bybit
     if not success:
         raise HTTPException(status_code=502, detail="Не удалось закрыть позицию")
 
-    return {"success": True}
+    return ActionResponse(success=True)
 
 
-@app.get("/linked-signal-values", response_model=list[CurrentIndicatorValue])
+@app.get("/linked-signal-values", response_model=list[CurrentIndicatorValueResponse])
 async def get_linked_signal_values(tf: str):
     """
     Возвращает текущие значения индикаторов для привязанных сигналов
     указанного таймфрейма.
     """
-    path = Path(f"/data/values/linked_values/linked_values_{tf}.json")
-
+    path = BASE_DIR / "linked_values" / f"linked_values_{tf}.json"
     if not path.exists():
         return []
-
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    json_data = path.read_text(encoding="utf-8")
+    return LINKED_VALUES_ADAPTER.validate_json(json_data)
 
 
 @app.get("/")

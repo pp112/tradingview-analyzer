@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 
-from backend.positions.models import (
+from backend.signal_links.models import (
     CloseCondition, 
     SignalSnapshot, 
     OrderSignalLink, 

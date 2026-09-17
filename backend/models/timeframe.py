@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Timeframe(Enum):
     M15 = "15"
     M30 = "30"

@@ -7,6 +7,7 @@ import pandas as pd
 from backend.models import Timeframe, Signal
 from backend.models.linked_values import CurrentIndicatorValue
 
+
 BASE_PATH = Path("backend/data")
 
 

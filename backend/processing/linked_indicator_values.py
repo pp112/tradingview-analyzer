@@ -1,9 +1,12 @@
 from sqlmodel import Session
 
-from backend.models.linked_values import CurrentIndicatorValue
+from backend.schemas.linked_values import CurrentIndicatorValue
 from backend.models.timeframe import Timeframe
-from backend.positions.repository import OrderSignalLinkRepository, PositionSignalLinkRepository, SignalSnapshotRepository
-
+from backend.signal_links.repository import (
+    OrderSignalLinkRepository, 
+    PositionSignalLinkRepository, 
+    SignalSnapshotRepository,
+)
 
 def extract_linked_indicator_values(
     indicators: dict[str, dict],

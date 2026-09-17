@@ -1,19 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
-from backend.positions.models import (
+from backend.storage.database import get_session
+from backend.signal_links.models import (
     CloseCondition,
     OrderSignalLink,
     PositionSignalLink, 
     SignalSnapshot,
 )
-from backend.positions.repository import (
+from backend.signal_links.repository import (
     CloseConditionRepository,
     OrderSignalLinkRepository,
     PositionSignalLinkRepository, 
     SignalSnapshotRepository,
 )
-from backend.positions.schemas import (
+from backend.schemas.signal_links import (
     CloseConditionInput,
     CloseConditionResponse,
     LinkOrderSignalRequest,
@@ -23,7 +24,7 @@ from backend.positions.schemas import (
     SignalSnapshotInput,
     SignalSnapshotResponse,
 )
-from backend.storage.database import get_session
+from backend.schemas.common import ActionResponse
 
 
 router = APIRouter(prefix="/links")
@@ -148,7 +149,7 @@ def get_position_signals(session: Session = Depends(get_session)):
     return result
 
 
-@router.delete("/positions/{link_id}")
+@router.delete("/positions/{link_id}", response_model=ActionResponse)
 def unlink_signal_from_position(link_id: int, session: Session = Depends(get_session)):
     """
     Удаляет привязку сигнала от позиции по ID.
@@ -169,7 +170,7 @@ def unlink_signal_from_position(link_id: int, session: Session = Depends(get_ses
 
     position_repo.delete(link_id)
 
-    return {"success": True}
+    return ActionResponse(success=True)
 
 
 @router.post("/orders", response_model=OrderSignalLinkResponse)
@@ -242,7 +243,7 @@ def get_order_signals(session: Session = Depends(get_session)):
     return result
 
 
-@router.delete("/orders/{link_id}")
+@router.delete("/orders/{link_id}", response_model=ActionResponse)
 def unlink_signal_from_order(link_id: int, session: Session = Depends(get_session)):
     """
     Удаляет привязку сигнала от ордера по ID.
@@ -262,4 +263,4 @@ def unlink_signal_from_order(link_id: int, session: Session = Depends(get_sessio
 
     order_repo.delete(link_id)
 
-    return {"success": True}
+    return ActionResponse(success=True)
