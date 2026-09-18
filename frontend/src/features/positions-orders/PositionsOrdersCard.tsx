@@ -128,7 +128,7 @@ export function PositionsOrdersCard() {
                 </tr>
               ) : (
                 orders.map((o, i) => (
-                  <OrderRow key={o.id} order={o} index={i} now={minuteNow} />
+                  <OrderRow key={o.exchangeOrderId} order={o} index={i} now={minuteNow} />
                 ))
               )}
             </tbody>

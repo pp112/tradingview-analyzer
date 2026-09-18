@@ -8,7 +8,7 @@ import type {
 } from "../types/signal";
 
 // Индикаторы, для которых сортировка значений только по убыванию
-const SPECIAL_VALUE_SORT_INDICATORS: IndicatorType[] = ["macd", "ema_sma"];
+const SPECIAL_VALUE_SORT_INDICATORS: IndicatorType[] = ["macd", "emaSma"];
 
 function isSpecialValueSortIndicator(indicator: IndicatorType | null): boolean {
   return (
@@ -60,7 +60,7 @@ export const useFiltersStore = create<FiltersState>((set, get) => ({
   setTopN: (value) => {
     if (value === null) {
       set({ topN: null });
-      return
+      return;
     }
     const clamped = Math.max(1, value);
     set({ topN: clamped });
@@ -68,7 +68,7 @@ export const useFiltersStore = create<FiltersState>((set, get) => ({
 
   toggleSort: (column) => {
     const { indicator, sort } = get();
-    const isValueColumn = column === "indicator_value";
+    const isValueColumn = column === "indicatorValue";
 
     if (isSpecialValueSortIndicator(indicator) && isValueColumn) {
       if (sort.column === column) {

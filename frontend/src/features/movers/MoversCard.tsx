@@ -15,19 +15,19 @@ function getSortedEntries(
 ): PriceVolumeEntry[] {
   if (variant === "gainers") {
     return entries
-      .filter((e) => e.price_delta_pct > 0)
-      .sort((a, b) => b.price_delta_pct - a.price_delta_pct);
+      .filter((e) => e.priceDeltaPct > 0)
+      .sort((a, b) => b.priceDeltaPct - a.priceDeltaPct);
   }
 
   if (variant === "losers") {
     return entries
-      .filter((e) => e.price_delta_pct < 0)
-      .sort((a, b) => a.price_delta_pct - b.price_delta_pct);
+      .filter((e) => e.priceDeltaPct < 0)
+      .sort((a, b) => a.priceDeltaPct - b.priceDeltaPct);
   }
 
   return entries
-    .filter((e) => e.volume_delta_pct !== 0)
-    .sort((a, b) => b.volume_delta_pct - a.volume_delta_pct);
+    .filter((e) => e.volumeDeltaPct !== 0)
+    .sort((a, b) => b.volumeDeltaPct - a.volumeDeltaPct);
 }
 
 function formatValue(
@@ -35,14 +35,14 @@ function formatValue(
   variant: MoversVariant,
 ): { text: string; className: string } {
   if (variant === "gainers") {
-    return { text: `+${entry.price_delta_pct}%`, className: "pos" };
+    return { text: `+${entry.priceDeltaPct}%`, className: "pos" };
   }
 
   if (variant === "losers") {
-    return { text: `${entry.price_delta_pct}%`, className: "neg" };
+    return { text: `${entry.priceDeltaPct}%`, className: "neg" };
   }
 
-  return { text: `${entry.volume_delta_pct}%`, className: "vol-pct" };
+  return { text: `${entry.volumeDeltaPct}%`, className: "vol-pct" };
 }
 
 export function MoversCard({ title, variant }: MoversCardProps) {

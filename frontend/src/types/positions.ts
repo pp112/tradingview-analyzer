@@ -1,7 +1,7 @@
 export type Side = "long" | "short";
 
 export type Order = {
-  id: string;
+  exchangeOrderId: string;
   symbol: string;
   side: Side;
   createdAt: number;

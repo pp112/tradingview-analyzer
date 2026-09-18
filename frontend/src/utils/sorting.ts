@@ -4,7 +4,7 @@ export function filterStrong(rows: Signal[], topN: number | null): Signal[] {
   const byIndicator = (indicator: Signal["indicator"]) => {
     const sorted = rows
       .filter((row) => row.indicator === indicator)
-      .sort((a, b) => b.indicator_value - a.indicator_value);
+      .sort((a, b) => b.indicatorValue - a.indicatorValue);
 
     return topN === null ? sorted : sorted.slice(0, topN);
   };
@@ -12,7 +12,7 @@ export function filterStrong(rows: Signal[], topN: number | null): Signal[] {
   return [
     ...byIndicator("rsi"),
     ...byIndicator("macd"),
-    ...byIndicator("ema_sma"),
+    ...byIndicator("emaSma"),
   ];
 }
 
@@ -32,12 +32,12 @@ export function filterCombined(rows: Signal[]): CombinedSignal[] {
         direction: row.direction,
         rsi: null,
         macd: null,
-        ema_sma: null,
-        vol_ratio: row.vol_ratio,
+        emaSma: null,
+        volRatio: row.volRatio,
         correlation: row.correlation,
       };
     }
-    grouped[row.symbol][row.indicator] = row.indicator_value;
+    grouped[row.symbol][row.indicator] = row.indicatorValue;
   });
 
   return Object.values(grouped).filter((group) => {

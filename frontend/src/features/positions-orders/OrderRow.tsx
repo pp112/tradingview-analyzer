@@ -15,26 +15,26 @@ type OrderRowPorps = {
   order: Order;
   index: number;
   now: number;
-}
+};
 
 export function OrderRow({ order, index, now }: OrderRowPorps) {
   const removeOrder = usePositionsStore((s) => s.removeOrder);
   const removeOrderLink = useSignalLinksStore((s) => s.removeOrderLink);
   const link = useSignalLinksStore((s) =>
-    s.orderLinks.find((l) => l.order_id === order.id)
+    s.orderLinks.find((l) => l.exchangeOrderId === order.exchangeOrderId),
   );
 
   const [showModal, setShowModal] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
-  
+
   const handleCancel = async () => {
     try {
-      await cancelOrder(order.id);
-      removeOrder(order.id);
+      await cancelOrder(order.exchangeOrderId);
+      removeOrder(order.exchangeOrderId);
     } catch (err) {
-      console.log(`Не удалось отменить ордер ${order.id}:`, err);
+      console.log(`Не удалось отменить ордер ${order.exchangeOrderId}:`, err);
     }
   };
 
@@ -44,9 +44,12 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
       await unlinkSignalFromOrder(link.id);
       removeOrderLink(link.id);
     } catch (err) {
-      console.error(`Не удалось отвязать сигнал от ордера ${order.id}:`, err);
+      console.error(
+        `Не удалось отвязать сигнал от ордера ${order.exchangeOrderId}:`,
+        err,
+      );
     }
-  }
+  };
 
   return (
     <>
@@ -59,7 +62,10 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
               {order.side === "long" ? "Long" : "Short"}
             </span>
           </div>
-          <span className="po-created-at" title={new Date(order.createdAt).toLocaleString("ru-RU")}>
+          <span
+            className="po-created-at"
+            title={new Date(order.createdAt).toLocaleString("ru-RU")}
+          >
             {formatTimeAgo(order.createdAt, now)}
           </span>
         </td>
@@ -74,14 +80,14 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
           <div className="po-actions">
             <button
               ref={cancelBtnRef}
-              className="po-btn action" 
+              className="po-btn action"
               onClick={() => setConfirmCancel((prev) => !prev)}
-              title="Отменить ордер"  
+              title="Отменить ордер"
             >
               <X size={14} strokeWidth={2.5} />
             </button>
             {confirmCancel && (
-              <ConfirmPopover 
+              <ConfirmPopover
                 anchorRef={cancelBtnRef}
                 message="Отменить ордер?"
                 onConfirm={() => {
@@ -99,7 +105,7 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
         <SignalBindModal
           symbol={order.symbol}
           entityType="order"
-          orderId={order.id}
+          orderId={order.exchangeOrderId}
           direction={order.side === "long" ? "ВВЕРХ" : "ВНИЗ"}
           onClose={() => setShowModal(false)}
         />

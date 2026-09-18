@@ -8,17 +8,17 @@ const mockLink: PositionSignalLinkResponse = {
   symbol: "BTC/USDT",
   signal: {
     id: 1234,
-    indicator: "ema_sma",
+    indicator: "emaSma",
     timeframe: "1h",
     value: 0.83,
     direction: "ВВЕРХ",
   },
-  close_condition: {
+  closeCondition: {
     id: 456,
     operator: ">=",
-    target_value: 50000,
+    targetValue: 50000,
   },
-  created_at: "2026-09-06T12:00:00",
+  createdAt: "2026-09-06T12:00:00",
 };
 
 const meta: Meta<typeof LinkedSignalCell> = {
@@ -31,19 +31,20 @@ const meta: Meta<typeof LinkedSignalCell> = {
           symbol: "BTC/USDT",
           indicator: "rsi",
           value: 0.91,
-        }
+        },
       ],
-      "1h"
-    )
-  }
+      "1h",
+    );
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof LinkedSignalCell>;
 
 export const Default: Story = {
-  args: { 
+  args: {
     link: mockLink,
     onBindClick: () => {},
-    onUnbindClick: () => {}, }
+    onUnbindClick: () => {},
+  },
 };

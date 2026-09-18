@@ -49,17 +49,17 @@ function getColumns(
       { key: "symbol", label: "Монета" },
       { key: "rsi", label: "RSI" },
       { key: "macd", label: "MACD" },
-      { key: "ema_sma", label: "EMA-SMA" },
+      { key: "emaSma", label: "EMA-SMA" },
       { key: "direction", label: "Направление" },
-      { key: "vol_ratio", label: "VOLUME" },
+      { key: "volRatio", label: "VOLUME" },
       { key: "correlation", label: "Корреляция" },
     ];
   }
 
-  if (indicator === "vol_ratio") {
+  if (indicator === "volRatio") {
     return [
       { key: "symbol", label: "Монета" },
-      { key: "vol_ratio", label: "Значение" },
+      { key: "volRatio", label: "Значение" },
       { key: "indicator", label: "Индикатор" },
       { key: "correlation", label: "Корреляция" },
     ];
@@ -67,10 +67,10 @@ function getColumns(
 
   return [
     { key: "symbol", label: "Монета" },
-    { key: "indicator_value", label: "Значение" },
+    { key: "indicatorValue", label: "Значение" },
     { key: "indicator", label: "Индикатор" },
     { key: "direction" as SortColumn, label: "Направление" },
-    { key: "vol_ratio" as SortColumn, label: "Объем" },
+    { key: "volRatio" as SortColumn, label: "Объем" },
     { key: "correlation", label: "Корреляция" },
   ];
 }

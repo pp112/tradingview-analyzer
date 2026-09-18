@@ -4,8 +4,8 @@ import type { IndicatorType } from "../../types/signal";
 const INDICATORS: { value: IndicatorType; label: string }[] = [
   { value: "rsi", label: "RSI" },
   { value: "macd", label: "MACD" },
-  { value: "ema_sma", label: "EMA-SMA" },
-  { value: "vol_ratio", label: "VOLUME" },
+  { value: "emaSma", label: "EMA-SMA" },
+  { value: "volRatio", label: "VOLUME" },
 ];
 
 export function IndicatorSwitch() {

@@ -11,7 +11,7 @@ interface PositionsState {
   setOrders: (orders: Order[]) => void;
   setBalance: (balance: number | null) => void;
   setUpdatedAt: (updateAt: number) => void;
-  removeOrder: (orderId: string) => void;
+  removeOrder: (exchangeOrderId: string) => void;
   removePosition: (symbol: string) => void;
 }
 
@@ -29,9 +29,9 @@ export const usePositionsStore = create<PositionsState>((set) => ({
   setBalance: (balance) => set({ balance }),
   setUpdatedAt: (updatedAt) => set({ updatedAt }),
 
-  removeOrder: (orderId) =>
+  removeOrder: (exchangeOrderId) =>
     set((state) => ({
-      orders: state.orders.filter((o) => o.id !== orderId),
+      orders: state.orders.filter((o) => o.exchangeOrderId !== exchangeOrderId),
     })),
   removePosition: (symbol) =>
     set((state) => ({

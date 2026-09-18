@@ -27,8 +27,8 @@ export default function App() {
     fetchInitialData()
       .then((data) => {
         setAllSignals(data.signals);
-        if (data.price_changes) {
-          setPriceVolume(data.price_changes);
+        if (data.priceChanges) {
+          setPriceVolume(data.priceChanges);
         }
         setConnectionStatus("connected");
       })
@@ -49,7 +49,7 @@ export default function App() {
           <div className="panel-left">
             <SignalControls />
             <SignalTable />
-            
+
             <div className="bottom-row">
               <MoversCard title="Топ рост" variant="gainers" />
               <MoversCard title="Топ падение" variant="losers" />

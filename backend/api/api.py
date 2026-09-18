@@ -166,7 +166,7 @@ async def get_orders(client: ExchangeClient = Depends(get_bybit_client)):
     Возвращает список открытых ордеров.
     """
     logger.info("Запрос открытых ордеров")
-    orders = client.get_orders()
+    orders = await client.get_orders()
     return [
         OrderResponse.model_validate(order, from_attributes=True)
         for order in orders

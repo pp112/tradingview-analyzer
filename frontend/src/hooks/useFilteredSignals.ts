@@ -2,7 +2,12 @@ import { useMemo } from "react";
 import { useFiltersStore } from "../store/useFiltersStore";
 import { useSignalsStore } from "../store/useSignalsStore";
 import type { CombinedSignal, Signal } from "../types/signal";
-import { applyTopN, filterCombined, filterStrong, sortByColumn } from "../utils/sorting";
+import {
+  applyTopN,
+  filterCombined,
+  filterStrong,
+  sortByColumn,
+} from "../utils/sorting";
 
 const EMPTY_SIGNALS: Signal[] = [];
 
@@ -14,12 +19,14 @@ export function useFilteredSignals(): Signal[] | CombinedSignal[] {
   const topN = useFiltersStore((s) => s.topN);
   const sort = useFiltersStore((s) => s.sort);
 
-  const signals = useSignalsStore((s) => s.signals[timefrarme] ?? EMPTY_SIGNALS);
+  const signals = useSignalsStore(
+    (s) => s.signals[timefrarme] ?? EMPTY_SIGNALS,
+  );
 
   return useMemo(() => {
     let rows: Signal[] = signals;
 
-    if (indicator !== "vol_ratio" && sigtype == "all" && indicator !== null) {
+    if (indicator !== "volRatio" && sigtype == "all" && indicator !== null) {
       rows = rows.filter((s) => s.indicator === indicator);
     }
 
@@ -28,7 +35,7 @@ export function useFilteredSignals(): Signal[] | CombinedSignal[] {
     if (sigtype === "combined") {
       const filtered = filterCombined(rows);
       return sortByColumn(filtered, sort);
-    } 
+    }
 
     const filtered = sigtype === "strong" ? filterStrong(rows, topN) : rows;
     let result = sortByColumn(filtered, sort);

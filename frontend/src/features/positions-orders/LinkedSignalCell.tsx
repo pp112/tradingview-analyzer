@@ -20,13 +20,12 @@ type LinkedSignalCellProps = {
 const INDICATOR_LABELS: Record<IndicatorType, string> = {
   rsi: "rsi",
   macd: "macd",
-  ema_sma: "ema-sma",
-  vol_ratio: "volume",
+  emaSma: "ema-sma",
+  volRatio: "volume",
 };
 
 const getIndicatorDisplayName = (indicator: IndicatorType): string =>
   INDICATOR_LABELS[indicator].toUpperCase().replace("-", "+");
-
 
 export function LinkedSignalCell({
   link,
@@ -37,7 +36,7 @@ export function LinkedSignalCell({
 
   const [now, setNow] = useState(() => Date.now());
   const [confirmUnbind, setConfirmUnbind] = useState(false);
-  
+
   const unbindBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -77,9 +76,7 @@ export function LinkedSignalCell({
         <span className="po-timeframe">
           {link.signal.timeframe.toUpperCase()}
         </span>
-        <span className="po-age ">
-          {formatTimeAgo(link.created_at, now)}
-        </span>
+        <span className="po-age ">{formatTimeAgo(link.createdAt, now)}</span>
         <button
           ref={unbindBtnRef}
           className="po-btn unbind"

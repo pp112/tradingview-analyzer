@@ -1,6 +1,6 @@
 from sqlmodel import Session
 
-from backend.schemas.linked_values import CurrentIndicatorValue
+from backend.models.linked_values import CurrentIndicatorValue
 from backend.models.timeframe import Timeframe
 from backend.signal_links.repository import (
     OrderSignalLinkRepository, 

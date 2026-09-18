@@ -11,20 +11,20 @@ export type SignalSnapshotInput = {
 
 export type CloseConditionInput = {
   operator: CloseOperator;
-  target_value: number;
+  targetValue: number;
 };
 
 export type LinkPositionSignalRequest = {
   symbol: string;
   signal: SignalSnapshotInput;
-  close_condition: CloseConditionInput | null;
+  closeCondition: CloseConditionInput | null;
 };
 
 export type LinkOrderSignalRequest = {
   symbol: string;
-  order_id: string;
+  exchangeOrderId: string;
   signal: SignalSnapshotInput;
-  close_condition: CloseConditionInput | null;
+  closeCondition: CloseConditionInput | null;
 };
 
 export type SignalSnapshotResponse = {
@@ -38,28 +38,28 @@ export type SignalSnapshotResponse = {
 export type CloseConditionResponse = {
   id: number;
   operator: CloseOperator;
-  target_value: number;
+  targetValue: number;
 };
 
 export type PositionSignalLinkResponse = {
   id: number;
   symbol: string;
   signal: SignalSnapshotResponse;
-  close_condition: CloseConditionResponse;
-  created_at: string;
+  closeCondition: CloseConditionResponse;
+  createdAt: string;
 };
 
 export type OrderSignalLinkResponse = {
   id: number;
   symbol: string;
-  order_id: string;
+  exchangeOrderId: string;
   signal: SignalSnapshotResponse;
-  close_condition: CloseConditionResponse;
-  created_at: string;
+  closeCondition: CloseConditionResponse;
+  createdAt: string;
 };
 
 export type CurrentIndicatorValue = {
   symbol: string;
   indicator: IndicatorType;
   value: number;
-}
+};

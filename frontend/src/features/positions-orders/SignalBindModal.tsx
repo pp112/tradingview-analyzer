@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { useSignalsStore } from "../../store/useSignalsStore";
 import type { Direction, Signal, Timeframe } from "../../types/signal";
-import type { CloseConditionInput, CloseOperator } from "../../types/signalLinks";
+import type {
+  CloseConditionInput,
+  CloseOperator,
+} from "../../types/signalLinks";
 import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
 import { X } from "lucide-react";
@@ -11,21 +14,21 @@ type EntityType = "position" | "order";
 type SignalBindModalProps = {
   symbol: string;
   entityType: EntityType;
-  orderId?: string;
+  exchangeOrderId?: string;
   direction: Direction;
   onClose: () => void;
 };
 
 type AvailableSignals = Signal & {
   timeframe: Timeframe;
-}
+};
 
-export function SignalBindModal({ 
-  symbol, 
-  entityType, 
-  orderId, 
-  direction, 
-  onClose 
+export function SignalBindModal({
+  symbol,
+  entityType,
+  exchangeOrderId,
+  direction,
+  onClose,
 }: SignalBindModalProps) {
   const allSignals = useSignalsStore((s) => s.signals);
   const addPositionLink = useSignalLinksStore((s) => s.addPositionLink);
@@ -49,13 +52,14 @@ export function SignalBindModal({
           .map((signal) => ({
             ...signal,
             timeframe: timeframe as Timeframe,
-          }))
+          })),
       );
     }
     return result;
   }, [allSignals, symbol, direction]);
 
-  const selected = selectedIndex !== null ? availableSignals[selectedIndex] : null;
+  const selected =
+    selectedIndex !== null ? availableSignals[selectedIndex] : null;
 
   const handleConfirm = async () => {
     if (!selected) return;
@@ -68,7 +72,7 @@ export function SignalBindModal({
         setError("Введите корректное числовое значение для условия закрытия");
         return;
       }
-      closeCondition = { operator: closeOperator, target_value: parsed }
+      closeCondition = { operator: closeOperator, targetValue: parsed };
     }
 
     setLoading(true);
@@ -81,28 +85,30 @@ export function SignalBindModal({
           signal: {
             indicator: selected.indicator,
             timeframe: selected.timeframe,
-            value: selected.indicator === "vol_ratio"
-              ? selected.vol_ratio
-              : selected.indicator_value,
+            value:
+              selected.indicator === "volRatio"
+                ? selected.volRatio
+                : selected.indicatorValue,
             direction: selected.direction,
           },
-          close_condition: closeCondition,
+          closeCondition: closeCondition,
         });
         addPositionLink(link);
       } else {
-        if (!orderId) return;
+        if (!exchangeOrderId) return;
         const link = await linkSignalToOrder({
           symbol,
-          order_id: orderId,
+          exchangeOrderId: exchangeOrderId,
           signal: {
             indicator: selected.indicator,
             timeframe: selected.timeframe,
-            value: selected.indicator === "vol_ratio"
-              ? selected.vol_ratio
-              : selected.indicator_value,
+            value:
+              selected.indicator === "volRatio"
+                ? selected.volRatio
+                : selected.indicatorValue,
             direction: selected.direction,
           },
-          close_condition: closeCondition,
+          closeCondition: closeCondition,
         });
         addOrderLink(link);
       }
@@ -154,7 +160,7 @@ export function SignalBindModal({
               {availableSignals.map((s, i) => (
                 <option key={`${s.indicator}-${s.timeframe}-${i}`} value={i}>
                   {s.indicator.toUpperCase()} · {s.timeframe} ·{" "}
-                  {s.indicator_value.toFixed(2)} · {s.direction}
+                  {s.indicatorValue.toFixed(2)} · {s.direction}
                 </option>
               ))}
             </select>
@@ -201,10 +207,10 @@ export function SignalBindModal({
           <button className="po-btn secondary" onClick={onClose}>
             Отмена
           </button>
-          <button 
-            className="po-btn primary" 
+          <button
+            className="po-btn primary"
             onClick={handleConfirm}
-            disabled={!selected || loading}  
+            disabled={!selected || loading}
           >
             {loading ? "Привязка..." : "Привязать сигнал"}
           </button>

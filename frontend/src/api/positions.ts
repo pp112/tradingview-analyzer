@@ -14,8 +14,8 @@ export async function fetchBalance(): Promise<BalanceResponse> {
   return apiGet<BalanceResponse>("/balance");
 }
 
-export async function cancelOrder(orderId: string): Promise<ActionResponse> {
-  return apiPost<ActionResponse>(`/orders/${orderId}/cancel`);
+export async function cancelOrder(exchangeOrderId: string): Promise<ActionResponse> {
+  return apiPost<ActionResponse>(`/orders/${exchangeOrderId}/cancel`);
 }
 
 export async function closePosition(symbol: string): Promise<ActionResponse> {

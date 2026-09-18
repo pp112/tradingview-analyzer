@@ -11,8 +11,8 @@ type SignalRowProps = {
 
 export function SignalRow({ signal, index }: SignalRowProps) {
   const indicator = useFiltersStore((s) => s.indicator);
-  const isVolume = indicator === "vol_ratio";
-  const volClass = volumeClass(signal.vol_ratio);
+  const isVolume = indicator === "volRatio";
+  const volClass = volumeClass(signal.volRatio);
   const isBull = signal.direction === "ВВЕРХ";
   const valueClass = isBull ? "value-bull" : "value-bear";
   const badgeVariant = isBull ? "bull" : "bear";
@@ -27,7 +27,7 @@ export function SignalRow({ signal, index }: SignalRowProps) {
       {isVolume ? (
         <>
           <td>
-            <span className={`vol-cell ${volClass}`}>{signal.vol_ratio}</span>
+            <span className={`vol-cell ${volClass}`}>{signal.volRatio}</span>
           </td>
           <td>
             <Badge variant="volume">VOLUME</Badge>
@@ -37,7 +37,7 @@ export function SignalRow({ signal, index }: SignalRowProps) {
         <>
           <td>
             <span className={valueClass}>
-              {formatValue(signal.indicator_value)}
+              {formatValue(signal.indicatorValue)}
             </span>
           </td>
           <td>
@@ -49,7 +49,7 @@ export function SignalRow({ signal, index }: SignalRowProps) {
             <Badge variant={badgeVariant}>{signal.direction}</Badge>
           </td>
           <td>
-            <span className={`vol-cell ${volClass}`}>{signal.vol_ratio}</span>
+            <span className={`vol-cell ${volClass}`}>{signal.volRatio}</span>
           </td>
         </>
       )}

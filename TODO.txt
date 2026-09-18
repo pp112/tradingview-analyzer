@@ -5,54 +5,12 @@
 [+] Сделать чтобы бы индекс позиций/ордеров не менялся при обновлении
 [+] Добавить в ячейку символа время и дату создания позиции/ордера
 [+] Сделать подтверждения отвязки сигнала и закрытия ордеров и сделок (маленькое всплывающее окно с кнопками)
-Сделать контракт API в camelCase
-Улучшить окно привязки: увеличить его, сделать список красивым и отсортированным, заменить крестик на lucide-react
-Спрятать sidebar. Либо только иконки, либо выдвигающийся
+[+] Сделать контракт API в camelCase
+Улучшить окно привязки: увеличить его, сделать список красивым и отсортированным
+Спрятать sidebar. Либо только иконки, либо выдвигающийся, либо перенести его наверх
 Сделать, чтобы можно было работать с запросами к Bybit API во время работы websocket и расчетах
 Сделать возможность ставить stoploss в безубыток при достижении определенного процента take profit
 Сделать логику того, что когда исполняется ордер и появляется позиция, то привязанный сигнал ордера привязывается к позиции
-
-claude:
-Стоит ли переименовать backend/schemas/positions.py на positions_orders.py? 
-Стоит ли этот файл разделить на 2 (positions.py и orders.py) или на 3 (positions.py и orders.py и для SignalSnapshotInput и CloseConditionInput)
-Или сделать 3 файла:
-backend/schemas/positions.py
-class PositionResponse(ApiModel):
-    symbol: str
-    side: Side
-    pnl: float
-    pnl_pct: float | None
-    created_at: int
-backend/schemas/orders.py   
-class OrderResponse(ApiModel):
-    exchange_order_id: str
-    symbol: str
-    side: Side
-    created_at: int
-backend/schemas/signal_links.py  
-class SignalSnapshotInput(ApiModel):
-    ...
-
-class CloseConditionInput(ApiModel):
-    ...
-
-class LinkPositionSignalRequest(ApiModel):
-    ...
-
-class LinkOrderSignalRequest(ApiModel):
-    ...
-
-class SignalSnapshotResponse(ApiModel):
-    ...
-
-class CloseConditionResponse(ApiModel):
-    ...
-
-class PositionSignalLinkResponse(ApiModel):
-    ...
-
-class OrderSignalLinkResponse(ApiModel):
-    ...
 
 
 
