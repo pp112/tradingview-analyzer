@@ -177,7 +177,7 @@ export function SignalBindModal({
             </div>
 
             {withCloseCondition && (
-              <div className="po-close-condition">
+              <div className="po-modal-close-condition">
                 <select
                   className="po-select"
                   style={{ width: 90 }}
@@ -201,7 +201,7 @@ export function SignalBindModal({
           </>
         )}
 
-        {error && <p className="po-error-text">{error}</p>}
+        {error && <p className="po-modal-error-text">{error}</p>}
 
         <div className="po-modal-actions">
           <button className="po-btn secondary" onClick={onClose}>

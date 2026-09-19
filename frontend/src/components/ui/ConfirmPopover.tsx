@@ -8,7 +8,7 @@ type ConfirmPopoverProps = {
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
-}
+};
 
 export function ConfirmPopover({
   anchorRef,
@@ -31,7 +31,7 @@ export function ConfirmPopover({
     const anchorRect = anchor.getBoundingClientRect();
 
     setPos({
-      top: anchorRect.bottom - (anchorRect.height / 2),
+      top: anchorRect.bottom - anchorRect.height / 2,
       left: anchorRect.left - 9,
     });
   }, [anchorRef]);
@@ -41,11 +41,7 @@ export function ConfirmPopover({
       const target = e.target as Node;
       const popover = popoverRef.current;
       const anchor = anchorRef.current;
-      if (
-        popover && 
-        !popover.contains(target) &&
-        !anchor?.contains(target)
-      ) {
+      if (popover && !popover.contains(target) && !anchor?.contains(target)) {
         onCancel();
       }
     };
@@ -54,8 +50,8 @@ export function ConfirmPopover({
   }, [onCancel, anchorRef]);
 
   return createPortal(
-    <div 
-      className="confirm-popover" 
+    <div
+      className="po-modal-confirm-popover"
       ref={popoverRef}
       style={{
         top: pos?.top ?? 0,
@@ -63,16 +59,22 @@ export function ConfirmPopover({
         visibility: pos ? "visible" : "hidden",
       }}
     >
-      <p className="confirm-popover-text">{message}</p>
-      <div className="confirm-popover-actions">
-        <button className="confirm-popover-btn confirm" onClick={onConfirm}>
+      <p className="po-modal-confirm-popover-text">{message}</p>
+      <div className="po-modal-confirm-popover-actions">
+        <button
+          className="po-modal-confirm-popover-btn confirm"
+          onClick={onConfirm}
+        >
           {confirmLabel}
         </button>
-        <button className="confirm-popover-btn cancel" onClick={onCancel}>
+        <button
+          className="po-modal-confirm-popover-btn cancel"
+          onClick={onCancel}
+        >
           {cancelLabel}
         </button>
       </div>
     </div>,
-    document.body
- );
+    document.body,
+  );
 }
