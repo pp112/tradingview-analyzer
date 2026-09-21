@@ -7,7 +7,7 @@ import { useSignalLinksStore } from "../../store/useSignalLinksStore";
 const mockSignals = {
   "1h": [
     {
-      symbol: "BTCUSDT",
+      symbol: "BTC/USDT",
       indicator: "rsi",
       indicatorValue: 68.4,
       direction: "ВВЕРХ",
@@ -16,7 +16,7 @@ const mockSignals = {
       timeframe: "1h",
     },
     {
-      symbol: "BTCUSDT",
+      symbol: "BTC/USDT",
       indicator: "emaSma",
       indicatorValue: 0.012,
       direction: "ВВЕРХ",
@@ -56,7 +56,7 @@ type Story = StoryObj<typeof SignalBindModal>;
 
 export const Default: Story = {
   args: {
-    symbol: "BTCUSDT",
+    symbol: "BTC/USDT",
     entityType: "position",
     direction: "ВВЕРХ",
     onClose: () => undefined,

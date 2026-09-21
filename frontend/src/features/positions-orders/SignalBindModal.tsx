@@ -7,7 +7,7 @@ import type {
 } from "../../types/signalLinks";
 import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
-import { X } from "lucide-react";
+import { Link, X } from "lucide-react";
 
 type EntityType = "position" | "order";
 
@@ -35,7 +35,7 @@ export function SignalBindModal({
   const addOrderLink = useSignalLinksStore((s) => s.addOrderLink);
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [withCloseCondition, setWithCloseCondition] = useState(false);
+  const [withCloseCondition, setWithCloseCondition] = useState(true);
   const [closeOperator, setCloseOperator] = useState<CloseOperator>("<=");
   const [targetValue, setTargetValue] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -125,90 +125,122 @@ export function SignalBindModal({
   };
 
   return (
-    <div className="po-modal">
-      <div className="po-modal-backdrop" onClick={onClose} />
-      <div className="po-modal-dialog" role="dialog" aria-modal="true">
-        <div className="po-modal-header">
-          <div>
-            <h3>Привязать сигнал</h3>
-            <p>{symbol}</p>
+    <div className="sbm">
+      <div className="sbm-backdrop" onClick={onClose} />
+      <div className="sbm-dialog" role="dialog" aria-modal="true">
+        <div className="sbm-header">
+          <div className="sbm-title">
+            <span className="sbm-header-icon">
+              <Link size={19} strokeWidth={2.2} />
+            </span>
+            <div className="sbm-header-text">
+              <h3>Привязать сигнал</h3>
+              <p>{symbol}</p>
+            </div>
           </div>
           <button className="po-btn close" onClick={onClose}>
             <X size={14} strokeWidth={2.5} />
           </button>
         </div>
 
-        {availableSignals.length === 0 ? (
+        {/* {availableSignals.length === 0 ? (
           <p className="po-empty">Нет доступных сигналов по этому символу</p>
-        ) : (
-          <>
-            <label className="po-field-label" htmlFor="poSignalSelect">
-              Сигнал
-            </label>
-            <select
-              className="po-select"
-              id="poSignalSelect"
-              value={selectedIndex ?? ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedIndex(val === "" ? null : Number(val));
-              }}
-            >
-              <option value="" disabled>
-                Выбрать сигнал
-              </option>
-              {availableSignals.map((s, i) => (
-                <option key={`${s.indicator}-${s.timeframe}-${i}`} value={i}>
-                  {s.indicator.toUpperCase()} · {s.timeframe} ·{" "}
-                  {s.indicatorValue.toFixed(2)} · {s.direction}
-                </option>
-              ))}
-            </select>
+        ) : ( */}
+          <div className="sbm-table-selected">
+            <div className="sbm-cell">
+              <span className="sbm-label">Индикатор</span>
+              <span className="sbm-value">
+                RSI
+              </span>
+            </div>
+            <div className="sbm-cell">
+              <span className="sbm-label">Таймфрейм</span>
+              <span className="sbm-value">
+                15m
+              </span>
+            </div>
+            <div className="sbm-cell">
+              <span className="sbm-label">Значение</span>
+              <span className="sbm-value">
+                16.64
+              </span>
+            </div>
+            <div className="sbm-cell">
+              <span className="sbm-label">Направление</span>
+              <span className="sbm-value sbm-badge sbm-badge-up">
+                ВВЕРХ
+              </span>
+            </div>
+          </div>
 
-            <div className="po-checkbox">
-              <label className="po-field-label po-checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={withCloseCondition}
-                  onChange={(e) => setWithCloseCondition(e.target.checked)}
-                />
-                Включить автозакрытие
-              </label>
+          <div className="sbm-table-wrap">
+            <table className="sbm-table">
+              <thead>
+                <tr>
+                  <th>Индикатор</th>
+                  <th>Таймфрейм</th>
+                  <th>Значение</th>
+                  <th>Направление</th>
+                </tr>
+              </thead>
+              <tbody>
+                {availableSignals.map((signal, index) => (
+                  <tr key={index}>
+                    <td>{signal.indicator}</td>
+                    <td>{signal.timeframe}</td>
+                    <td>{signal.indicatorValue}</td>
+                    <td>
+                      <span className="sbm-badge sbm-badge-up">
+                        {signal.direction}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="sbm-switch-row">
+            <button
+              type="button"
+              className={`sbm-switch ${withCloseCondition ? "active" : ""}`}
+              onClick={() => setWithCloseCondition((prev) => !prev)}
+              aria-label="Включать автозакрытие"
+            >
+              <span className="sbm-switch-thumb"></span>
+            </button>
+            <span className="sbm-switch-label">Включить автозакрытие</span>
+          </div>
+
+          <div className="sbm-condition-row">
+            <div className="sbm-condition-toggle">
+              <button type="button" className="sbm-condition-btn active">
+                Меньше
+              </button>
+              <button type="button" className="sbm-condition-btn">
+                Больше
+              </button>
             </div>
 
-            {withCloseCondition && (
-              <div className="po-modal-close-condition">
-                <select
-                  className="po-select"
-                  style={{ width: 90 }}
-                  value={closeOperator}
-                  onChange={(e) =>
-                    setCloseOperator(e.target.value as CloseOperator)
-                  }
-                >
-                  <option value="<=">Меньше</option>
-                  <option value=">=">Больше</option>
-                </select>
-                <input
-                  className="po-select"
-                  type="text"
-                  placeholder="Значение"
-                  value={targetValue}
-                  onChange={(e) => setTargetValue(e.target.value)}
-                />
-              </div>
-            )}
-          </>
-        )}
+            <input
+              className="sbm-condition-value"
+              type="text"
+              placeholder="Значение"
+              value={targetValue}
+              onChange={(e) => setTargetValue(e.target.value)}
+            />
+          </div>
 
-        {error && <p className="po-modal-error-text">{error}</p>}
+        {/* {error && <p className="sbm-error-text">{error}</p>}  */}
 
-        <div className="po-modal-actions">
-          <button className="po-btn secondary" onClick={onClose}>
+        <div className="sbm-divider"></div>
+
+        <div className="sbm-footer-actions">
+          <button className="sbm-btn cancel" onClick={onClose}>
             Отмена
           </button>
           <button
-            className="po-btn primary"
+            className="sbm-btn confirm"
             onClick={handleConfirm}
             disabled={!selected || loading}
           >

@@ -51,7 +51,7 @@ export function ConfirmPopover({
 
   return createPortal(
     <div
-      className="po-modal-confirm-popover"
+      className="confirm-popover"
       ref={popoverRef}
       style={{
         top: pos?.top ?? 0,
@@ -59,18 +59,12 @@ export function ConfirmPopover({
         visibility: pos ? "visible" : "hidden",
       }}
     >
-      <p className="po-modal-confirm-popover-text">{message}</p>
-      <div className="po-modal-confirm-popover-actions">
-        <button
-          className="po-modal-confirm-popover-btn confirm"
-          onClick={onConfirm}
-        >
+      <p className="confirm-popover-text">{message}</p>
+      <div className="confirm-popover-actions">
+        <button className="confirm-popover-btn confirm" onClick={onConfirm}>
           {confirmLabel}
         </button>
-        <button
-          className="po-modal-confirm-popover-btn cancel"
-          onClick={onCancel}
-        >
+        <button className="confirm-popover-btn cancel" onClick={onCancel}>
           {cancelLabel}
         </button>
       </div>
