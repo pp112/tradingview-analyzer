@@ -116,7 +116,17 @@ class MarketDataClient:
             df_list.append(df)
 
         if not df_list:
-            return pd.DataFrame()
+            return pd.DataFrame(
+                columns=[
+                    "symbol", 
+                    "timestamp", 
+                    "open", 
+                    "high", 
+                    "low", 
+                    "close", 
+                    "volume"
+                ]
+            )
 
         return pd.concat(df_list, ignore_index=True)
 

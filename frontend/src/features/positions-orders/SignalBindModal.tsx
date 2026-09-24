@@ -7,7 +7,8 @@ import type {
 } from "../../types/signalLinks";
 import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
-import { Link, X } from "lucide-react";
+import { ChartNoAxesCombined, Check, Link, ArrowUp, X, ArrowDown } from "lucide-react";
+import { SymbolLogo } from "../../components/ui/SymbolLogo";
 
 type EntityType = "position" | "order";
 
@@ -22,6 +23,7 @@ type SignalBindModalProps = {
 type AvailableSignals = Signal & {
   timeframe: Timeframe;
 };
+
 
 export function SignalBindModal({
   symbol,
@@ -47,15 +49,14 @@ export function SignalBindModal({
       if (!list) continue;
       result.push(
         ...list
-          // .filter((s) => s.symbol === symbol && s.direction === direction)
-          .filter((s) => s.symbol !== "qwe")
+          .filter((s) => s.symbol === symbol && s.direction === direction)
           .map((signal) => ({
             ...signal,
             timeframe: timeframe as Timeframe,
           })),
       );
     }
-    return result;
+    return result.sort((a, b) => a.indicator.localeCompare(b.indicator));
   }, [allSignals, symbol, direction]);
 
   const selected =
@@ -131,121 +132,198 @@ export function SignalBindModal({
         <div className="sbm-header">
           <div className="sbm-title">
             <span className="sbm-header-icon">
-              <Link size={19} strokeWidth={2.2} />
+              <Link size={24} strokeWidth={2.5} />
             </span>
             <div className="sbm-header-text">
-              <h3>Привязать сигнал</h3>
-              <p>{symbol}</p>
+              <div className="sbm-header-title">Привязать сигнал</div>
+              <div className="sbm-symbol-line">
+                <SymbolLogo symbol={symbol} /> 
+                <span>{symbol}</span>
+              </div>
             </div>
           </div>
           <button className="po-btn close" onClick={onClose}>
-            <X size={14} strokeWidth={2.5} />
+            <X size={16} strokeWidth={2.6} />
           </button>
         </div>
 
-        {/* {availableSignals.length === 0 ? (
-          <p className="po-empty">Нет доступных сигналов по этому символу</p>
-        ) : ( */}
-          <div className="sbm-table-selected">
-            <div className="sbm-cell">
-              <span className="sbm-label">Индикатор</span>
-              <span className="sbm-value">
-                RSI
-              </span>
-            </div>
-            <div className="sbm-cell">
-              <span className="sbm-label">Таймфрейм</span>
-              <span className="sbm-value">
-                15m
-              </span>
-            </div>
-            <div className="sbm-cell">
-              <span className="sbm-label">Значение</span>
-              <span className="sbm-value">
-                16.64
-              </span>
-            </div>
-            <div className="sbm-cell">
-              <span className="sbm-label">Направление</span>
-              <span className="sbm-value sbm-badge sbm-badge-up">
-                ВВЕРХ
-              </span>
+        {availableSignals.length === 0 ? (
+          <div className="sbm-empty" role="status">
+            <span className="sbm-empty-icon" aria-hidden="true">
+              <ChartNoAxesCombined size={20} />
+            </span>
+            <div>
+              <p className="sbm-empty-title">Сигналы не найдены</p>
+              <p className="sbm-empty-description">
+                Для {symbol} пока нет доступных сигналов
+              </p>
             </div>
           </div>
+        ) : (
+          <>
+            <div className="sbm-selected-row">
+              <div className="sbm-cell">
+                <span className="sbm-label">Индикатор</span>
+                <span className="sbm-value">
+                  {selected?.indicator ?? ""}
+                </span>
+              </div>
+              <div className="sbm-selected-divider"></div>
+              <div className="sbm-cell">
+                <span className="sbm-label">Таймфрейм</span>
+                <span className="sbm-value">
+                  {selected?.timeframe ?? ""}
+                </span>
+              </div>
+              <div className="sbm-selected-divider"></div>
+              <div className="sbm-cell">
+                <span className="sbm-label">Значение</span>
+                <span className="sbm-value">
+                  {selected?.indicatorValue ?? ""}
+                </span>
+              </div>
+              <div className="sbm-selected-divider"></div>
+              <div className="sbm-cell">
+                <span className="sbm-label">Направление</span>
+                <span 
+                  className={`sbm-value sbm-badge ${
+                    selected?.direction === "ВВЕРХ"
+                      ? "sbm-badge-up"
+                      : selected?.direction === "ВНИЗ"
+                        ? "sbm-badge-down"
+                        : ""
+                  }`}
+                >
+                  {selected && (
+                    selected.direction === "ВВЕРХ"
+                      ? <ArrowUp size={20} strokeWidth={2.5} />
+                      : <ArrowDown size={20} strokeWidth={2.5} />
+                  )}
+                  <span>
+                    {selected?.direction ?? ""}
+                  </span>
+                </span>
+              </div>
+            </div>
 
-          <div className="sbm-table-wrap">
-            <table className="sbm-table">
-              <thead>
-                <tr>
-                  <th>Индикатор</th>
-                  <th>Таймфрейм</th>
-                  <th>Значение</th>
-                  <th>Направление</th>
-                </tr>
-              </thead>
-              <tbody>
-                {availableSignals.map((signal, index) => (
-                  <tr key={index}>
-                    <td>{signal.indicator}</td>
-                    <td>{signal.timeframe}</td>
-                    <td>{signal.indicatorValue}</td>
-                    <td>
-                      <span className="sbm-badge sbm-badge-up">
-                        {signal.direction}
-                      </span>
-                    </td>
+            <div className="sbm-table-wrap">
+              <table className="sbm-table">
+                <thead>
+                  <tr>
+                    <th>Индикатор</th>
+                    <th>Таймфрейм</th>
+                    <th>Значение</th>
+                    <th>Направление</th>
+                    <th className="sbm-check-cell"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="sbm-switch-row">
-            <button
-              type="button"
-              className={`sbm-switch ${withCloseCondition ? "active" : ""}`}
-              onClick={() => setWithCloseCondition((prev) => !prev)}
-              aria-label="Включать автозакрытие"
-            >
-              <span className="sbm-switch-thumb"></span>
-            </button>
-            <span className="sbm-switch-label">Включить автозакрытие</span>
-          </div>
-
-          <div className="sbm-condition-row">
-            <div className="sbm-condition-toggle">
-              <button type="button" className="sbm-condition-btn active">
-                Меньше
-              </button>
-              <button type="button" className="sbm-condition-btn">
-                Больше
-              </button>
+                </thead>
+                <tbody>
+                  {availableSignals.map((signal, index) => (
+                    <tr 
+                      key={index}
+                      className={selectedIndex === index ? "selected" : ""}
+                      onClick={() => setSelectedIndex(index)}
+                    >
+                      <td>
+                        <div className="sbm-indicator-cell">
+                          <span className={`sbm-indicator-icon sbm-indicator-icon--${signal.indicator}`}>
+                            <ChartNoAxesCombined size={15} strokeWidth={2.7}/>
+                          </span>
+                          <span>
+                            {signal.indicator}
+                          </span>
+                        </div>
+                      </td>
+                      <td>{signal.timeframe}</td>
+                      <td>{signal.indicatorValue}</td>
+                      <td>
+                        <span 
+                          className={`sbm-badge ${
+                            signal.direction === "ВВЕРХ" 
+                              ? "sbm-badge-up" 
+                              : "sbm-badge-down"
+                          }`}
+                        >
+                          {signal.direction === "ВВЕРХ"
+                            ? <ArrowUp size={16} strokeWidth={2.5} />
+                            : <ArrowDown size={16} strokeWidth={2.5} />}
+                          <span>
+                            {signal.direction}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="sbm-check-cell">
+                        {selectedIndex === index && (
+                          <span className="sbm-check-icon">
+                            <Check size={14} strokeWidth={2.5}/>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            <input
-              className="sbm-condition-value"
-              type="text"
-              placeholder="Значение"
-              value={targetValue}
-              onChange={(e) => setTargetValue(e.target.value)}
-            />
-          </div>
+            <div className="sbm-switch-row">
+              <button
+                type="button"
+                className={`sbm-switch ${withCloseCondition ? "active" : ""}`}
+                onClick={() => setWithCloseCondition((prev) => !prev)}
+                aria-label="Включать автозакрытие"
+              >
+                <span className="sbm-switch-thumb"></span>
+              </button>
+              <span className="sbm-switch-label">Включить автозакрытие</span>
+            </div>
 
-        {/* {error && <p className="sbm-error-text">{error}</p>}  */}
+            <div className="sbm-condition-row">
+              <div className="sbm-condition-toggle">
+                <button 
+                  type="button" 
+                  className={`sbm-condition-btn ${closeOperator === "<=" ? "active" : ""}`}
+                  onClick={() => setCloseOperator("<=")}
+                >
+                  Меньше
+                </button>
+                <button 
+                  type="button"
+                  className={`sbm-condition-btn ${closeOperator === ">=" ? "active" : ""}`}
+                  onClick={() => setCloseOperator(">=")}
+                >
+                  Больше
+                </button>
+              </div>
 
-        <div className="sbm-divider"></div>
+              <input
+                className="sbm-condition-value"
+                type="text"
+                placeholder="Значение"
+                value={targetValue}
+                disabled={!withCloseCondition}
+                onChange={(e) => setTargetValue(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        {error && <p className="sbm-error-text">{error}</p>} 
+
+        <div className="sbm-footer-divider"></div>
 
         <div className="sbm-footer-actions">
           <button className="sbm-btn cancel" onClick={onClose}>
-            Отмена
+            {availableSignals.length > 0 ? "Отмена" : "Закрыть"}
           </button>
-          <button
-            className="sbm-btn confirm"
-            onClick={handleConfirm}
-            disabled={!selected || loading}
-          >
-            {loading ? "Привязка..." : "Привязать сигнал"}
-          </button>
+          {availableSignals.length > 0 && (
+            <button
+              className="sbm-btn confirm"
+              onClick={handleConfirm}
+              disabled={!selected || loading}
+            >
+              {loading ? "Привязка..." : "Привязать сигнал"}
+            </button>
+          )}
         </div>
       </div>
     </div>

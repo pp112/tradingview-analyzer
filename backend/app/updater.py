@@ -43,6 +43,13 @@ class Updater:
 
         df_candles = await self.market_client.fetch_all_historical_candles(timeframe)
 
+        if df_candles.empty:
+            logger.error(
+                f"{timeframe.label}: исторические данные не загружены. "
+                "Расчёт индикаторов остановлен."
+            )
+            return
+        
         if timeframe == Timeframe.M30:
            await self.update_price_volume(df_candles)
 
