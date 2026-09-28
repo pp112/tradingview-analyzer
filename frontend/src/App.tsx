@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Sidebar } from "./components/layout/Sidebar";
 import { Topbar } from "./components/layout/Topbar";
 import { SignalControls } from "./features/signal-controls/SignalControls";
 import { SignalTable } from "./features/signal-table/SignalTable";
@@ -10,12 +9,8 @@ import { MoversCard } from "./features/movers/MoversCard";
 import { PositionsOrdersCard } from "./features/positions-orders/PositionsOrdersCard";
 import { useSignalLinks } from "./hooks/useSignalLinks";
 
-const PAGE_TITLES: Record<string, string> = {
-  home: "Главная",
-};
-
 export default function App() {
-  const [activePage, setActivePage] = useState("signals");
+  const [activePage, setActivePage] = useState("home");
   const setAllSignals = useSignalsStore((s) => s.setAllSignals);
   const setPriceVolume = useSignalsStore((s) => s.setPriceVolume);
   const setConnectionStatus = useSignalsStore((s) => s.setConnectionStatus);
@@ -39,29 +34,25 @@ export default function App() {
   }, [setAllSignals, setPriceVolume, setConnectionStatus]);
 
   return (
-    <>
-      <Sidebar activePage={activePage} onNavigate={setActivePage} />
+    <main className="main">
+      <Topbar activePage={activePage} onNavigate={setActivePage}/>
 
-      <main className="main">
-        <Topbar title={PAGE_TITLES[activePage] ?? "CryptoScope"} />
+      <div className="content">
+        <div className="panel-left">
+          <SignalControls />
+          <SignalTable />
 
-        <div className="content">
-          <div className="panel-left">
-            <SignalControls />
-            <SignalTable />
-
-            <div className="bottom-row">
-              <MoversCard title="Топ рост" variant="gainers" />
-              <MoversCard title="Топ падение" variant="losers" />
-              <MoversCard title="Всплески объема" variant="volume" />
-            </div>
-          </div>
-
-          <div className="panel-right">
-            <PositionsOrdersCard />
+          <div className="bottom-row">
+            <MoversCard title="Топ рост" variant="gainers" />
+            <MoversCard title="Топ падение" variant="losers" />
+            <MoversCard title="Всплески объема" variant="volume" />
           </div>
         </div>
-      </main>
-    </>
+
+        <div className="panel-right">
+          <PositionsOrdersCard />
+        </div>
+      </div>
+    </main>
   );
 }
