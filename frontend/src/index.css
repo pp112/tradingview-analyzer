@@ -58,6 +58,7 @@
   --sbm-toggle-bg-active: #0160ee;
   --sbm-confirm-btn-bd: #2f55af;
   --sbm-confirm-btn-bg: #1b36aa;
+  --session-warn: #e9bd3a;
   --yellow: #f5a623;
   --yellow-bg: rgba(245, 166, 35, 0.1);
   --linked-signal-bg: rgba(12, 14, 19, 0.32);
@@ -197,6 +198,81 @@ body {
 .topnav-item.active {
   color: var(--blue);
   border-bottom-color: var(--blue);
+}
+
+/* ── Market sessions ──────────────────────────────────────────────────────── */
+.market-sessions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  font: 500 0.8rem var(--font-ui);
+  color: var(--text1);
+}
+
+.market-session {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.market-session::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border3);
+}
+
+.market-session-label {
+  color: var(--text1);
+  transform: scaleY(1.05);
+}
+
+.market-session-value {
+  color: var(--text1);
+}
+
+.market-session-divider {
+  width: 1px;
+  height: 15px;
+  background: var(--border3);
+}
+
+.market-session[data-phase="soon"] .market-session-value,
+.market-session[data-phase="ending"] .market-session-value {
+  color: var(--session-warn);
+}
+
+.market-session[data-phase="active"] .market-session-value {
+  color: var(--green);
+}
+
+.market-session[data-phase="soon"]::before {
+  background: var(--session-warn);
+  animation: session-pulse 1.6s ease-out infinite;
+}
+
+.market-session[data-phase="active"]::before,
+.market-session[data-phase="ending"]::before {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.market-session[data-phase="ending"]::before {
+  animation: session-blink 2.3s ease-in-out infinite;
+}
+
+@keyframes session-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+@keyframes session-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--session-warn) 70%, transparent); }
+  70%  { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 /* ── Content ──────────────────────────────────────────────────────────────── */

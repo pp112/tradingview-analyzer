@@ -1,3 +1,5 @@
+import { MarketSessions } from "../../features/market-sessions/MarketSessions";
+
 type NavItem = {
   page: string;
   label: string;
@@ -33,6 +35,8 @@ export function Topbar({ activePage, onNavigate }: TopbarProps) {
           </button>
         ))}
       </nav>
+
+      <MarketSessions />
     </header>
   );
 }
