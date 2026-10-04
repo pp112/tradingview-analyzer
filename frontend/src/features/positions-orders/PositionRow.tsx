@@ -81,6 +81,7 @@ export function PositionRow({ position, index, now }: PositionRowProps) {
           <LinkedSignalCell
             link={link}
             onBindClick={() => setShowModal(true)}
+            onEditClick={() => setShowModal(true)}
             onUnbindClick={handleUnbind}
           />
         </td>
@@ -114,6 +115,7 @@ export function PositionRow({ position, index, now }: PositionRowProps) {
           symbol={position.symbol}
           entityType="position"
           direction={position.side === "long" ? "ВВЕРХ" : "ВНИЗ"}
+          existingLink={link}
           onClose={() => setShowModal(false)}
         />
       )}

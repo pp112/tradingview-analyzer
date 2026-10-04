@@ -14,6 +14,11 @@ export type CloseConditionInput = {
   targetValue: number;
 };
 
+export type UpdateSignalLinkRequest = {
+  signal: SignalSnapshotInput;
+  closeCondition: CloseConditionInput | null;
+}
+
 export type LinkPositionSignalRequest = {
   symbol: string;
   signal: SignalSnapshotInput;
@@ -45,7 +50,7 @@ export type PositionSignalLinkResponse = {
   id: number;
   symbol: string;
   signal: SignalSnapshotResponse;
-  closeCondition: CloseConditionResponse;
+  closeCondition: CloseConditionResponse | null;
   createdAt: string;
 };
 
@@ -54,7 +59,7 @@ export type OrderSignalLinkResponse = {
   symbol: string;
   exchangeOrderId: string;
   signal: SignalSnapshotResponse;
-  closeCondition: CloseConditionResponse;
+  closeCondition: CloseConditionResponse | null;
   createdAt: string;
 };
 

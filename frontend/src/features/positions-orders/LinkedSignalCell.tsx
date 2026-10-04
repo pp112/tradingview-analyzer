@@ -6,7 +6,7 @@ import type {
   OrderSignalLinkResponse,
   PositionSignalLinkResponse,
 } from "../../types/signalLinks";
-import { MoveRight, X } from "lucide-react";
+import { Link, MoveRight, PenLine, X } from "lucide-react";
 import { ConfirmPopover } from "../../components/ui/ConfirmPopover";
 
 type LinkType = PositionSignalLinkResponse | OrderSignalLinkResponse;
@@ -14,22 +14,24 @@ type LinkType = PositionSignalLinkResponse | OrderSignalLinkResponse;
 type LinkedSignalCellProps = {
   link: LinkType | undefined;
   onBindClick: () => void;
+  onEditClick: () => void;
   onUnbindClick: () => void;
 };
 
 const INDICATOR_LABELS: Record<IndicatorType, string> = {
   rsi: "rsi",
   macd: "macd",
-  emaSma: "ema-sma",
+  emaSma: "emasma",
   volRatio: "volume",
 };
 
 const getIndicatorDisplayName = (indicator: IndicatorType): string =>
-  INDICATOR_LABELS[indicator].toUpperCase().replace("-", "+");
+  INDICATOR_LABELS[indicator].toUpperCase();
 
 export function LinkedSignalCell({
   link,
   onBindClick,
+  onEditClick,
   onUnbindClick,
 }: LinkedSignalCellProps) {
   const getCurrentValue = useSignalLinksStore((s) => s.getCurrentValue);
@@ -50,7 +52,8 @@ export function LinkedSignalCell({
   if (!link) {
     return (
       <button className="po-btn bind" onClick={onBindClick}>
-        + Привязать сигнал
+        <Link size={13} strokeWidth={2.5} />
+        Привязать сигнал
       </button>
     );
   }
@@ -69,22 +72,33 @@ export function LinkedSignalCell({
     <div className="po-signal">
       <div className="po-signal-head">
         <span
-          className={`po-indicator ${INDICATOR_LABELS[link.signal.indicator]}`}
+          className={`po-signal-indicator ${INDICATOR_LABELS[link.signal.indicator]}`}
         >
           {getIndicatorDisplayName(link.signal.indicator)}
         </span>
-        <span className="po-timeframe">
+        <span className="po-signal-timeframe">
           {link.signal.timeframe.toUpperCase()}
         </span>
-        <span className="po-age ">{formatTimeAgo(link.createdAt, now)}</span>
-        <button
-          ref={unbindBtnRef}
-          className="po-btn unbind"
-          onClick={() => setConfirmUnbind((prev) => !prev)}
-          title="Отвязать сигнал"
-        >
-          <X size={12} strokeWidth={2.5} />
-        </button>
+        <span className="po-signal-age">
+          {formatTimeAgo(link.createdAt, now)}
+        </span>
+        <div className="po-signal-actions">
+          <button
+            className="po-btn edit"
+            onClick={onEditClick}
+            title="Изменить сигнал"
+          >
+            <PenLine size={11} strokeWidth={2.5} />
+          </button>
+          <button
+            ref={unbindBtnRef}
+            className="po-btn unbind"
+            onClick={() => setConfirmUnbind((prev) => !prev)}
+            title="Отвязать сигнал"
+          >
+            <X size={13} strokeWidth={2.5} />
+          </button>
+        </div>
         {confirmUnbind && (
           <ConfirmPopover
             anchorRef={unbindBtnRef}

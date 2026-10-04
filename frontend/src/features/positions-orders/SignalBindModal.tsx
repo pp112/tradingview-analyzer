@@ -1,22 +1,28 @@
 import { useMemo, useState } from "react";
 import { useSignalsStore } from "../../store/useSignalsStore";
-import type { Direction, Signal, Timeframe } from "../../types/signal";
+import type { Direction, IndicatorType, Signal, Timeframe } from "../../types/signal";
 import type {
   CloseConditionInput,
   CloseOperator,
+  OrderSignalLinkResponse,
+  PositionSignalLinkResponse,
 } from "../../types/signalLinks";
 import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
-import { ChartNoAxesCombined, Check, Link, ArrowUp, X, ArrowDown } from "lucide-react";
+import { ChartNoAxesCombined, Check, Link, ArrowUp, X, ArrowDown, PenLine } from "lucide-react";
 import { SymbolLogo } from "../../components/ui/SymbolLogo";
+import { createPortal } from "react-dom";
 
 type EntityType = "position" | "order";
+
+type LinkType = PositionSignalLinkResponse | OrderSignalLinkResponse;
 
 type SignalBindModalProps = {
   symbol: string;
   entityType: EntityType;
   exchangeOrderId?: string;
   direction: Direction;
+  existingLink?: LinkType;
   onClose: () => void;
 };
 
@@ -24,27 +30,58 @@ type AvailableSignals = Signal & {
   timeframe: Timeframe;
 };
 
+const signalKey = (indicator: IndicatorType, timeframe: Timeframe, value: number) =>
+  `${indicator}:${timeframe}:${value}`
 
 export function SignalBindModal({
   symbol,
   entityType,
   exchangeOrderId,
   direction,
+  existingLink,
   onClose,
 }: SignalBindModalProps) {
   const allSignals = useSignalsStore((s) => s.signals);
   const addPositionLink = useSignalLinksStore((s) => s.addPositionLink);
   const addOrderLink = useSignalLinksStore((s) => s.addOrderLink);
 
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [withCloseCondition, setWithCloseCondition] = useState(true);
-  const [closeOperator, setCloseOperator] = useState<CloseOperator>("<=");
-  const [targetValue, setTargetValue] = useState("");
+  const isEdit = existingLink !== undefined;
+  const existingLinkedSignalKey = existingLink
+    ? signalKey(existingLink.signal.indicator, existingLink.signal.timeframe, existingLink.signal.value)
+    : null;
+
+  const [selectedKey, setSelectedKey] = useState<string | null>(existingLinkedSignalKey);
+  const [withCloseCondition, setWithCloseCondition] = useState(
+    existingLink ? existingLink.closeCondition !== null : true
+  );
+  const [closeOperator, setCloseOperator] = useState<CloseOperator>(
+    existingLink?.closeCondition?.operator ?? "<="
+  );
+  const [targetValue, setTargetValue] = useState(
+    existingLink?.closeCondition
+    ? String(existingLink.closeCondition.targetValue)
+    : ""
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const existingLinkedSignal = useMemo<AvailableSignals | null>(() => {
+    if (!existingLink) return null;
+    const { indicator, timeframe, value, direction } = existingLink.signal;
+    return {
+      symbol,
+      indicator,
+      timeframe,
+      direction,
+      indicatorValue: value,
+      volRatio: value,
+      correlation: 0,
+    };
+  }, [existingLink, symbol]);
+
   const availableSignals = useMemo(() => {
     const result: AvailableSignals[] = [];
+
     for (const [timeframe, list] of Object.entries(allSignals)) {
       if (!list) continue;
       result.push(
@@ -56,14 +93,43 @@ export function SignalBindModal({
           })),
       );
     }
-    return result.sort((a, b) => a.indicator.localeCompare(b.indicator));
-  }, [allSignals, symbol, direction]);
 
-  const selected =
-    selectedIndex !== null ? availableSignals[selectedIndex] : null;
+    if (
+      existingLinkedSignal && 
+      !result.some((s) => signalKey(s.indicator, s.timeframe, s.indicatorValue) === existingLinkedSignalKey)
+    ) {
+      result.push(existingLinkedSignal);
+    }
+
+    return result.sort((a, b) => {
+      const aIsExisting = signalKey(a.indicator, a.timeframe, a.indicatorValue) === existingLinkedSignalKey;
+      const bIsExisting = signalKey(b.indicator, b.timeframe, b.indicatorValue) === existingLinkedSignalKey;
+
+      if (aIsExisting !== bIsExisting) return aIsExisting ? -1 : 1;
+
+      return b.indicator.localeCompare(a.indicator)
+    });
+  }, [allSignals, symbol, direction, existingLinkedSignal, existingLinkedSignalKey]);
+
+  const selected = useMemo<AvailableSignals | null>(() => {
+    if (!selectedKey) return null;
+
+    if (selectedKey === existingLinkedSignalKey) return existingLinkedSignal;
+
+    return (
+      availableSignals.find(
+        (s) => signalKey(s.indicator, s.timeframe, s.indicatorValue) === selectedKey  
+      ) ?? null
+    );
+  }, [availableSignals, selectedKey, existingLinkedSignal, existingLinkedSignalKey])
+
+  const hasContent = availableSignals.length > 0;
 
   const handleConfirm = async () => {
-    if (!selected) return;
+    if (!selected) {
+      setError("Выберите сигнал перед привязкой");
+      return;
+    }
 
     let closeCondition: CloseConditionInput | null = null;
 
@@ -125,29 +191,34 @@ export function SignalBindModal({
     }
   };
 
-  return (
+  return createPortal(
     <div className="sbm">
       <div className="sbm-backdrop" onClick={onClose} />
       <div className="sbm-dialog" role="dialog" aria-modal="true">
         <div className="sbm-header">
           <div className="sbm-title">
             <span className="sbm-header-icon">
-              <Link size={24} strokeWidth={2.5} />
+              {isEdit
+                ? <PenLine size={24} strokeWidth={2.5} /> 
+                : <Link size={24} strokeWidth={2.5} />
+              }
             </span>
             <div className="sbm-header-text">
-              <div className="sbm-header-title">Привязать сигнал</div>
+              <div className="sbm-header-title">
+                {isEdit ? "Изменить сигнал" : "Привязать сигнал"}
+              </div>
               <div className="sbm-symbol-line">
                 <SymbolLogo symbol={symbol} /> 
                 <span>{symbol}</span>
               </div>
             </div>
           </div>
-          <button className="po-btn close" onClick={onClose}>
+          <button className="sbm-close" onClick={onClose}>
             <X size={16} strokeWidth={2.6} />
           </button>
         </div>
 
-        {availableSignals.length === 0 ? (
+        {!hasContent ? (
           <div className="sbm-empty" role="status">
             <span className="sbm-empty-icon" aria-hidden="true">
               <ChartNoAxesCombined size={20} />
@@ -205,104 +276,115 @@ export function SignalBindModal({
                 </span>
               </div>
             </div>
-
-            <div className="sbm-table-wrap">
-              <table className="sbm-table">
-                <thead>
-                  <tr>
-                    <th>Индикатор</th>
-                    <th>Таймфрейм</th>
-                    <th>Значение</th>
-                    <th>Направление</th>
-                    <th className="sbm-check-cell"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {availableSignals.map((signal, index) => (
-                    <tr 
-                      key={index}
-                      className={selectedIndex === index ? "selected" : ""}
-                      onClick={() => setSelectedIndex(index)}
-                    >
-                      <td>
-                        <div className="sbm-indicator-cell">
-                          <span className={`sbm-indicator-icon sbm-indicator-icon--${signal.indicator}`}>
-                            <ChartNoAxesCombined size={15} strokeWidth={2.7}/>
-                          </span>
-                          <span>
-                            {signal.indicator}
-                          </span>
-                        </div>
-                      </td>
-                      <td>{signal.timeframe}</td>
-                      <td>{signal.indicatorValue}</td>
-                      <td>
-                        <span 
-                          className={`sbm-badge ${
-                            signal.direction === "ВВЕРХ" 
-                              ? "sbm-badge-up" 
-                              : "sbm-badge-down"
-                          }`}
-                        >
-                          {signal.direction === "ВВЕРХ"
-                            ? <ArrowUp size={16} strokeWidth={2.5} />
-                            : <ArrowDown size={16} strokeWidth={2.5} />}
-                          <span>
-                            {signal.direction}
-                          </span>
-                        </span>
-                      </td>
-                      <td className="sbm-check-cell">
-                        {selectedIndex === index && (
-                          <span className="sbm-check-icon">
-                            <Check size={14} strokeWidth={2.5}/>
-                          </span>
-                        )}
-                      </td>
+            
+            <div className="sbm-controls">
+              <div className="sbm-table-wrap">
+                <table className="sbm-table">
+                  <thead>
+                    <tr>
+                      <th>Индикатор</th>
+                      <th>Таймфрейм</th>
+                      <th>Значение</th>
+                      <th>Направление</th>
+                      <th className="sbm-check-cell"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="sbm-switch-row">
-              <button
-                type="button"
-                className={`sbm-switch ${withCloseCondition ? "active" : ""}`}
-                onClick={() => setWithCloseCondition((prev) => !prev)}
-                aria-label="Включать автозакрытие"
-              >
-                <span className="sbm-switch-thumb"></span>
-              </button>
-              <span className="sbm-switch-label">Включить автозакрытие</span>
-            </div>
-
-            <div className="sbm-condition-row">
-              <div className="sbm-condition-toggle">
-                <button 
-                  type="button" 
-                  className={`sbm-condition-btn ${closeOperator === "<=" ? "active" : ""}`}
-                  onClick={() => setCloseOperator("<=")}
-                >
-                  Меньше
-                </button>
-                <button 
-                  type="button"
-                  className={`sbm-condition-btn ${closeOperator === ">=" ? "active" : ""}`}
-                  onClick={() => setCloseOperator(">=")}
-                >
-                  Больше
-                </button>
+                  </thead>
+                  <tbody>
+                    {availableSignals.map((signal) => {
+                      const key = signalKey(signal.indicator, signal.timeframe, signal.indicatorValue);
+                      const isSelected = key === selectedKey;
+                      return (
+                        <tr 
+                          key={key}
+                          className={isSelected ? "selected" : ""}
+                          onClick={() => {
+                            setSelectedKey((prev) => prev === key ? null : key);
+                            setError(null);
+                          }}
+                        >
+                          <td>
+                            <div className="sbm-indicator-cell">
+                              <span className={`sbm-indicator-icon sbm-indicator-icon--${signal.indicator}`}>
+                                <ChartNoAxesCombined size={15} strokeWidth={2.7}/>
+                              </span>
+                              <span>
+                                {signal.indicator}
+                              </span>
+                            </div>
+                          </td>
+                          <td>{signal.timeframe}</td>
+                          <td>{signal.indicatorValue}</td>
+                          <td>
+                            <span 
+                              className={`sbm-badge ${
+                                signal.direction === "ВВЕРХ" 
+                                  ? "sbm-badge-up" 
+                                  : "sbm-badge-down"
+                              }`}
+                            >
+                              {signal.direction === "ВВЕРХ"
+                                ? <ArrowUp size={16} strokeWidth={2.5} />
+                                : <ArrowDown size={16} strokeWidth={2.5} />}
+                              <span>
+                                {signal.direction}
+                              </span>
+                            </span>
+                          </td>
+                          <td className="sbm-check-cell">
+                            {isSelected && (
+                              <span className="sbm-check-icon">
+                                <Check size={14} strokeWidth={2.5}/>
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
+              
+              <div className="sbm-close-controls">
+                <div className="sbm-switch-row">
+                  <button
+                    type="button"
+                    className={`sbm-switch ${withCloseCondition ? "active" : ""}`}
+                    onClick={() => setWithCloseCondition((prev) => !prev)}
+                    aria-label="Включать автозакрытие"
+                  >
+                    <span className="sbm-switch-thumb"></span>
+                  </button>
+                  <span className="sbm-switch-label">Включить автозакрытие</span>
+                </div>
 
-              <input
-                className="sbm-condition-value"
-                type="text"
-                placeholder="Значение"
-                value={targetValue}
-                disabled={!withCloseCondition}
-                onChange={(e) => setTargetValue(e.target.value)}
-              />
+                <div className="sbm-condition-row">
+                  <div className="sbm-condition-toggle" data-operator={closeOperator}>
+                    <button 
+                      type="button" 
+                      className={`sbm-condition-btn ${closeOperator === "<=" ? "active" : ""}`}
+                      onClick={() => setCloseOperator("<=")}
+                    >
+                      Меньше
+                    </button>
+                    <button 
+                      type="button"
+                      className={`sbm-condition-btn ${closeOperator === ">=" ? "active" : ""}`}
+                      onClick={() => setCloseOperator(">=")}
+                    >
+                      Больше
+                    </button>
+                  </div>
+
+                  <input
+                    className="sbm-condition-value"
+                    type="text"
+                    placeholder="Значение"
+                    value={targetValue}
+                    disabled={!withCloseCondition}
+                    onChange={(e) => setTargetValue(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           </>
         )}
@@ -313,19 +395,22 @@ export function SignalBindModal({
 
         <div className="sbm-footer-actions">
           <button className="sbm-btn cancel" onClick={onClose}>
-            {availableSignals.length > 0 ? "Отмена" : "Закрыть"}
+            {hasContent ? "Отмена" : "Закрыть"}
           </button>
-          {availableSignals.length > 0 && (
+          {hasContent && (
             <button
               className="sbm-btn confirm"
               onClick={handleConfirm}
-              disabled={!selected || loading}
+              disabled={loading}
             >
-              {loading ? "Привязка..." : "Привязать сигнал"}
+              {loading 
+                ? isEdit ? "Сохранение..." : "Привязка..."
+                : isEdit ? "Изменить" : "Привязать сигнал"}
             </button>
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

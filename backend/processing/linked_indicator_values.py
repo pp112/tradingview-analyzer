@@ -1,6 +1,7 @@
 from sqlmodel import Session
 
 from backend.models.linked_values import CurrentIndicatorValue
+from backend.models.signal import Indicator
 from backend.models.timeframe import Timeframe
 from backend.signal_links.repository import (
     OrderSignalLinkRepository, 
@@ -48,19 +49,19 @@ def _extract_value(symbol_data: dict, indicator: str) -> float:
     """
     Извлекает числовое значение индикатора из структуры данных символа.
     """
-    if indicator == "rsi":
+    if indicator == Indicator.RSI:
         return round(symbol_data.get("rsi"), 2)
 
-    if indicator == "macd":
+    if indicator == Indicator.MACD:
         curr = symbol_data.get("macd").get("curr")
         return round(curr["MACD"] - curr["MACD_signal"], 2)
 
-    if indicator == "ema_sma":
+    if indicator == Indicator.EMA_SMA:
         ema = symbol_data.get("ema")
         sma = symbol_data.get("sma")
         return round(sma - ema, 2)
 
-    if indicator == "vol_ratio":
+    if indicator == Indicator.VOL_RATIO:
         return round(symbol_data.get("volume").get("curr"), 2)
 
 
