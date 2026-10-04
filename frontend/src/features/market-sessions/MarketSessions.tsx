@@ -19,9 +19,9 @@ type SessionWithStatus = {
 };
 
 const SESSIONS: Session[] = [
-  { id: "tokyo", label: "Токио", start: "07:00", end: "13:00" },
-  { id: "london", label: "Лондон", start: "15:00", end: "23:30" },
-  { id: "ny", label: "Нью-Йорк", start: "21:30", end: "04:00" },
+  { id: "tokyo", label: "Токио", start: "07:00", end: "16:00" },
+  { id: "london", label: "Лондон", start: "14:00", end: "23:00" },
+  { id: "ny", label: "Нью-Йорк", start: "19:00", end: "04:00" },
 ];
 
 const TITLE_SESSIONS = SESSIONS

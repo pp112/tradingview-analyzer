@@ -73,6 +73,7 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
           <LinkedSignalCell
             link={link}
             onBindClick={() => setShowModal(true)}
+            onEditClick={() => setShowModal(true)}
             onUnbindClick={handleUnbind}
           />
         </td>
@@ -105,8 +106,9 @@ export function OrderRow({ order, index, now }: OrderRowPorps) {
         <SignalBindModal
           symbol={order.symbol}
           entityType="order"
-          orderId={order.exchangeOrderId}
+          exchangeOrderId={order.exchangeOrderId}
           direction={order.side === "long" ? "ВВЕРХ" : "ВНИЗ"}
+          existingLink={link}
           onClose={() => setShowModal(false)}
         />
       )}
