@@ -6,12 +6,14 @@ import type {
   CloseOperator,
   OrderSignalLinkResponse,
   PositionSignalLinkResponse,
+  SignalSnapshotInput,
 } from "../../types/signalLinks";
-import { linkSignalToOrder, linkSignalToPosition } from "../../api/signalLinks";
+import { linkSignalToOrder, linkSignalToPosition, updateOrderLink, updatePositionLink } from "../../api/signalLinks";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
 import { ChartNoAxesCombined, Check, Link, ArrowUp, X, ArrowDown, PenLine } from "lucide-react";
 import { SymbolLogo } from "../../components/ui/SymbolLogo";
 import { createPortal } from "react-dom";
+import { ApiError } from "../../api/client";
 
 type EntityType = "position" | "order";
 
@@ -44,6 +46,8 @@ export function SignalBindModal({
   const allSignals = useSignalsStore((s) => s.signals);
   const addPositionLink = useSignalLinksStore((s) => s.addPositionLink);
   const addOrderLink = useSignalLinksStore((s) => s.addOrderLink);
+  const replacePositionLink = useSignalLinksStore((s) => s.replacePositionLink);
+  const replaceOrderLink = useSignalLinksStore((s) => s.replaceOrderLink);
 
   const isEdit = existingLink !== undefined;
   const existingLinkedSignalKey = existingLink
@@ -145,46 +149,48 @@ export function SignalBindModal({
     setLoading(true);
     setError(null);
 
+    const signal: SignalSnapshotInput = {
+      indicator: selected.indicator,
+      timeframe: selected.timeframe,
+      value:
+        selected.indicator === "volRatio"
+          ? selected.volRatio
+          : selected.indicatorValue,
+      direction: selected.direction,
+    };
+
     try {
       if (entityType === "position") {
-        const link = await linkSignalToPosition({
-          symbol,
-          signal: {
-            indicator: selected.indicator,
-            timeframe: selected.timeframe,
-            value:
-              selected.indicator === "volRatio"
-                ? selected.volRatio
-                : selected.indicatorValue,
-            direction: selected.direction,
-          },
-          closeCondition: closeCondition,
-        });
-        addPositionLink(link);
+        if (existingLink) {
+          const link = await updatePositionLink(existingLink.id, { signal, closeCondition });
+          replacePositionLink(link); 
+        } else {
+          const link = await linkSignalToPosition({ symbol, signal, closeCondition });
+          addPositionLink(link);
+        }
       } else {
-        if (!exchangeOrderId) return;
-        const link = await linkSignalToOrder({
-          symbol,
-          exchangeOrderId: exchangeOrderId,
-          signal: {
-            indicator: selected.indicator,
-            timeframe: selected.timeframe,
-            value:
-              selected.indicator === "volRatio"
-                ? selected.volRatio
-                : selected.indicatorValue,
-            direction: selected.direction,
-          },
-          closeCondition: closeCondition,
-        });
-        addOrderLink(link);
+        if (existingLink) {
+          const link = await updateOrderLink(existingLink.id, { signal, closeCondition });
+          replaceOrderLink(link);
+        } else {      
+          if (!exchangeOrderId) return;
+          const link = await linkSignalToOrder({ symbol, exchangeOrderId, signal, closeCondition });
+          addOrderLink(link);
+        }
       }
       onClose();
     } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes("409")) {
+      const status = err instanceof ApiError ? err.status : undefined;
+      if (status === 409) {
         setError("Сигнал уже привязан к этой позиции/ордеру");
+      } else if (status === 404) {
+        setError("Привязка не найдена. Возможно, она уже удалена.");
       } else {
-        setError("Не удалось привязать сигнал. Попробуйте ещё раз.");
+        setError(
+          isEdit
+            ? "Не удалось изменить сигнал. Попробуйте еще раз."
+            : "Не удалось привязать сигнал. Попробуйте еще раз"
+        );
       }
     } finally {
       setLoading(false);

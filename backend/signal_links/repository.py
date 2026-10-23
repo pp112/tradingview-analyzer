@@ -14,18 +14,32 @@ class SignalSnapshotRepository:
 
     def create(self, snapshot: SignalSnapshot) -> SignalSnapshot:
         self.session.add(snapshot)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(snapshot)
         return snapshot
 
     def get_by_id(self, snapshot_id: int) -> SignalSnapshot | None:
         return self.session.get(SignalSnapshot, snapshot_id)
 
+    def update(
+        self,
+        snapshot: SignalSnapshot,
+        indicator: str,
+        timeframe: str,
+        value: float,
+        direction: str,
+    ) -> SignalSnapshot:
+        snapshot.indicator = indicator
+        snapshot.timeframe = timeframe
+        snapshot.value = value
+        snapshot.direction = direction
+        self.session.flush()
+        return snapshot
+
     def delete(self, snapshot_id: int):
         snapshot = self.session.get(SignalSnapshot, snapshot_id)
         if snapshot:
             self.session.delete(snapshot)
-            self.session.commit()
 
 
 class CloseConditionRepository:
@@ -34,18 +48,28 @@ class CloseConditionRepository:
 
     def create(self, condition: CloseCondition) -> CloseCondition:
         self.session.add(condition)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(condition)
         return condition
 
     def get_by_id(self, condition_id: int) -> CloseCondition | None:
         return self.session.get(CloseCondition, condition_id)
 
+    def update(
+        self,
+        condition: CloseCondition,
+        operator: str,
+        target_value: float,
+    ) -> CloseCondition:
+        condition.operator = operator
+        condition.target_value = target_value
+        self.session.flush()
+        return condition
+
     def delete(self, condition_id: int):
         condition = self.session.get(CloseCondition, condition_id)
         if condition:
             self.session.delete(condition)
-            self.session.commit()
 
 
 class PositionSignalLinkRepository:
@@ -54,7 +78,7 @@ class PositionSignalLinkRepository:
 
     def create(self, link: PositionSignalLink) -> PositionSignalLink:
         self.session.add(link)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(link)
         return link
 
@@ -74,11 +98,19 @@ class PositionSignalLinkRepository:
         )
         return self.session.exec(query).first()
 
+    def set_close_condition(
+        self,
+        link: PositionSignalLink,
+        condition_id: int | None,
+    ) -> PositionSignalLink:
+        link.close_condition_id = condition_id
+        self.session.flush()
+        return link
+
     def delete(self, link_id: int):
         link = self.session.get(PositionSignalLink, link_id)
         if link:
             self.session.delete(link)
-            self.session.commit()
 
 
 class OrderSignalLinkRepository:
@@ -87,7 +119,7 @@ class OrderSignalLinkRepository:
 
     def create(self, link: OrderSignalLink) -> OrderSignalLink:
         self.session.add(link)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(link)
         return link
 
@@ -110,8 +142,16 @@ class OrderSignalLinkRepository:
         )
         return self.session.exec(query).first()
 
+    def set_close_condition(
+        self,
+        link: OrderSignalLink,
+        condition_id: int | None,
+    ) -> OrderSignalLink:
+        link.close_condition_id = condition_id
+        self.session.flush()
+        return link
+
     def delete(self, link_id: int):
         link = self.session.get(OrderSignalLink, link_id)
         if link:
             self.session.delete(link)
-            self.session.commit()

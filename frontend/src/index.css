@@ -290,7 +290,7 @@ body {
 .content {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 540px;
+  grid-template-columns: 1fr 560px;
   gap: 16px;
   padding: 16px 20px;
   overflow: hidden;
@@ -1283,6 +1283,19 @@ corr-last-child {
   font: 600 0.62rem var(--font-mono);
   white-space: nowrap;
   margin: 0px 16px 0 6px;
+}
+
+.po-signal-condition {
+  display: inline-flex;
+  gap: 5px;
+  font: 500 0.75rem var(--font-mono);
+  color: var(--text2);
+  line-height: 1;
+}
+
+.po-signal-condition .value {
+  gap: 5px;
+  color: var(--text2);
 }
 
 .po-btn {

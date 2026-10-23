@@ -68,6 +68,15 @@ export function LinkedSignalCell({
   const difference = currentValue !== null ? currentValue - fixedValue : 0;
   const differenceClass = difference >= 0 ? "pos" : "neg";
 
+  const condition = link.closeCondition;
+  const conditionLabel = "exchangeOrderId" in link ? "Отменить" : "Закрыть";
+  const conditionInfo = condition
+    ? {
+        operatorLabel: condition.operator === "<=" ? "ниже" : "выше",
+        targetValue: condition.targetValue,
+      }
+    : null;
+
   return (
     <div className="po-signal">
       <div className="po-signal-head">
@@ -123,6 +132,21 @@ export function LinkedSignalCell({
           ({difference >= 0 ? "+" : ""}
           {difference.toFixed(2)})
         </span>
+      </div>
+
+      <div className="po-signal-condition">
+        {conditionInfo ? (
+          <>
+            <span>{conditionLabel}:</span>
+            <span className="value">{conditionInfo.operatorLabel}</span>
+            <span className="value">{conditionInfo.targetValue}</span>
+          </>
+        ) : (
+          <>
+            <span>{conditionLabel}:</span>
+            <span>выкл.</span>
+          </>
+        )}
       </div>
     </div>
   );

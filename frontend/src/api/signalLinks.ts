@@ -1,11 +1,12 @@
 import type { ActionResponse } from "../types/api";
-import { apiDelete, apiGet, apiPost } from "./client";
+import { apiDelete, apiGet, apiPost, apiPut } from "./client";
 import type { 
   CurrentIndicatorValue,
   LinkOrderSignalRequest, 
   LinkPositionSignalRequest, 
   OrderSignalLinkResponse, 
   PositionSignalLinkResponse,
+  UpdateSignalLinkRequest,
 } from "../types/signalLinks";
 import type { Timeframe } from "../types/signal";
 
@@ -16,7 +17,14 @@ export async function fetchPositionLinks(): Promise<PositionSignalLinkResponse[]
 export async function linkSignalToPosition(
   data: LinkPositionSignalRequest
 ): Promise<PositionSignalLinkResponse> {
-  return apiPost<PositionSignalLinkResponse>("/links/positions", data)
+  return apiPost<PositionSignalLinkResponse>("/links/positions", data);
+}
+
+export async function updatePositionLink(
+  link_id: number,
+  data: UpdateSignalLinkRequest,
+): Promise<PositionSignalLinkResponse> {
+  return apiPut<PositionSignalLinkResponse>(`/links/positions/${link_id}`, data);
 }
 
 export async function unlinkSignalFromPosition(link_id: number): Promise<ActionResponse> {
@@ -30,7 +38,14 @@ export async function fetchOrderLinks(): Promise<OrderSignalLinkResponse[]> {
 export async function linkSignalToOrder(
   data: LinkOrderSignalRequest
 ): Promise<OrderSignalLinkResponse> {
-  return apiPost<OrderSignalLinkResponse>("/links/orders", data)
+  return apiPost<OrderSignalLinkResponse>("/links/orders", data);
+}
+
+export async function updateOrderLink(
+  link_id: number,
+  data: UpdateSignalLinkRequest,
+): Promise<OrderSignalLinkResponse> {
+  return apiPut<OrderSignalLinkResponse>(`/links/orders/${link_id}`, data);
 }
 
 export async function unlinkSignalFromOrder(link_id: number): Promise<ActionResponse> {

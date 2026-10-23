@@ -46,7 +46,7 @@ DEV_ORIGINS = [
 app.add_middleware(
     CORSMiddleware, 
     allow_origins=DEV_ORIGINS,
-    allow_methods=["GET", "POST", "DELETE"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Content-Type"],
 )
 
@@ -146,6 +146,7 @@ def get_initial_data():
         price_changes = PRICE_VOLUME_ADAPTER.validate_json(json_data)
 
     return InitialDataResponse(signals=signals, price_changes=price_changes)
+
 
 @app.get("/positions", response_model=list[PositionResponse])
 async def get_positions(client: ExchangeClient = Depends(get_bybit_client)):

@@ -23,6 +23,7 @@ from backend.schemas.signal_links import (
     PositionSignalLinkResponse,
     SignalSnapshotInput,
     SignalSnapshotResponse,
+    UpdateSignalLinkRequest,
 )
 from backend.schemas.common import ActionResponse
 
@@ -80,6 +81,61 @@ def _create_snapshot_and_condition(
             target_value=close_condition.target_value
         ))
     return snapshot, condition
+
+
+def _update_signal_and_close_condition(
+    link: PositionSignalLink | OrderSignalLink,
+    link_repo: PositionSignalLinkRepository | OrderSignalLinkRepository,
+    req: UpdateSignalLinkRequest,
+    session: Session,
+) -> tuple[SignalSnapshot, CloseCondition | None]:
+    """
+    Обновляет привязанный сигнал и условия закрытия существующей привязки
+    """
+    snapshot_repo = SignalSnapshotRepository(session)
+    condition_repo = CloseConditionRepository(session)
+
+    curr_snapshot = snapshot_repo.get_by_id(link.signal_snapshot_id)
+    if curr_snapshot is None:
+        raise HTTPException(status_code=404, detail="Сигнал привязки не найден")
+
+    snapshot_repo.update(
+        snapshot=curr_snapshot,
+        indicator=req.signal.indicator,
+        timeframe=req.signal.timeframe,
+        value=req.signal.value,
+        direction=req.signal.direction,
+    )
+
+    curr_condition = (
+        condition_repo.get_by_id(link.close_condition_id) 
+        if link.close_condition_id is not None 
+        else None
+    )
+
+    new_condition = req.close_condition
+
+    if new_condition is None:
+        if curr_condition is not None:
+            link_repo.set_close_condition(link, None)
+            condition_repo.delete(curr_condition.id)
+            curr_condition
+    elif curr_condition is None:
+        curr_condition = condition_repo.create(
+            CloseCondition(
+                operator=new_condition.operator,
+                target_value=new_condition.target_value,
+            )
+        )
+        link_repo.set_close_condition(link, curr_condition.id)
+    else:
+        condition_repo.update(
+            curr_condition,
+            operator=new_condition.operator,
+            target_value=new_condition.target_value,
+        )
+
+    return curr_snapshot, curr_condition
 
 
 @router.post("/positions", response_model=PositionSignalLinkResponse)
@@ -264,3 +320,54 @@ def unlink_signal_from_order(link_id: int, session: Session = Depends(get_sessio
     order_repo.delete(link_id)
 
     return ActionResponse(success=True)
+
+
+@router.put("/positions/{link_id}", response_model=PositionSignalLinkResponse)
+def update_position_signal_link(
+    link_id: int, 
+    req: UpdateSignalLinkRequest,
+    session: Session = Depends(get_session),
+):
+    """
+    Изменяет сигнал и условие автозакрытия существующей привязки позиции.
+    """
+    position_repo = PositionSignalLinkRepository(session)
+    position_link = position_repo.get_by_id(link_id)
+    if position_link is None or position_link.closed_at is not None:
+        raise HTTPException(status_code=404, detail="Привязка не найдена")
+    
+    snapshot, condition = _update_signal_and_close_condition(position_link, position_repo, req, session)
+
+    return PositionSignalLinkResponse(
+        id=position_link.id,
+        symbol=position_link.symbol,
+        signal=_make_snapshot_response(snapshot),
+        close_condition=_make_condition_response(condition),
+        created_at=position_link.created_at,
+    )
+
+
+@router.put("/orders/{link_id}", response_model=OrderSignalLinkResponse)
+def update_order_signal_link(
+    link_id: int, 
+    req: UpdateSignalLinkRequest,
+    session: Session = Depends(get_session),
+):
+    """
+    Изменяет сигнал и условие автозакрытия существующей привязки ордера.
+    """
+    order_repo = OrderSignalLinkRepository(session)
+    order_link = order_repo.get_by_id(link_id)
+    if order_link is None or order_link.cancelled_at is not None:
+        raise HTTPException(status_code=404, detail="Привязка не найдена")
+
+    snapshot, condition = _update_signal_and_close_condition(order_link, order_repo, req, session)
+
+    return OrderSignalLinkResponse(
+        id=order_link.id,
+        symbol=order_link.symbol,
+        exchange_order_id=order_link.exchange_order_id,
+        signal=_make_snapshot_response(snapshot),
+        close_condition=_make_condition_response(condition),
+        created_at=order_link.created_at,
+    )

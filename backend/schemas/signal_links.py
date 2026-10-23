@@ -38,6 +38,11 @@ class LinkOrderSignalRequest(ApiModel):
     close_condition: CloseConditionInput | None = None
 
 
+class UpdateSignalLinkRequest(ApiModel):
+    signal: SignalSnapshotInput
+    close_condition: CloseConditionInput | None = None
+
+
 class SignalSnapshotResponse(ApiModel):
     id: int
     indicator: str

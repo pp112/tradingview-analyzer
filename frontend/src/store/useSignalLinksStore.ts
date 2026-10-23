@@ -17,6 +17,9 @@ interface SignalLinksState {
   addPositionLink: (link: PositionSignalLinkResponse) => void;
   addOrderLink: (link: OrderSignalLinkResponse) => void;
 
+  replacePositionLink: (link: PositionSignalLinkResponse) => void;
+  replaceOrderLink: (link: OrderSignalLinkResponse) => void;
+
   removePositionLink: (linkId: number) => void;
   removeOrderLink: (linkId: number) => void;
 
@@ -36,6 +39,16 @@ export const useSignalLinksStore = create<SignalLinksState>((set, get) => ({
     set((state) => ({ positionLinks: [...state.positionLinks, link] })),
   addOrderLink: (link) => 
     set((state) => ({ orderLinks: [...state.orderLinks, link] })),
+
+  replacePositionLink: (link) =>
+    set((state) => ({
+      positionLinks: state.positionLinks.map((l) => (l.id === link.id ? link : l)),
+    })),
+
+  replaceOrderLink: (link) => 
+    set((state) => ({
+      orderLinks: state.orderLinks.map((l) => (l.id === link.id ? link : l)),
+    })),
 
   removePositionLink: (linkId) =>
     set((state) => ({
