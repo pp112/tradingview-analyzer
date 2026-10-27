@@ -14,6 +14,10 @@ def extract_linked_indicator_values(
     timeframe: Timeframe,
     session: Session
 ) -> list[CurrentIndicatorValue]:
+    """
+    Возвращает значения индикаторов для активных связей с сигналами.
+    Учитывает только связи, у которых снимок сигнала существует.
+    """
     order_repo = OrderSignalLinkRepository(session)
     position_repo = PositionSignalLinkRepository(session)
     snapshot_repo = SignalSnapshotRepository(session)

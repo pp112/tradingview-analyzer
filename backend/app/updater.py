@@ -1,10 +1,16 @@
 from sqlmodel import Session
 
+from backend.api.dependencies import get_bybit_client
 from backend.storage.database import engine
 from backend.processing.linked_indicator_values import extract_linked_indicator_values
 from backend.models import Timeframe
 from backend.market import MarketDataClient
-from backend.processing import process_indicators, PriceVolumeMonitor, calculate_correlations
+from backend.processing import (
+    process_indicators, 
+    PriceVolumeMonitor, 
+    calculate_correlations,
+    check_and_auto_close,
+)
 from backend.storage.state_manager import StateManager
 from backend.utils import read_correlations
 from backend.storage.writer import (
@@ -28,12 +34,14 @@ class Updater:
     - загрузку исторических данных свечей
     - расчет индикаторов и сигналов
     - расчёт корреляций (для H1)
+    - проверку автозакрытия
     - сохранение результатов
     """
     def __init__(self):
         self.state_manager = StateManager()
         self.market_client = MarketDataClient()
         self.price_volume_monitor = PriceVolumeMonitor()
+        self.client = get_bybit_client()
 
     async def update_timeframe(self, timeframe: Timeframe):
         """
@@ -64,17 +72,20 @@ class Updater:
             df_candles, correlations, timeframe
         )
 
-        with Session(engine) as session:
-            linked_values = extract_linked_indicator_values(
+        with Session(engine) as session, session.begin():
+            linked_indicator_values = extract_linked_indicator_values(
                 indicators, timeframe, session
             )
-   
+            await check_and_auto_close(
+                linked_indicator_values, session, self.client
+            )
+
         logger.info(f"{timeframe.label}: Сохранение результатов в файлы")
 
         save_market_data(df_candles, timeframe)
         save_signals(signals, timeframe)
         save_indicators(indicators, timeframe)
-        save_linked_values(linked_values, timeframe)
+        save_linked_values(linked_indicator_values, timeframe)
 
         self.state_manager.set_updated(timeframe)
         

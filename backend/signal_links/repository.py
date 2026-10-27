@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlmodel import Session, select
 
 from backend.signal_links.models import (
@@ -98,6 +100,11 @@ class PositionSignalLinkRepository:
         )
         return self.session.exec(query).first()
 
+    def mark_closed(self, link: PositionSignalLink) -> PositionSignalLink:
+        link.closed_at = datetime.now()
+        self.session.flush()
+        return link
+
     def set_close_condition(
         self,
         link: PositionSignalLink,
@@ -155,3 +162,8 @@ class OrderSignalLinkRepository:
         link = self.session.get(OrderSignalLink, link_id)
         if link:
             self.session.delete(link)
+
+    def mark_cancelled(self, link: OrderSignalLink) -> OrderSignalLink:
+        link.cancelled_at = datetime.now()
+        self.session.flush()
+        return link

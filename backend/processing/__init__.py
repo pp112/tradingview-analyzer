@@ -3,3 +3,4 @@ from .correlation_calculator import calculate_correlations
 from .signal_generator import generate_signals
 from .price_monitor import PriceVolumeMonitor
 from .indicator_engine import process_indicators
+from .auto_close import check_and_auto_close
