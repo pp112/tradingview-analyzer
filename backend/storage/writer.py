@@ -99,7 +99,16 @@ def save_linked_values(values: list[CurrentIndicatorValue], timeframe: Timeframe
     """
     path = BASE_PATH / "values" / "linked_values"
     ensure_dir(path)
-    file_path = path / f"linked_values_{timeframe.label}.json"
-    data = [v.model_dump() for v in values]
+
+    file_path = path / f"linked_values.json"
+
+    if file_path.exists():
+        with file_path.open(encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = {}
+
+    data[timeframe.label] = [v.model_dump(mode="json") for v in values]
+
     with file_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)

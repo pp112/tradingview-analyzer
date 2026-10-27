@@ -228,11 +228,14 @@ async def get_linked_signal_values(tf: str):
     Возвращает текущие значения индикаторов для привязанных сигналов
     указанного таймфрейма.
     """
-    path = BASE_DIR / "linked_values" / f"linked_values_{tf}.json"
+    path = BASE_DIR / "linked_values" / "linked_values.json"
     if not path.exists():
         return []
-    json_data = path.read_text(encoding="utf-8")
-    return LINKED_VALUES_ADAPTER.validate_json(json_data)
+
+    with path.open(encoding="utf-8") as f:
+        data = json.load(f)
+
+    return LINKED_VALUES_ADAPTER.validate_python(data.get(tf, []))
 
 
 @app.get("/")
