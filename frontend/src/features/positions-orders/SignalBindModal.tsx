@@ -122,7 +122,7 @@ export function SignalBindModal({
 
     return (
       availableSignals.find(
-        (s) => signalKey(s.indicator, s.timeframe, s.indicatorValue) === selectedKey  
+        (s) => signalKey(s.indicator, s.timeframe, s.) === selectedKey  
       ) ?? null
     );
   }, [availableSignals, selectedKey, existingLinkedSignal, existingLinkedSignalKey])

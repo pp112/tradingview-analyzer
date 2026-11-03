@@ -31,27 +31,6 @@ def rsi_last(symbol_df: pd.DataFrame) -> float | None:
     return round(float(rsi.iloc[-1]), 2)
 
 
-def rsi_extremes(
-    symbol_df: pd.DataFrame, 
-    top_n: int
-) -> dict[str, list[float]] | None:
-    """
-    Экстремумы rsi
-    """
-    s = rsi_series(symbol_df).dropna()
-
-    if len(s) < top_n:
-        return None
-
-    top = s.nlargest(top_n).values
-    bottom = s.nsmallest(top_n).values
-
-    return {
-        "top": [round(x, 2) for x in top.tolist()],
-        "bottom": [round(x, 2) for x in bottom.tolist()]
-    }
-
-
 def macd_series(symbol_df: pd.DataFrame) -> pd.DataFrame:
     """
     Полный MACD DataFrame: MACD, signal, histogram
@@ -69,32 +48,6 @@ def macd_series(symbol_df: pd.DataFrame) -> pd.DataFrame:
     })
 
 
-def macd_last(
-    symbol_df: pd.DataFrame
-) -> dict[str, dict[str, float]] | None:
-    """
-    Последние 2 значения MACD (prev, curr)
-    """
-    macd_df = macd_series(symbol_df).dropna()
-
-    if len(macd_df) < 2:
-        return None
-
-    prev_df, curr_df = macd_df.iloc[-2], macd_df.iloc[-1]
-    prev = {
-        "MACD": float(prev_df["MACD"]),
-        "MACD_signal": float(prev_df["MACD_signal"])
-    }
-    curr = {
-        "MACD": float(curr_df["MACD"]),
-        "MACD_signal": float(curr_df["MACD_signal"])
-    }
-    return {
-        "prev": prev,
-        "curr": curr
-    }
-
-
 def ema_series(symbol_df: pd.DataFrame, timeframe: Timeframe) -> pd.Series:
     """
     Полная EMA серия
@@ -109,32 +62,6 @@ def sma_series(symbol_df: pd.DataFrame, timeframe: Timeframe) -> pd.Series:
     """
     _, period = ema_sma_periods(timeframe)
     return symbol_df["close"].rolling(period).mean()
-
-
-def ema_last(
-    symbol_df: pd.DataFrame, 
-    timeframe: Timeframe
-) -> tuple[float, float] | None:
-    """
-    Последние 2 значения EMA (prev, curr)
-    """
-    ema = ema_series(symbol_df, timeframe).dropna()
-    if len(ema) < 2:
-        return None
-    return float(ema.iloc[-2]), float(ema.iloc[-1])
-
-
-def sma_last(
-    symbol_df: pd.DataFrame, 
-    timeframe: Timeframe
-) -> tuple[float, float] | None:
-    """
-    Последние 2 значения SMA (prev, curr)
-    """
-    sma = sma_series(symbol_df, timeframe).dropna()
-    if len(sma) < 2:
-        return None
-    return float(sma.iloc[-2]), float(sma.iloc[-1])
 
 
 def volume_metrics(

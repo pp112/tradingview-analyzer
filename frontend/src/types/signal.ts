@@ -8,14 +8,25 @@ export type Direction = "ВВЕРХ" | "ВНИЗ";
 
 export type Sigtype = "all" | "strong" | "combined";
 
-export type Signal = {
+export type OscillatorSignal = {
   symbol: string;
-  indicator: IndicatorType;
-  indicatorValue: number;
+  indicator: "rsi";
+  value: number;
   direction: Direction;
   volRatio: number;
   correlation: number;
 };
+
+export type CrossoverSignal = {
+  symbol: string;
+  indicator: "macd" | "emaSma";
+  strength: number;
+  direction: Direction;
+  volRatio: number;
+  correlation: number;
+};
+
+export type Signal = OscillatorSignal | CrossoverSignal;
 
 export type CombinedSignal = {
   symbol: string;

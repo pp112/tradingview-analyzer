@@ -1,4 +1,38 @@
+from dataclasses import dataclass
+
 from backend.models import Signal, Direction, Indicator
+from backend.models.signal import CrossoverSignal, OscillatorSignal
+
+
+# Максимальный "возраст" пересечения в барах, чтобы считать его актуальным
+MACD_MAX_SIGNAL_AGE = 5
+EMA_SMA_MAX_SIGNAL_AGE = 7
+
+
+@dataclass
+class RawOscillator:
+    indicator: Indicator
+    value: float
+    direction: Direction
+
+    def to_signal(self, symbol: str, vol_ratio: float, correlation: float) -> OscillatorSignal:
+        return OscillatorSignal(
+            symbol=symbol, indicator=self.indicator, value=self.value,
+            direction=self.direction, vol_ratio=vol_ratio, correlation=correlation
+        )
+
+
+@dataclass
+class RawCrossover:
+    indicator: Indicator
+    strength: float
+    direction: Direction
+
+    def to_signal(self, symbol: str, vol_ratio: float, correlation: float) -> CrossoverSignal:
+        return CrossoverSignal(
+            symbol=symbol, indicator=self.indicator, strength=self.strength,
+            direction=self.direction, vol_ratio=vol_ratio, correlation=correlation
+        )
 
 
 def generate_signals(
@@ -14,88 +48,60 @@ def generate_signals(
         if symbol not in correlations:
             continue
 
-        for signal_data in (
-            _rsi(data),
-            _macd(data),
-            _ma(data),
-        ):
-            if signal_data is None:
-                continue
+        vol_ratio = data["volume"]["ratio"]
+        correlation = correlations[symbol]
 
-            indicator, indicator_value, direction = signal_data
-            signals.append(
-                Signal(
-                    symbol=symbol,
-                    indicator=indicator,
-                    indicator_value=indicator_value,
-                    direction=direction,
-                    vol_ratio=indicators[symbol]["volume"]["ratio"],
-                    correlation=correlations[symbol]
-                )
-            )
+        for raw in (_rsi(data), _macd(data), _ema_sma(data)):
+            if raw is not None:
+                signals.append(raw.to_signal(symbol, vol_ratio, correlation))
 
     return signals
 
-def _rsi(data: dict[str, dict]) -> tuple[Indicator, float, Direction] | None:
-    value = data.get("rsi")
 
+def _rsi(data: dict) -> RawOscillator | None:
+    value = data.get("rsi")
     if value is None:
         return None
 
     if value > 70:
-        direction = Direction.DOWN
+        return RawOscillator(indicator=Indicator.RSI, value=value, direction=Direction.DOWN)
     elif value < 30:
-        direction = Direction.UP
+        return RawOscillator(indicator=Indicator.RSI, value=value, direction=Direction.UP)
     else:
         return None
-    
-    return Indicator.RSI, value, direction
 
-def _macd(data: dict[str, dict]) -> tuple[Indicator, float, Direction] | None:
+
+def _macd(data: dict) -> RawCrossover | None:
+    """
+    Формирование данных сигнала MACD: актуальность, направление и сила.
+    None — если пересечения нет, оно устарело или силу не из чего посчитать.
+    """
     block = data.get("macd") or {}
-    prev = block.get("prev")
-    curr = block.get("curr")
-
-    if prev is None or curr is None:
+    crossover = block.get("latest_crossover")
+    strength = block.get("strength")
+    if crossover is None or strength is None or not block.get("valid_zero_line"):
         return None
 
-    value = abs(curr["MACD"])
-
-    if (
-        prev["MACD"] < prev["MACD_signal"]
-        and curr["MACD"] > curr["MACD_signal"]
-        and curr["MACD"] < 0
-        and curr["MACD_signal"] < 0
-    ):
-        direction = Direction.UP
-    elif (
-        prev["MACD"] > prev["MACD_signal"]
-        and curr["MACD"] < curr["MACD_signal"]
-        and curr["MACD"] > 0
-        and curr["MACD_signal"] > 0
-    ):
-        direction = Direction.DOWN
-    else:
+    age = block["bar_count"] - 1 - crossover.index
+    if age > MACD_MAX_SIGNAL_AGE:
         return None
     
-    return Indicator.MACD, value, direction
+    return RawCrossover(Indicator.MACD, strength, crossover.direction)
 
-def _ma(data: dict[str, dict]) -> tuple[Indicator, float, Direction] | None:
-    ema = data.get("ema")
-    sma = data.get("sma")
 
-    if ema is None or sma is None:
+def _ema_sma(data: dict) -> RawCrossover | None:
+    """
+    Формирование данных сигнала EMA/SMA: актуальность, направление и сила.
+    None — если пересечения нет, оно устарело или силу не из чего посчитать.
+    """
+    block = data.get("ema_sma") or {}
+    crossover = block.get("latest_crossover")
+    strength = block.get("strength")
+    if crossover is None or strength is None:
         return None
 
-    ema_prev, ema_curr = ema
-    sma_prev, sma_curr = sma
-    value = abs(ema_curr - sma_curr)
-
-    if ema_prev < sma_prev and ema_curr > sma_curr:
-        direction = Direction.UP
-    elif ema_prev > sma_prev and ema_curr < sma_curr:
-        direction = Direction.DOWN
-    else:
+    age = block["bar_count"] - 1 - crossover.index
+    if age > EMA_SMA_MAX_SIGNAL_AGE:
         return None
     
-    return Indicator.EMA_SMA, value, direction
+    return RawCrossover(Indicator.EMA_SMA, strength, crossover.direction)
