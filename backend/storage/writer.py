@@ -1,3 +1,4 @@
+from dataclasses import asdict, is_dataclass
 import json
 import threading
 from pathlib import Path
@@ -28,6 +29,7 @@ def _market_df_to_json_by_symbol(df: pd.DataFrame) -> dict[str, list[dict]]:
         out[str(symbol)] = candles
     return out
 
+
 def _save_json_async(path: str, df: pd.DataFrame):
     """
     Запускает task() в отдельном потоке.
@@ -37,6 +39,7 @@ def _save_json_async(path: str, df: pd.DataFrame):
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=4, ensure_ascii=False)
     threading.Thread(target=task, daemon=True).start()
+
 
 def save_market_data(df: pd.DataFrame, timeframe: Timeframe):
     """
@@ -49,6 +52,13 @@ def save_market_data(df: pd.DataFrame, timeframe: Timeframe):
     _save_json_async(path=path / f"{filename}.json", df=df)
 
 
+def _json_default(value):
+    """Сериализует dataclass-объекты (например, Crossover) в dict."""
+    if is_dataclass(value):
+        return asdict(value)
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
+
+
 def save_indicators(indicators: dict[str, dict], timeframe: Timeframe):
     """
     Сохраняет рассчитанные значения индикаторов в json.
@@ -57,7 +67,7 @@ def save_indicators(indicators: dict[str, dict], timeframe: Timeframe):
     ensure_dir(path)
     file_path = path / f"values_{timeframe.label}.json"
     with file_path.open("w", encoding="utf-8") as f:
-        json.dump(indicators, f, indent=4, ensure_ascii=False)
+        json.dump(indicators, f, indent=4, ensure_ascii=False, default=_json_default)
 
 
 def save_signals(signals: list[Signal], timeframe: Timeframe):

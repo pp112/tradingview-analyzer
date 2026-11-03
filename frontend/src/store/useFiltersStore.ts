@@ -7,14 +7,6 @@ import type {
   SortColumn,
 } from "../types/signal";
 
-// Индикаторы, для которых сортировка значений только по убыванию
-const SPECIAL_VALUE_SORT_INDICATORS: IndicatorType[] = ["macd", "emaSma"];
-
-function isSpecialValueSortIndicator(indicator: IndicatorType | null): boolean {
-  return (
-    indicator !== null && SPECIAL_VALUE_SORT_INDICATORS.includes(indicator)
-  );
-}
 
 interface FiltersState {
   timeframe: Timeframe;
@@ -44,13 +36,12 @@ export const useFiltersStore = create<FiltersState>((set, get) => ({
 
   setIndicator: (ind) => set({ indicator: ind, sigtype: "all" }),
 
-  setSigtype: (sigtype) => {
-    if (sigtype === "all") {
-      set({ sigtype, indicator: "rsi" });
-    } else {
-      set({ sigtype, indicator: null });
-    }
-  },
+  setSigtype: (sigtype) =>
+    set({
+      sigtype,
+      indicator: sigtype === "all" ? "rsi" : null,
+      sort: { column: null, direction: 0 },
+    }),
 
   setCorrelation: (value) => {
     const clamped = Math.max(-1, Math.min(1, value));
@@ -67,21 +58,7 @@ export const useFiltersStore = create<FiltersState>((set, get) => ({
   },
 
   toggleSort: (column) => {
-    const { indicator, sort } = get();
-    const isValueColumn = column === "indicatorValue";
-
-    if (isSpecialValueSortIndicator(indicator) && isValueColumn) {
-      if (sort.column === column) {
-        set(
-          sort.direction === 1
-            ? { sort: { column: null, direction: 0 } }
-            : { sort: { column, direction: 1 } },
-        );
-      } else {
-        set({ sort: { column, direction: 1 } });
-      }
-      return;
-    }
+    const { sort } = get();
 
     if (sort.column === column) {
       const nextDirection = sort.direction + 1;

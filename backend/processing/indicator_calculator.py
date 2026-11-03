@@ -1,10 +1,31 @@
+from dataclasses import dataclass
+
 import pandas as pd
 
 from backend.models import Timeframe
 from backend.models.signal import Direction
-from backend.processing import crossovers as crossover_service
+from backend.processing import crossovers as crossover_service 
 from backend.processing import indicator_service, signal_strength
 from backend.utils import filter_by_symbol
+
+
+@dataclass(frozen=True)
+class MacdBlock:
+    bar_count: int
+    latest_crossover: crossover_service.Crossover | None
+    strength: float | None
+    macd: float
+    macd_signal: float
+    valid_zero_line: bool | None = None
+
+
+@dataclass(frozen=True)
+class EmaSmaBlock:
+    bar_count: int
+    latest_crossover: crossover_service.Crossover | None
+    strength: float | None
+    ema: float
+    sma: float
 
 
 def calculate_indicators(
@@ -48,15 +69,17 @@ def _macd_block(symbol_df: pd.DataFrame) -> dict | None:
         return None
 
     crossovers = crossover_service.find_crossovers(macd_df["MACD"], macd_df["MACD_signal"])
-
     latest_crossover = crossovers[-1] if crossovers else None
+    curr = macd_df.iloc[-1]
 
-    return {
-        "bar_count": len(macd_df),
-        "latest_crossover": latest_crossover,
-        "valid_zero_line": _is_valid_zero_line(macd_df, latest_crossover) if latest_crossover else None,
-        "strength": signal_strength.macd_strength(crossovers, macd_df["MACD"])
-    }
+    return MacdBlock(
+        bar_count=len(macd_df),
+        latest_crossover=latest_crossover,
+        strength=signal_strength.macd_strength(crossovers, macd_df["MACD"]),
+        macd=float(curr["MACD"]),
+        macd_signal=float(curr["MACD_signal"]),
+        valid_zero_line=_is_valid_zero_line(macd_df, latest_crossover) if latest_crossover else None,
+    )
 
 
 def _is_valid_zero_line(macd_df: pd.DataFrame, crossover: crossover_service.Crossover) -> bool:
@@ -69,9 +92,9 @@ def _is_valid_zero_line(macd_df: pd.DataFrame, crossover: crossover_service.Cros
     signal = macd_df["MACD_signal"].iloc[crossover.index]
 
     if crossover.direction == Direction.UP:
-        return macd < 0 and signal < 0
+        return bool(macd < 0 and signal < 0)
     if crossover.direction == Direction.DOWN:
-        return macd > 0 and signal > 0
+        return bool(macd > 0 and signal > 0)
     return False
 
 
@@ -89,9 +112,12 @@ def _ema_sma_block(symbol_df: pd.DataFrame, timeframe: Timeframe) -> dict | None
         return None
 
     crossovers = crossover_service.find_crossovers(df["ema"], df["sma"])
+    curr = df.iloc[-1]
 
-    return {
-        "bar_count": len(df),
-        "latest_crossover": crossovers[-1] if crossovers else None,
-        "strength": signal_strength.ema_sma_strength(crossovers, df["ema"], df["sma"]),
-    }
+    return EmaSmaBlock(
+        bar_count=len(df),
+        latest_crossover=crossovers[-1] if crossovers else None,
+        strength=signal_strength.ema_sma_strength(crossovers, df["ema"], df["sma"]),
+        ema=float(curr["ema"]),
+        sma=float(curr["sma"]),
+    )

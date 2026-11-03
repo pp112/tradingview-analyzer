@@ -3,6 +3,7 @@ from sqlmodel import Session
 from backend.models.linked_values import CurrentIndicatorValue
 from backend.models.signal import Indicator
 from backend.models.timeframe import Timeframe
+from backend.processing.indicator_calculator import EmaSmaBlock, MacdBlock
 from backend.signal_links.repository import (
     OrderSignalLinkRepository, 
     PositionSignalLinkRepository, 
@@ -57,13 +58,12 @@ def _extract_value(symbol_data: dict, indicator: str) -> float:
         return round(symbol_data.get("rsi"), 2)
 
     if indicator == Indicator.MACD:
-        curr = symbol_data.get("macd").get("curr")
-        return round(curr["MACD"] - curr["MACD_signal"], 2)
+        block: MacdBlock = symbol_data.get("macd")
+        return block.macd
 
     if indicator == Indicator.EMA_SMA:
-        ema = symbol_data.get("ema")
-        sma = symbol_data.get("sma")
-        return round(sma - ema, 2)
+        block: EmaSmaBlock = symbol_data.get("ema_sma")
+        return block.ema
 
     if indicator == Indicator.VOL_RATIO:
         return round(symbol_data.get("volume").get("curr"), 2)

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from backend.models import Signal, Direction, Indicator
 from backend.models.signal import CrossoverSignal, OscillatorSignal
+from backend.processing.indicator_calculator import MacdBlock, EmaSmaBlock
 
 
 # Максимальный "возраст" пересечения в барах, чтобы считать его актуальным
@@ -64,9 +65,9 @@ def _rsi(data: dict) -> RawOscillator | None:
         return None
 
     if value > 70:
-        return RawOscillator(indicator=Indicator.RSI, value=value, direction=Direction.DOWN)
+        return RawOscillator(Indicator.RSI, value, Direction.DOWN)
     elif value < 30:
-        return RawOscillator(indicator=Indicator.RSI, value=value, direction=Direction.UP)
+        return RawOscillator(Indicator.RSI, value, Direction.UP)
     else:
         return None
 
@@ -76,17 +77,15 @@ def _macd(data: dict) -> RawCrossover | None:
     Формирование данных сигнала MACD: актуальность, направление и сила.
     None — если пересечения нет, оно устарело или силу не из чего посчитать.
     """
-    block = data.get("macd") or {}
-    crossover = block.get("latest_crossover")
-    strength = block.get("strength")
-    if crossover is None or strength is None or not block.get("valid_zero_line"):
+    block: MacdBlock | None = data.get("macd")
+    if block is None or block.latest_crossover is None or block.strength is None or not block.valid_zero_line:
         return None
 
-    age = block["bar_count"] - 1 - crossover.index
+    age = block.bar_count - 1 - block.latest_crossover.index
     if age > MACD_MAX_SIGNAL_AGE:
         return None
     
-    return RawCrossover(Indicator.MACD, strength, crossover.direction)
+    return RawCrossover(Indicator.MACD, block.strength, block.latest_crossover.direction)
 
 
 def _ema_sma(data: dict) -> RawCrossover | None:
@@ -94,14 +93,12 @@ def _ema_sma(data: dict) -> RawCrossover | None:
     Формирование данных сигнала EMA/SMA: актуальность, направление и сила.
     None — если пересечения нет, оно устарело или силу не из чего посчитать.
     """
-    block = data.get("ema_sma") or {}
-    crossover = block.get("latest_crossover")
-    strength = block.get("strength")
-    if crossover is None or strength is None:
+    block: EmaSmaBlock | None = data.get("ema_sma")
+    if block is None or block.latest_crossover is None or block.strength is None:
         return None
 
-    age = block["bar_count"] - 1 - crossover.index
+    age = block.bar_count - 1 - block.latest_crossover.index
     if age > EMA_SMA_MAX_SIGNAL_AGE:
         return None
-    
-    return RawCrossover(Indicator.EMA_SMA, strength, crossover.direction)
+
+    return RawCrossover(Indicator.EMA_SMA, block.strength, block.latest_crossover.direction)

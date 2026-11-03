@@ -14,6 +14,7 @@ import { ChartNoAxesCombined, Check, Link, ArrowUp, X, ArrowDown, PenLine } from
 import { SymbolLogo } from "../../components/ui/SymbolLogo";
 import { createPortal } from "react-dom";
 import { ApiError } from "../../api/client";
+import { getSignalValue } from "../../utils/signal";
 
 type EntityType = "position" | "order";
 
@@ -72,15 +73,14 @@ export function SignalBindModal({
   const existingLinkedSignal = useMemo<AvailableSignals | null>(() => {
     if (!existingLink) return null;
     const { indicator, timeframe, value, direction } = existingLink.signal;
-    return {
-      symbol,
-      indicator,
-      timeframe,
-      direction,
-      indicatorValue: value,
-      volRatio: value,
-      correlation: 0,
-    };
+
+    const base = { symbol, timeframe, direction, volRatio: value, correlation: 0 };
+
+    if (indicator === "rsi") return { ...base, indicator, value };
+    if (indicator === "macd" || indicator === "emaSma") {
+      return { ...base, indicator, strength: value };
+    }
+    return null;
   }, [existingLink, symbol]);
 
   const availableSignals = useMemo(() => {
@@ -100,14 +100,14 @@ export function SignalBindModal({
 
     if (
       existingLinkedSignal && 
-      !result.some((s) => signalKey(s.indicator, s.timeframe, s.indicatorValue) === existingLinkedSignalKey)
+      !result.some((s) => signalKey(s.indicator, s.timeframe, getSignalValue(s)) === existingLinkedSignalKey)
     ) {
       result.push(existingLinkedSignal);
     }
 
     return result.sort((a, b) => {
-      const aIsExisting = signalKey(a.indicator, a.timeframe, a.indicatorValue) === existingLinkedSignalKey;
-      const bIsExisting = signalKey(b.indicator, b.timeframe, b.indicatorValue) === existingLinkedSignalKey;
+      const aIsExisting = signalKey(a.indicator, a.timeframe, getSignalValue(a)) === existingLinkedSignalKey;
+      const bIsExisting = signalKey(b.indicator, b.timeframe, getSignalValue(b)) === existingLinkedSignalKey;
 
       if (aIsExisting !== bIsExisting) return aIsExisting ? -1 : 1;
 
@@ -122,7 +122,7 @@ export function SignalBindModal({
 
     return (
       availableSignals.find(
-        (s) => signalKey(s.indicator, s.timeframe, s.) === selectedKey  
+        (s) => signalKey(s.indicator, s.timeframe, getSignalValue(s)) === selectedKey  
       ) ?? null
     );
   }, [availableSignals, selectedKey, existingLinkedSignal, existingLinkedSignalKey])
@@ -152,10 +152,7 @@ export function SignalBindModal({
     const signal: SignalSnapshotInput = {
       indicator: selected.indicator,
       timeframe: selected.timeframe,
-      value:
-        selected.indicator === "volRatio"
-          ? selected.volRatio
-          : selected.indicatorValue,
+      value: getSignalValue(selected),
       direction: selected.direction,
     };
 
@@ -256,7 +253,7 @@ export function SignalBindModal({
               <div className="sbm-cell">
                 <span className="sbm-label">Значение</span>
                 <span className="sbm-value">
-                  {selected?.indicatorValue ?? ""}
+                  {selected ? getSignalValue(selected) : ""}
                 </span>
               </div>
               <div className="sbm-selected-divider"></div>
@@ -297,7 +294,7 @@ export function SignalBindModal({
                   </thead>
                   <tbody>
                     {availableSignals.map((signal) => {
-                      const key = signalKey(signal.indicator, signal.timeframe, signal.indicatorValue);
+                      const key = signalKey(signal.indicator, signal.timeframe, getSignalValue(signal));
                       const isSelected = key === selectedKey;
                       return (
                         <tr 
@@ -319,7 +316,7 @@ export function SignalBindModal({
                             </div>
                           </td>
                           <td>{signal.timeframe}</td>
-                          <td>{signal.indicatorValue}</td>
+                          <td>{getSignalValue(signal)}</td>
                           <td>
                             <span 
                               className={`sbm-badge ${

@@ -40,7 +40,7 @@ export type CombinedSignal = {
 
 export type SortColumn =
   | "symbol"
-  | "indicatorValue"
+  | "signalValue"
   | "indicator"
   | "direction"
   | "volRatio"

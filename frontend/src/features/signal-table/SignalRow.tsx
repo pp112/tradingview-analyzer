@@ -1,8 +1,9 @@
 import { Badge } from "../../components/ui/Badge";
 import { SymbolLink } from "../../components/ui/SymbolLink";
 import { useFiltersStore } from "../../store/useFiltersStore";
-import { formatValue, volumeClass } from "../../utils/formatters";
+import { volumeClass } from "../../utils/formatters";
 import type { Signal } from "../../types/signal";
+import { getSignalValue } from "../../utils/signal";
 
 type SignalRowProps = {
   signal: Signal;
@@ -37,7 +38,7 @@ export function SignalRow({ signal, index }: SignalRowProps) {
         <>
           <td>
             <span className={valueClass}>
-              {formatValue(signal.indicatorValue)}
+              {getSignalValue(signal)}
             </span>
           </td>
           <td>

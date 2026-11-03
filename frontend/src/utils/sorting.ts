@@ -1,10 +1,11 @@
 import type { CombinedSignal, Signal, SortState } from "../types/signal";
+import { getSignalValue } from "./signal";
 
 export function filterStrong(rows: Signal[], topN: number | null): Signal[] {
   const byIndicator = (indicator: Signal["indicator"]) => {
     const sorted = rows
       .filter((row) => row.indicator === indicator)
-      .sort((a, b) => b.indicatorValue - a.indicatorValue);
+      .sort((a, b) => getSignalValue(b) - getSignalValue(a));
 
     return topN === null ? sorted : sorted.slice(0, topN);
   };
@@ -37,7 +38,7 @@ export function filterCombined(rows: Signal[]): CombinedSignal[] {
         correlation: row.correlation,
       };
     }
-    grouped[row.symbol][row.indicator] = row.indicatorValue;
+    grouped[row.symbol][row.indicator] = getSignalValue(row);
   });
 
   return Object.values(grouped).filter((group) => {
@@ -57,9 +58,14 @@ export function sortByColumn<T extends Record<string, unknown>>(
   const order = direction === 1 ? -1 : 1;
   const sortedRows = [...rows];
 
+  const getSortValue = (row: T) =>
+    column === "signalValue" && "indicator" in row
+      ? getSignalValue(row as unknown as Signal)
+      : row[column];
+
   sortedRows.sort((a, b) => {
-    const v1 = a[column];
-    const v2 = b[column];
+    const v1 = getSortValue(a);
+    const v2 = getSortValue(b);
 
     if (v1 === null) return 1;
     if (v2 === null) return -1;

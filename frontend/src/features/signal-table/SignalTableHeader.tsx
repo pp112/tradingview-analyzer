@@ -65,9 +65,16 @@ function getColumns(
     ];
   }
 
+  const valueLabel =
+    indicator === "rsi"
+      ? "Значение"
+      : indicator === null
+        ? "Значение / Сила" // режим "strong"
+        : "Сила";
+
   return [
     { key: "symbol", label: "Монета" },
-    { key: "indicatorValue", label: "Значение" },
+    { key: "signalValue", label: valueLabel },
     { key: "indicator", label: "Индикатор" },
     { key: "direction" as SortColumn, label: "Направление" },
     { key: "volRatio" as SortColumn, label: "Объем" },
