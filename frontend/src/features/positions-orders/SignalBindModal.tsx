@@ -3,6 +3,7 @@ import { useSignalsStore } from "../../store/useSignalsStore";
 import type { Direction, IndicatorType, Signal, Timeframe } from "../../types/signal";
 import type {
   CloseConditionInput,
+  CloseConditionType,
   CloseOperator,
   OrderSignalLinkResponse,
   PositionSignalLinkResponse,
@@ -59,13 +60,18 @@ export function SignalBindModal({
   const [withCloseCondition, setWithCloseCondition] = useState(
     existingLink ? existingLink.closeCondition !== null : true
   );
+  const [closeType, setCloseType] = useState<CloseConditionType>(
+    existingLink?.closeCondition?.type ?? "value"
+  );
   const [closeOperator, setCloseOperator] = useState<CloseOperator>(
-    existingLink?.closeCondition?.operator ?? "<="
+    existingLink?.closeCondition?.type === "value"
+      ? existingLink.closeCondition.operator
+      : "<="
   );
   const [targetValue, setTargetValue] = useState(
-    existingLink?.closeCondition
-    ? String(existingLink.closeCondition.targetValue)
-    : ""
+    existingLink?.closeCondition?.type === "value"
+      ? String(existingLink.closeCondition.targetValue)
+      : ""
   );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -129,6 +135,9 @@ export function SignalBindModal({
 
   const hasContent = availableSignals.length > 0;
 
+  const supportsCrossover = !selected || selected.indicator === "macd" || selected.indicator === "emaSma";
+  const resolvedCloseType: CloseConditionType = supportsCrossover ? closeType : "value";
+
   const handleConfirm = async () => {
     if (!selected) {
       setError("Выберите сигнал перед привязкой");
@@ -138,12 +147,16 @@ export function SignalBindModal({
     let closeCondition: CloseConditionInput | null = null;
 
     if (withCloseCondition) {
-      const parsed = parseFloat(targetValue.replace(",", "."));
-      if (isNaN(parsed)) {
-        setError("Введите корректное числовое значение для условия закрытия");
-        return;
+      if (closeType === "value") {
+        const parsed = parseFloat(targetValue.replace(",", "."));
+        if (isNaN(parsed)) {
+          setError("Введите корректное числовое значение для условия закрытия");
+          return;
+        }
+        closeCondition = { type: "value", operator: closeOperator, targetValue: parsed };
+      } else {
+        closeCondition = { type: "crossover" }
       }
-      closeCondition = { operator: closeOperator, targetValue: parsed };
     }
 
     setLoading(true);
@@ -359,34 +372,68 @@ export function SignalBindModal({
                   </button>
                   <span className="sbm-switch-label">Включить автозакрытие</span>
                 </div>
+                
+                <div className={`sbm-close-mode-group ${!withCloseCondition ? "sbm-disabled" : ""}`}>
+                  <div className="sbm-close-mode-option">
+                    <label className="sbm-radio-row">
+                      <input 
+                        type="radio"
+                        name="closeType"
+                        className="sbm-radio"
+                        checked={resolvedCloseType === "value"}
+                        disabled={!withCloseCondition}
+                        onClick={() => setCloseType("value")}
+                      />
+                      <span className="sbm-radio-label">По значению</span>
+                    </label>
 
-                <div className="sbm-condition-row">
-                  <div className="sbm-condition-toggle" data-operator={closeOperator}>
-                    <button 
-                      type="button" 
-                      className={`sbm-condition-btn ${closeOperator === "<=" ? "active" : ""}`}
-                      onClick={() => setCloseOperator("<=")}
-                    >
-                      Меньше
-                    </button>
-                    <button 
-                      type="button"
-                      className={`sbm-condition-btn ${closeOperator === ">=" ? "active" : ""}`}
-                      onClick={() => setCloseOperator(">=")}
-                    >
-                      Больше
-                    </button>
+                    <div className="sbm-condition-row">
+                      <div className="sbm-condition-toggle" data-operator={closeOperator}>
+                        <button 
+                          type="button" 
+                          className={`sbm-condition-btn ${closeOperator === "<=" ? "active" : ""}`}
+                          onClick={() => setCloseOperator("<=")}
+                        >
+                          Меньше
+                        </button>
+                        <button 
+                          type="button"
+                          className={`sbm-condition-btn ${closeOperator === ">=" ? "active" : ""}`}
+                          onClick={() => setCloseOperator(">=")}
+                        >
+                          Больше
+                        </button>
+                      </div>
+
+                      <input
+                        className="sbm-condition-value"
+                        type="text"
+                        placeholder="Значение"
+                        value={targetValue}
+                        disabled={!withCloseCondition}
+                        onChange={(e) => setTargetValue(e.target.value)}
+                      />
+                    </div>
                   </div>
-
-                  <input
-                    className="sbm-condition-value"
-                    type="text"
-                    placeholder="Значение"
-                    value={targetValue}
-                    disabled={!withCloseCondition}
-                    onChange={(e) => setTargetValue(e.target.value)}
-                  />
+                  
+                  <div className={`sbm-close-mode-option ${!supportsCrossover ? "sbm-disabled" : ""}`}>
+                    <label className="sbm-radio-row">
+                      <input 
+                        type="radio"
+                        name="closeType"
+                        className="sbm-radio"
+                        checked={resolvedCloseType === "crossover"}
+                        disabled={!withCloseCondition || !supportsCrossover}
+                        onChange={() => setCloseType("crossover")}
+                      />
+                      <span className="sbm-radio-label">При следующем пересечении</span>
+                    </label>
+                    <p className="sbm-cross-description">
+                      Закрытие произойдёт при следующем пересечении линий индикатора.
+                    </p>
+                  </div>
                 </div>
+
               </div>
             </div>
           </>

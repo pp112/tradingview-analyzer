@@ -2,6 +2,8 @@ import type { Direction, IndicatorType, Timeframe } from "./signal";
 
 export type CloseOperator = ">=" | "<=";
 
+export type CloseConditionType = "value" | "crossover";
+
 export type SignalSnapshotInput = {
   indicator: IndicatorType;
   timeframe: Timeframe;
@@ -9,10 +11,9 @@ export type SignalSnapshotInput = {
   direction: Direction;
 };
 
-export type CloseConditionInput = {
-  operator: CloseOperator;
-  targetValue: number;
-};
+export type CloseConditionInput =
+  | { type: "value"; operator: CloseOperator; targetValue: number }
+  | { type: "crossover" };
 
 export type UpdateSignalLinkRequest = {
   signal: SignalSnapshotInput;
@@ -40,11 +41,9 @@ export type SignalSnapshotResponse = {
   direction: Direction;
 };
 
-export type CloseConditionResponse = {
-  id: number;
-  operator: CloseOperator;
-  targetValue: number;
-};
+export type CloseConditionResponse =
+  | { id: number; type: "value"; operator: CloseOperator; targetValue: number }
+  | { id: number; type: "crossover" };
 
 export type PositionSignalLinkResponse = {
   id: number;
