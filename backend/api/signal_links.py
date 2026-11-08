@@ -17,6 +17,7 @@ from backend.signal_links.repository import (
 from backend.schemas.signal_links import (
     CloseConditionInput,
     CloseConditionResponse,
+    CrossoverCloseConditionResponse,
     LinkOrderSignalRequest,
     LinkPositionSignalRequest,
     OrderSignalLinkResponse,
@@ -24,6 +25,7 @@ from backend.schemas.signal_links import (
     SignalSnapshotInput,
     SignalSnapshotResponse,
     UpdateSignalLinkRequest,
+    ValueCloseConditionResponse,
 )
 from backend.schemas.common import ActionResponse
 
@@ -50,10 +52,25 @@ def _make_condition_response(condition: CloseCondition | None) -> CloseCondition
     """
     if condition is None:
         return None
-    return CloseConditionResponse(
+    if condition.close_type == "crossover":
+        return CrossoverCloseConditionResponse(id=condition.id)
+    return ValueCloseConditionResponse(
         id=condition.id,
         operator=condition.operator,
         target_value=condition.target_value
+    )
+
+
+def _build_close_condition(condition: CloseConditionInput) -> CloseCondition:
+    """
+    Строит SQLModel-объект CloseCondition из входных данных запроса.
+    """
+    if condition.type == "crossover":
+        return CloseCondition(close_type="crossover")
+    return CloseCondition(
+        close_type="value",
+        operator=condition.operator,
+        target_value=condition.target_value,
     )
 
 
@@ -76,10 +93,7 @@ def _create_snapshot_and_condition(
     ))
     condition = None
     if close_condition is not None:
-        condition = condition_repo.create(CloseCondition(
-            operator=close_condition.operator,
-            target_value=close_condition.target_value
-        ))
+        condition = condition_repo.create(_build_close_condition(close_condition))
     return snapshot, condition
 
 
@@ -119,18 +133,18 @@ def _update_signal_and_close_condition(
         if curr_condition is not None:
             link_repo.set_close_condition(link, None)
             condition_repo.delete(curr_condition.id)
-            curr_condition
+            curr_condition = None
     elif curr_condition is None:
-        curr_condition = condition_repo.create(
-            CloseCondition(
-                operator=new_condition.operator,
-                target_value=new_condition.target_value,
-            )
-        )
+        curr_condition = condition_repo.create(_build_close_condition(new_condition))
         link_repo.set_close_condition(link, curr_condition.id)
     else:
+        if new_condition.type == "crossover":
+            condition_repo.update(
+                curr_condition, close_type="crossover", operator=None, target_value=None
+            )
         condition_repo.update(
             curr_condition,
+            close_type="value",
             operator=new_condition.operator,
             target_value=new_condition.target_value,
         )

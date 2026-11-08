@@ -24,8 +24,10 @@ class CloseCondition(SQLModel, table=True):
     __tablename__ = "close_conditions"
 
     id: int | None = Field(default=None, primary_key=True)
-    operator: str       # "<=" | ">="
-    target_value: float
+    close_type: str = Field(default="value")
+    operator: str | None = None                    # "<=" | ">=", только для close_type == "value"
+    target_value: float | None = None              # только для close_type == "value"
+    reference_crossover_index: int | None = None   # опорный индекс пересечения для close_type == "crossover"
 
 
 class PositionSignalLink(SQLModel, table=True):

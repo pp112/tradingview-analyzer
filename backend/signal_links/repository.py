@@ -60,13 +60,26 @@ class CloseConditionRepository:
     def update(
         self,
         condition: CloseCondition,
+        close_type: str,
         operator: str,
         target_value: float,
     ) -> CloseCondition:
+        condition.close_type = close_type
         condition.operator = operator
         condition.target_value = target_value
+        condition.reference_crossover_index = None
         self.session.flush()
         return condition
+
+    def set_reference_crossover_index(
+        self, 
+        condition: CloseCondition, 
+        crossover_index: int
+    ) -> CloseCondition:
+        condition.reference_crossover_index = crossover_index
+        self.session.flush()
+        return condition
+        
 
     def delete(self, condition_id: int):
         condition = self.session.get(CloseCondition, condition_id)

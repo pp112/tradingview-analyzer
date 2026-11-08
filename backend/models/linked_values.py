@@ -10,3 +10,4 @@ class CurrentIndicatorValue(BaseModel):
     symbol: str
     indicator: Indicator
     value: float
+    crossover_index: int | None = None

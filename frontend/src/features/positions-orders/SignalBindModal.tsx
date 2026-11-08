@@ -132,7 +132,7 @@ export function SignalBindModal({
       ) ?? null
     );
   }, [availableSignals, selectedKey, existingLinkedSignal, existingLinkedSignalKey])
-
+  
   const hasContent = availableSignals.length > 0;
 
   const supportsCrossover = !selected || selected.indicator === "macd" || selected.indicator === "emaSma";
@@ -314,7 +314,15 @@ export function SignalBindModal({
                           key={key}
                           className={isSelected ? "selected" : ""}
                           onClick={() => {
-                            setSelectedKey((prev) => prev === key ? null : key);
+                            setSelectedKey((prev) => {
+                              const next = prev === key ? null : key;
+                              if (next !== null) {
+                                const willSupportCrossover = 
+                                  signal.indicator === "macd" || signal.indicator === "emaSma";
+                                setCloseType(willSupportCrossover ? "crossover" : "value");
+                              }
+                              return next;
+                            });
                             setError(null);
                           }}
                         >

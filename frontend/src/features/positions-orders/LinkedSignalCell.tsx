@@ -70,12 +70,12 @@ export function LinkedSignalCell({
 
   const condition = link.closeCondition;
   const conditionLabel = "exchangeOrderId" in link ? "Отменить" : "Закрыть";
-  const conditionInfo = condition
-    ? {
-        operatorLabel: condition.operator === "<=" ? "ниже" : "выше",
-        targetValue: condition.targetValue,
-      }
-    : null;
+  const conditionDescription = 
+    condition?.type === "crossover"
+      ? "при пересечении"
+      : condition?.type === "value"
+        ? `${condition.operator === "<=" ? "ниже" : "выше"} ${condition.targetValue}`
+        : null;
 
   return (
     <div className="po-signal">
@@ -120,33 +120,24 @@ export function LinkedSignalCell({
           />
         )}
       </div>
-
-      <div className="po-signal-values">
-        <span className="indicator">
-          {getIndicatorDisplayName(link.signal.indicator)}:
-        </span>
-        <span className="value">{fixedValue}</span>
-        <MoveRight className="arrow" size={15} />
-        <span className="value">{currentValue ?? fixedValue}</span>
-        <span className={differenceClass}>
-          ({difference >= 0 ? "+" : ""}
-          {difference.toFixed(2)})
-        </span>
-      </div>
+      
+      {condition?.type === "value" && (
+        <div className="po-signal-values">
+          <span className="indicator">
+            {getIndicatorDisplayName(link.signal.indicator)}:
+          </span>
+          <span className="value">{fixedValue}</span>
+          <MoveRight className="arrow" size={15} />
+          <span className="value">{currentValue ?? fixedValue}</span>
+          <span className={differenceClass}>
+            ({difference >= 0 ? "+" : ""}
+            {difference.toFixed(2)})
+          </span>
+        </div>
+      )}
 
       <div className="po-signal-condition">
-        {conditionInfo ? (
-          <>
-            <span>{conditionLabel}:</span>
-            <span className="value">{conditionInfo.operatorLabel}</span>
-            <span className="value">{conditionInfo.targetValue}</span>
-          </>
-        ) : (
-          <>
-            <span>{conditionLabel}:</span>
-            <span>выкл.</span>
-          </>
-        )}
+        <span className="value">{conditionLabel}: {conditionDescription ?? "выкл."}</span>
       </div>
     </div>
   );

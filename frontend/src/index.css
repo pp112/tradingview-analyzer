@@ -292,7 +292,7 @@ body {
 .content {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 560px;
+  grid-template-columns: 1fr 590px;
   gap: 16px;
   padding: 16px 20px;
   overflow: hidden;
@@ -945,7 +945,7 @@ corr-last-child {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 15px;
-  gap: 13px;
+  gap: 16px;
   background: linear-gradient(
     135deg,
     rgba(79, 142, 245, 0.07),
@@ -970,12 +970,12 @@ corr-last-child {
 .po-header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
 }
 
 .po-stats-group {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
 }
 
@@ -1297,7 +1297,7 @@ corr-last-child {
 
 .po-signal-condition .value {
   gap: 5px;
-  color: var(--text2);
+  color: var(--text1);
 }
 
 .po-btn {

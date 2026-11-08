@@ -42,10 +42,12 @@ def extract_linked_indicator_values(
             continue
 
         value = _extract_value(symbol_data, snapshot.indicator)
+        crossover_index = _extract_crossover_index(symbol_data, snapshot.indicator)
         result.append(CurrentIndicatorValue(
             symbol=snapshot.symbol,
             indicator=snapshot.indicator,
-            value=value
+            value=value,
+            crossover_index=crossover_index,
         ))
     return result
 
@@ -69,5 +71,17 @@ def _extract_value(symbol_data: dict, indicator: str) -> float:
         return round(symbol_data.get("volume").get("curr"), 2)
 
 
+def _extract_crossover_index(symbol_data: dict, indicator: str) -> int | None:
+    """
+    Индекс последнего пересечения линий индикатора. 
+    None — если у индикатора нет понятия пересечения (rsi) или пересечения ещё не было.
+    """
+    if indicator == Indicator.MACD:
+        block: MacdBlock = symbol_data.get("macd")
+        return block.latest_crossover.index if block.latest_crossover else None
 
-        
+    if indicator == Indicator.EMA_SMA:
+        block: EmaSmaBlock = symbol_data.get("ema_sma")
+        return block.latest_crossover.index if block.latest_crossover else None
+
+    return None

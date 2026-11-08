@@ -7,6 +7,9 @@ Pydantic-схемы API для привязки сигналов к позици
 """
 
 from datetime import datetime
+from typing import Annotated, Literal, Union
+
+from pydantic import Field
 
 from backend.schemas.base import ApiModel
 
@@ -18,9 +21,20 @@ class SignalSnapshotInput(ApiModel):
     direction: str
 
 
-class CloseConditionInput(ApiModel):
+class ValueCloseConditionInput(ApiModel):
+    type: Literal["value"] = "value"
     operator: str
     target_value: float
+
+
+class CrossoverCloseConditionInput(ApiModel):
+    type: Literal["crossover"] = "crossover"
+
+
+CloseConditionInput = Annotated[
+    Union[ValueCloseConditionInput, CrossoverCloseConditionInput],
+    Field(discriminator="type"),
+]
 
 
 class LinkPositionSignalRequest(ApiModel):
@@ -51,10 +65,22 @@ class SignalSnapshotResponse(ApiModel):
     direction: str
 
 
-class CloseConditionResponse(ApiModel):
+class ValueCloseConditionResponse(ApiModel):
     id: int
+    type: Literal["value"] = "value"
     operator: str
     target_value: float
+
+
+class CrossoverCloseConditionResponse(ApiModel):
+    id: int
+    type: Literal["crossover"] = "crossover"
+
+
+CloseConditionResponse = Annotated[
+    Union[ValueCloseConditionResponse, CrossoverCloseConditionResponse],
+    Field(discriminator="type"),
+]
 
 
 class PositionSignalLinkResponse(ApiModel):
