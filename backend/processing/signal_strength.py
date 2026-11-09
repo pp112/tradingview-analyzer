@@ -4,11 +4,11 @@ from backend.processing.crossovers import Crossover
 
 
 # Минимум прошлых пересечений
-MIN_HISTORY = 10
+MIN_HISTORY = 20
 
 # Скользящее окно: сколько последних пересечений держим как историю
 # для ранжирования. Ограничивает влияние старого режима волатильности.
-WINDOW = 30
+WINDOW = 40
 
 
 def macd_strength(crossovers: list[Crossover], macd_values: pd.Series) -> float | None:
@@ -30,8 +30,10 @@ def macd_strength(crossovers: list[Crossover], macd_values: pd.Series) -> float 
 
     p1 = _percentile_rank(current_gap, history_gaps)
     p2 = _percentile_rank(current_extremes_value, history_extremes_values)
+    w1 = 0.45
+    w2 = 0.55
 
-    return round(_combine(p1, p2), 2)
+    return round(_combine(p1, p2, w1, w2), 2)
 
 
 def ema_sma_strength(crossovers: list[Crossover], ema_values: pd.Series, sma_values: pd.Series) -> float | None:
@@ -70,6 +72,11 @@ def _percentile_rank(current: float, history: list[float]) -> float:
     return count * 100.0 / len(history)
 
 
-def _combine(p1: float, p2: float) -> float:
-    """Среднее геометрическое: слабость по одному фактору ограничивает итог."""
-    return (max(p1, 0.0) * max(p2, 0.0)) ** 0.5
+def _combine(p1: float, p2: float, w1: float = 0.5, w2: float = 0.5) -> float:
+    """
+    Взвешенное среднее геометрическое.
+    w1 и w2 — веса факторов (значимость). 
+    """
+    v1 = max(p1, 0.0)
+    v2 = max(p2, 0.0)
+    return (v1 ** w1) * (v2 ** w2)
