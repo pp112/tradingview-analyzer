@@ -4,6 +4,7 @@ import type { SSEMessage, Timeframe } from "../types/signal";
 interface SSEHandlers {
   onSignals: (timeframe: Timeframe) => void;
   onPriceVolume: () => void;
+  onPortfolio: () => void;
 }
 
 export function connectSSE(handlers: SSEHandlers): EventSource {
@@ -16,6 +17,8 @@ export function connectSSE(handlers: SSEHandlers): EventSource {
       handlers.onSignals(data.timeframe);
     } else if (data.type === "price_volume") {
       handlers.onPriceVolume();
+    } else if (data.type === "portfolio") {
+      handlers.onPortfolio();
     }
   });
 

@@ -56,7 +56,8 @@ export type SortState = {
 
 export type SSEMessage =
   | { type: "signals"; timeframe: Timeframe }
-  | { type: "price_volume" };
+  | { type: "price_volume" }
+  | { type: "portfolio" };
 
 export type InitialDataResponse = {
   signals: Partial<Record<Timeframe, Signal[]>>;

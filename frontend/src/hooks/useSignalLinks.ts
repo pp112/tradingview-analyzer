@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { fetchLinkedSinglaValues, fetchOrderLinks, fetchPositionLinks } from "../api/signalLinks";
+import { fetchLinkedSinglaValues, fetchSignalLinks } from "../api/signalLinks";
 import { useSignalLinksStore } from "../store/useSignalLinksStore";
 import type { Timeframe } from "../types/signal";
 
@@ -9,8 +9,8 @@ export function useSignalLinks() {
   const setCurrentValues = useSignalLinksStore((s) => s.setCurrentValues);
 
   useEffect(() => {
-    Promise.all([fetchPositionLinks(), fetchOrderLinks()])
-      .then(async ([positionLinks, orderLinks]) => {
+    fetchSignalLinks()
+      .then(async ({ positions: positionLinks, orders: orderLinks }) => {
         setPositionLinks(positionLinks);
         setOrderLinks(orderLinks);
 

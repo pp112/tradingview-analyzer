@@ -15,6 +15,9 @@ export type Position = {
   createdAt: number;
 };
 
-export type BalanceResponse = {
+export type PortfolioResponse = {
+  positions: Position[];
+  orders: Order[];
   balance: number | null;
+  updatedAt: number | null;
 };

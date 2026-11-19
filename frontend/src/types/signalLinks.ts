@@ -62,6 +62,11 @@ export type OrderSignalLinkResponse = {
   createdAt: string;
 };
 
+export type SignalLinksResponse = {
+  positions: PositionSignalLinkResponse[];
+  orders: OrderSignalLinkResponse[];
+}
+
 export type CurrentIndicatorValue = {
   symbol: string;
   indicator: IndicatorType;

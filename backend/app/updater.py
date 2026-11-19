@@ -1,6 +1,6 @@
 from sqlmodel import Session
 
-from backend.api.dependencies import get_bybit_client
+from backend.exchanges.base import ExchangeClient
 from backend.storage.database import engine
 from backend.processing.linked_indicator_values import extract_linked_indicator_values
 from backend.models import Timeframe
@@ -37,11 +37,11 @@ class Updater:
     - проверку автозакрытия
     - сохранение результатов
     """
-    def __init__(self):
+    def __init__(self, client: ExchangeClient):
         self.state_manager = StateManager()
         self.market_client = MarketDataClient()
         self.price_volume_monitor = PriceVolumeMonitor()
-        self.client = get_bybit_client()
+        self.client = client
 
     async def update_timeframe(self, timeframe: Timeframe):
         """

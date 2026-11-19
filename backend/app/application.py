@@ -6,7 +6,10 @@ import uvicorn
 from backend.config import setup_logging, get_logger, console
 from backend.app.startup import StartupUpdater
 from backend.app.scheduler import Scheduler
-from backend.api.api import app as fastapi_app
+from backend.api.api import app as fastapi_app, broadcast
+from backend.exchange_portfolio.service import PortfolioService
+from backend.exchanges.base import ExchangeApiError
+from backend.exchanges.client_factory import create_bybit_client
 from backend.storage.database import init_db
 
 logger = get_logger(__name__, "[APP]")
@@ -27,8 +30,18 @@ class App:
     PORT = 8000
 
     def __init__(self):
-        self.startup_updater = StartupUpdater()
-        self.scheduler = Scheduler()
+        client = create_bybit_client()
+        portfolio_service = PortfolioService(
+            client, 
+            on_updated=lambda: broadcast({"type": "portfolio"}),
+        )
+
+        fastapi_app.state.exchange_client = client
+        fastapi_app.state.portfolio_service = portfolio_service
+
+        self.portfolio_service = portfolio_service
+        self.startup_updater = StartupUpdater(client)
+        self.scheduler = Scheduler(client, portfolio_service)
         self.stop_event = asyncio.Event()
 
         config = uvicorn.Config(fastapi_app, host=self.HOST, port=self.PORT, log_level="warning", log_config=None)
@@ -44,6 +57,7 @@ class App:
 
         self._setup_signal_handlers()
         await self._start_server()
+        await self._sync_portfolio()
         await self._run_startup()
         self._start_scheduler()
 
@@ -56,8 +70,13 @@ class App:
         Запускает uvicorn сервер.
         """
         asyncio.create_task(self.server.serve())
-
         logger.info(f"Запуск веб-интерфейса: http://{self.HOST}:{self.PORT}")
+
+    async def _sync_portfolio(self):
+        try:
+            await self.portfolio_service.sync()
+        except ExchangeApiError as e:
+            logger.warning(f"Не удалось загрузить портфель при старте: {e}")
 
     async def _run_startup(self):
         """

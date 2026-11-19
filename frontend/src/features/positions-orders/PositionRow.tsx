@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
-import { closePosition } from "../../api/positions";
+import { closePosition } from "../../api/portfolio";
 import { SymbolLink } from "../../components/ui/SymbolLink";
-import { usePositionsStore } from "../../store/usePositionsStore";
+import { usePortfolioStore } from "../../store/usePortfolioStore";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
-import type { Position } from "../../types/positions";
+import type { Position } from "../../types/portfolio";
 import { LinkedSignalCell } from "./LinkedSignalCell";
 import { unlinkSignalFromPosition } from "../../api/signalLinks";
 import { SignalBindModal } from "./SignalBindModal";
@@ -18,15 +18,15 @@ type PositionRowProps = {
 };
 
 export function PositionRow({ position, index, now }: PositionRowProps) {
-  const removePosition = usePositionsStore((s) => s.removePosition);
+  const removePosition = usePortfolioStore((s) => s.removePosition);
   const removePositionLink = useSignalLinksStore((s) => s.removePositionLink);
-  const link = useSignalLinksStore((s) => 
-    s.positionLinks.find((l) => l.symbol === position.symbol)
+  const link = useSignalLinksStore((s) =>
+    s.positionLinks.find((l) => l.symbol === position.symbol),
   );
 
   const [showModal, setShowModal] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
-  
+
   const isProfit = position.pnl >= 0;
 
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -46,10 +46,13 @@ export function PositionRow({ position, index, now }: PositionRowProps) {
       await unlinkSignalFromPosition(link.id);
       removePositionLink(link.id);
     } catch (err) {
-      console.error(`Не удалось отвязать сигнал от позиции ${position.symbol}:`, err);
+      console.error(
+        `Не удалось отвязать сигнал от позиции ${position.symbol}:`,
+        err,
+      );
     }
   };
-  
+
   return (
     <>
       <tr>
@@ -61,18 +64,23 @@ export function PositionRow({ position, index, now }: PositionRowProps) {
               {position.side === "long" ? "L" : "S"}
             </span>
           </div>
-          <span className="po-created-at" title={new Date(position.createdAt).toLocaleString("ru-RU")}>
+          <span
+            className="po-created-at"
+            title={new Date(position.createdAt).toLocaleString("ru-RU")}
+          >
             {formatTimeAgo(position.createdAt, now)}
           </span>
         </td>
         <td>
           <span className={`po-pnl ${isProfit ? "pos" : "neg"}`}>
             <span className="po-pnl-main">
-              {isProfit ? "+" : ""}{position.pnl.toFixed(2)} USDT
+              {isProfit ? "+" : ""}
+              {position.pnl.toFixed(2)} USDT
             </span>
             {position.pnlPct !== null && (
               <span className="po-pnl-percent">
-                ({isProfit ? "+" : ""}{position.pnlPct}%)
+                ({isProfit ? "+" : ""}
+                {position.pnlPct}%)
               </span>
             )}
           </span>
@@ -89,8 +97,10 @@ export function PositionRow({ position, index, now }: PositionRowProps) {
           <div className="po-actions">
             <button
               ref={closeBtnRef}
-              className="po-btn action" 
-              onClick={() => {setConfirmClose((prev) => !prev)}}
+              className="po-btn action"
+              onClick={() => {
+                setConfirmClose((prev) => !prev);
+              }}
               title="Закрыть позицию"
             >
               <X size={14} strokeWidth={2.5} />

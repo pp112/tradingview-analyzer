@@ -186,5 +186,6 @@ class ByBitClient(ExchangeClient):
             raise ExchangeApiError("Не удалось получить баланс") from e
 
         res = self._check_response(res, "получение баланса")
+        balance = float(res["result"]["list"][0]["totalEquity"])
         
-        return float(res["result"]["list"][0]["totalEquity"])
+        return round(balance, 2)

@@ -100,3 +100,8 @@ class OrderSignalLinkResponse(ApiModel):
     signal: SignalSnapshotResponse
     close_condition: CloseConditionResponse | None = None
     created_at: datetime
+
+
+class SignalLinksResponse(ApiModel):
+    positions: list[PositionSignalLinkResponse]
+    orders: list[OrderSignalLinkResponse]

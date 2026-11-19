@@ -97,6 +97,18 @@ class PositionSignalLinkRepository:
         self.session.refresh(link)
         return link
 
+    def create_from_order_link(self, link: OrderSignalLink) -> PositionSignalLink:
+        """
+        Создаёт привязку позиции на основе привязки исполненного ордера,
+        переиспользуя тот же signal_snapshot и close_condition (без копирования
+        записей в БД — они просто получают нового "владельца").
+        """
+        return self.create(PositionSignalLink(
+            symbol=link.symbol,
+            signal_snapshot_id=link.signal_snapshot_id,
+            close_condition_id=link.close_condition_id,
+        ))
+
     def get_by_id(self, link_id: int) -> PositionSignalLink | None:
         return self.session.get(PositionSignalLink, link_id)
 

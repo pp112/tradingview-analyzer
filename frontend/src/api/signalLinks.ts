@@ -6,12 +6,13 @@ import type {
   LinkPositionSignalRequest, 
   OrderSignalLinkResponse, 
   PositionSignalLinkResponse,
+  SignalLinksResponse,
   UpdateSignalLinkRequest,
 } from "../types/signalLinks";
 import type { Timeframe } from "../types/signal";
 
-export async function fetchPositionLinks(): Promise<PositionSignalLinkResponse[]> {
-  return apiGet<PositionSignalLinkResponse[]>("/links/positions");
+export async function fetchSignalLinks(): Promise<SignalLinksResponse> {
+  return apiGet<SignalLinksResponse>("/links");
 }
 
 export async function linkSignalToPosition(
@@ -29,10 +30,6 @@ export async function updatePositionLink(
 
 export async function unlinkSignalFromPosition(link_id: number): Promise<ActionResponse> {
   return apiDelete<ActionResponse>(`/links/positions/${link_id}`);
-}
-
-export async function fetchOrderLinks(): Promise<OrderSignalLinkResponse[]> {
-  return apiGet<OrderSignalLinkResponse[]>("/links/orders");
 }
 
 export async function linkSignalToOrder(

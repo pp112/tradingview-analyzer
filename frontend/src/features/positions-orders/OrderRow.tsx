@@ -1,8 +1,8 @@
-import { cancelOrder } from "../../api/positions";
-import { usePositionsStore } from "../../store/usePositionsStore";
+import { cancelOrder } from "../../api/portfolio";
+import { usePortfolioStore } from "../../store/usePortfolioStore";
 import { SymbolLink } from "../../components/ui/SymbolLink";
 import { LinkedSignalCell } from "./LinkedSignalCell";
-import type { Order } from "../../types/positions";
+import type { Order } from "../../types/portfolio";
 import { useSignalLinksStore } from "../../store/useSignalLinksStore";
 import { useRef, useState } from "react";
 import { unlinkSignalFromOrder } from "../../api/signalLinks";
@@ -18,7 +18,7 @@ type OrderRowPorps = {
 };
 
 export function OrderRow({ order, index, now }: OrderRowPorps) {
-  const removeOrder = usePositionsStore((s) => s.removeOrder);
+  const removeOrder = usePortfolioStore((s) => s.removeOrder);
   const removeOrderLink = useSignalLinksStore((s) => s.removeOrderLink);
   const link = useSignalLinksStore((s) =>
     s.orderLinks.find((l) => l.exchangeOrderId === order.exchangeOrderId),

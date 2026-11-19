@@ -369,7 +369,7 @@ export function SignalBindModal({
               </div>
               
               <div className="sbm-close-controls">
-                <div className="sbm-switch-row">
+                <label className="sbm-switch-row">
                   <button
                     type="button"
                     className={`sbm-switch ${withCloseCondition ? "active" : ""}`}
@@ -379,7 +379,7 @@ export function SignalBindModal({
                     <span className="sbm-switch-thumb"></span>
                   </button>
                   <span className="sbm-switch-label">Включить автозакрытие</span>
-                </div>
+                </label>
                 
                 <div className={`sbm-close-mode-group ${!withCloseCondition ? "sbm-disabled" : ""}`}>
                   <div className="sbm-close-mode-option">

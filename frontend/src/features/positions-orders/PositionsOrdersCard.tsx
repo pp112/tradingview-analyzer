@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
-import { usePositionsData } from "../../hooks/usePositionsData";
-import { usePositionsStore } from "../../store/usePositionsStore";
+import { usePortfolioStore } from "../../store/usePortfolioStore";
 import { OrderRow } from "./OrderRow";
 import { PositionRow } from "./PositionRow";
 import { useMinuteTick } from "../../hooks/useMinuteTick";
 
 export function PositionsOrdersCard() {
-  const positions = usePositionsStore((s) => s.positions);
-  const orders = usePositionsStore((s) => s.orders);
-  const balance = usePositionsStore((s) => s.balance);
-  const updatedAt = usePositionsStore((s) => s.updatedAt);
-
-  usePositionsData();
+  const positions = usePortfolioStore((s) => s.positions);
+  const orders = usePortfolioStore((s) => s.orders);
+  const balance = usePortfolioStore((s) => s.balance);
+  const updatedAt = usePortfolioStore((s) => s.updatedAt);
 
   const [now, setNow] = useState(() => Date.now()); // для "Обновлено: N сек назад"
   const minuteNow = useMinuteTick(); // для времени создания позиций/ордеров
@@ -56,7 +53,7 @@ export function PositionsOrdersCard() {
             <div className="po-stat-item">
               <span className="po-stat-label">Баланс</span>
               <div className="po-stat-value balance-value">
-                {balance !== null ? balance.toFixed(2) : "—"}
+                {balance !== null ? balance : "—"}
                 <span className="currency">USDT</span>
               </div>
             </div>
@@ -96,7 +93,12 @@ export function PositionsOrdersCard() {
                 </tr>
               ) : (
                 positions.map((p, i) => (
-                  <PositionRow key={p.symbol} position={p} index={i} now={minuteNow} />
+                  <PositionRow
+                    key={p.symbol}
+                    position={p}
+                    index={i}
+                    now={minuteNow}
+                  />
                 ))
               )}
             </tbody>
@@ -128,7 +130,12 @@ export function PositionsOrdersCard() {
                 </tr>
               ) : (
                 orders.map((o, i) => (
-                  <OrderRow key={o.exchangeOrderId} order={o} index={i} now={minuteNow} />
+                  <OrderRow
+                    key={o.exchangeOrderId}
+                    order={o}
+                    index={i}
+                    now={minuteNow}
+                  />
                 ))
               )}
             </tbody>

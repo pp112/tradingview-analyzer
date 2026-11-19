@@ -3,6 +3,7 @@ from sqlmodel import Session
 from backend.config.logging import get_logger
 from backend.exchanges.base import ExchangeApiError, ExchangeClient
 from backend.models.linked_values import CurrentIndicatorValue
+from backend.models.timeframe import Timeframe
 from backend.signal_links.models import CloseCondition
 from backend.signal_links.repository import (
     CloseConditionRepository,
@@ -50,10 +51,10 @@ def _condition_met(
     return _value_condition_met(current.value, condition)
 
 
-def _describe(indicator: str, current: CurrentIndicatorValue, condition: CloseCondition) -> str:
+def _describe(indicator: str, tf: str, current: CurrentIndicatorValue, condition: CloseCondition) -> str:
     if condition.close_type == "crossover":
-        return f"{indicator}: новое пересечение (index={current.crossover_index})"
-    return f"{indicator}={current.value} {condition.operator} {condition.target_value}"
+        return f"{tf} {indicator}: новое пересечение (index={current.crossover_index})"
+    return f"{tf} {indicator}={current.value} {condition.operator} {condition.target_value}"
 
 
 async def check_and_auto_close(
@@ -92,8 +93,8 @@ async def check_and_auto_close(
             continue
 
         logger.info(
-            f"Автозакрытие позиции: {link.symbol}"
-            f"{_describe(snapshot.indicator, current, condition)}"
+            f"Автозакрытие позиции: {link.symbol} "
+            f"{_describe(snapshot.indicator, snapshot.timeframe, current, condition)}"
         )
 
         try:
@@ -130,7 +131,7 @@ async def check_and_auto_close(
 
         logger.info(
             f"Автоотмена ордера: {link.symbol}"
-            f"{_describe(snapshot.indicator, current, condition)}"
+            f"{_describe(snapshot.indicator, snapshot.timeframe, current, condition)}"
         )
 
         try:
