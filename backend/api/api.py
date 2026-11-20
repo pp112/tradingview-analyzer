@@ -1,7 +1,6 @@
 import asyncio
 import json
 from pathlib import Path
-from typing import TypedDict, Required, NotRequired
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,12 +8,16 @@ from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter
 
-from backend.api.dependencies import get_portfolio_service
+from backend.api.dependencies import (
+    get_broadcaster,
+    get_exchange_client,
+    get_portfolio_service,
+)
 from backend.api.signal_links import router as signal_links_router
 from backend.config import get_logger
+from backend.events.broadcaster import Broadcaster
 from backend.exchange_portfolio.service import PortfolioService
 from backend.exchanges.base import ExchangeApiError, ExchangeClient
-from backend.exchanges.client_factory import create_bybit_client
 from backend.schemas.signals import SignalResponse
 from backend.schemas.price_volume import PriceVolumeResponse
 from backend.schemas.portfolio import OrderResponse, PositionResponse, PortfolioResponse
@@ -53,36 +56,20 @@ app.add_middleware(
 app.include_router(signal_links_router)
 
 
-clients: list[asyncio.Queue] = []
-
-class BroadcastMessage(TypedDict):
-    type: Required[str]
-    timeframe: NotRequired[str]
-
-async def broadcast(message: BroadcastMessage):
-    """
-    Рассылает уведомление об обновлении данных подключённым клиентам.
-    """
-    json_message = json.dumps(message)
-    logger.info(f"Рассылка обновления: {message['type']}")
-
-    for queue in clients:
-        await queue.put(("update", json_message))
-
-
 @app.exception_handler(ExchangeApiError)
-async def exchange_api_error_handler(request: Request, exc: ExchangeApiError):
+async def exchange_api_error_handler(exc: ExchangeApiError):
     return JSONResponse(status_code=502, content={"detail": str(exc)})
 
 
 @app.get("/stream")
-async def stream(request: Request):
+async def stream(
+    request: Request, 
+    broadcaster: Broadcaster = Depends(get_broadcaster)
+):
     """
     SSE эндпоинт — держит соединение открытым и отправляет события клиенту.
     """
-    queue = asyncio.Queue()
-    clients.append(queue)
-    logger.info(f"Клиент подключился")
+    queue = broadcaster.subscribe()
 
     async def signal_update_stream():
         try:
@@ -97,7 +84,7 @@ async def stream(request: Request):
                     yield f"data: ping\n\n"
         
         finally:
-            clients.remove(queue)
+            broadcaster.unsubscribe(queue)
 
     return StreamingResponse(signal_update_stream(), media_type="text/event-stream")
 
@@ -177,7 +164,7 @@ async def get_positions_orders(service: PortfolioService = Depends(get_portfolio
 @app.post("/orders/{exchange_order_id}/cancel", response_model=ActionResponse)
 async def cancel_order(
     exchange_order_id: str, 
-    client: ExchangeClient = Depends(create_bybit_client),
+    client: ExchangeClient = Depends(get_exchange_client),
 ):
     """
     Отменяет открытый ордер по его ID.
@@ -198,7 +185,7 @@ async def cancel_order(
 @app.post("/positions/close", response_model=ActionResponse)
 async def close_position(
     symbol: str, 
-    client: ExchangeClient = Depends(create_bybit_client),
+    client: ExchangeClient = Depends(get_exchange_client),
 ):
     """
     Закрывает открытую позицию по символу.

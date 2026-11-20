@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from backend.config import get_logger
-from backend.exchanges.base import ExchangeClient
 from backend.storage.state_manager import StateManager
 from backend.app.updater import Updater
 from backend.models import Timeframe
@@ -19,9 +18,9 @@ class StartupUpdater:
     - какие требуют обновления
     - выполняет их последовательное обновление
     """
-    def __init__(self, client: ExchangeClient):
-        self.state_manager = StateManager()
-        self.updater = Updater(client)
+    def __init__(self, updater: Updater, state_manager: StateManager):
+        self.updater = updater
+        self.state_manager = state_manager
 
     async def run(self):
         """

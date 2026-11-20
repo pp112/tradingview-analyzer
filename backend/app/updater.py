@@ -1,13 +1,14 @@
 from sqlmodel import Session
 
+from backend.events.broadcaster import Broadcaster
 from backend.exchanges.base import ExchangeClient
 from backend.storage.database import engine
 from backend.processing.linked_indicator_values import extract_linked_indicator_values
 from backend.models import Timeframe
 from backend.market import MarketDataClient
 from backend.processing import (
-    process_indicators, 
     PriceVolumeMonitor, 
+    process_indicators, 
     calculate_correlations,
     check_and_auto_close,
 )
@@ -20,7 +21,6 @@ from backend.storage.writer import (
     save_correlations,
     save_market_data
 )
-from backend.api.api import broadcast
 from backend.config import get_logger
 
 logger = get_logger(__name__, "[UPDATER]")
@@ -37,11 +37,17 @@ class Updater:
     - проверку автозакрытия
     - сохранение результатов
     """
-    def __init__(self, client: ExchangeClient):
-        self.state_manager = StateManager()
+    def __init__(
+        self, 
+        client: ExchangeClient, 
+        broadcaster: Broadcaster,
+        state_manager: StateManager,
+    ):
+        self.client = client
+        self.broadcaster = broadcaster
+        self.state_manager = state_manager
         self.market_client = MarketDataClient()
         self.price_volume_monitor = PriceVolumeMonitor()
-        self.client = client
 
     async def update_timeframe(self, timeframe: Timeframe):
         """
@@ -89,13 +95,10 @@ class Updater:
 
         self.state_manager.set_updated(timeframe)
         
-        await broadcast({
-            "type": "signals", 
-            "timeframe": timeframe.label
-        })
+        await self.broadcaster.signals_updated(timeframe)
 
         logger.info(f"{timeframe.label}: Обновление завершено")
 
     async def update_price_volume(self, df):
         self.price_volume_monitor.calculate_and_save(df)
-        await broadcast({"type": "price_volume"})
+        await self.broadcaster.price_volume_updated()

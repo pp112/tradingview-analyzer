@@ -3,49 +3,52 @@ import signal
 
 import uvicorn
 
+from backend.api.api import app as fastapi_app
+from backend.app.updater import Updater
 from backend.config import setup_logging, get_logger, console
 from backend.app.startup import StartupUpdater
 from backend.app.scheduler import Scheduler
-from backend.api.api import app as fastapi_app, broadcast
+from backend.events.broadcaster import Broadcaster
 from backend.exchange_portfolio.service import PortfolioService
 from backend.exchanges.base import ExchangeApiError
 from backend.exchanges.client_factory import create_bybit_client
 from backend.storage.database import init_db
+from backend.storage.state_manager import StateManager
 
 logger = get_logger(__name__, "[APP]")
 
 
 class App:
     """
-    Основной класс приложения.
-
-    Управляет жизненным циклом:
-    - запуск веб-сервера
-    - стартовое обновление данных
-    - запуск планировщика
-    - корректное завершение по сигналу
+    Основной класс приложения. Управляет жизненным циклом.
     """
 
     HOST = "localhost"
     PORT = 8000
 
     def __init__(self):
+        broadcaster = Broadcaster()
         client = create_bybit_client()
+        state_manager = StateManager()
+        updater = Updater(client, broadcaster, state_manager)
         portfolio_service = PortfolioService(
             client, 
-            on_updated=lambda: broadcast({"type": "portfolio"}),
+            on_updated=lambda: broadcaster.portfolio_updated(),
         )
 
+        self.portfolio_service = portfolio_service
+        self.startup_updater = StartupUpdater(updater, state_manager)
+        self.scheduler = Scheduler(updater, portfolio_service)
+        self.stop_event = asyncio.Event()
+        self.server = uvicorn.Server(
+            uvicorn.Config(
+                fastapi_app, host=self.HOST, port=self.PORT, log_level="warning", log_config=None
+            )
+        )
+
+        fastapi_app.state.broadcaster = broadcaster
         fastapi_app.state.exchange_client = client
         fastapi_app.state.portfolio_service = portfolio_service
-
-        self.portfolio_service = portfolio_service
-        self.startup_updater = StartupUpdater(client)
-        self.scheduler = Scheduler(client, portfolio_service)
-        self.stop_event = asyncio.Event()
-
-        config = uvicorn.Config(fastapi_app, host=self.HOST, port=self.PORT, log_level="warning", log_config=None)
-        self.server = uvicorn.Server(config)
     
     async def start(self):
         """

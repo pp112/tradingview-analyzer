@@ -4,7 +4,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from backend.config import get_logger
 from backend.exchange_portfolio.service import PortfolioService
-from backend.exchanges.base import ExchangeApiError, ExchangeClient
+from backend.exchanges.base import ExchangeApiError
 from backend.models import Timeframe
 from backend.app.updater import Updater
 
@@ -17,14 +17,10 @@ class Scheduler:
     - следит за временем обновлений
     - запускает задачи обновлений
     """
-    def __init__(
-        self,
-        client: ExchangeClient,
-        portfolio_service: PortfolioService,
-    ):
-        self.scheduler = AsyncIOScheduler()
-        self.updater = Updater(client)
+    def __init__(self, updater: Updater, portfolio_service: PortfolioService):
+        self.updater = updater
         self.portfolio_service = portfolio_service
+        self.scheduler = AsyncIOScheduler()
         self._lock = asyncio.Lock()
 
     def start(self):
