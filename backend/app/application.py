@@ -13,7 +13,7 @@ from backend.exchange_portfolio.service import PortfolioService
 from backend.exchanges.base import ExchangeApiError
 from backend.exchanges.client_factory import create_bybit_client
 from backend.storage.database import init_db
-from backend.storage.state_manager import StateManager
+from backend.app.state_manager import StateManager
 
 logger = get_logger(__name__, "[APP]")
 

@@ -12,7 +12,7 @@ from backend.processing import (
     calculate_correlations,
     check_and_auto_close,
 )
-from backend.storage.state_manager import StateManager
+from backend.app.state_manager import StateManager
 from backend.utils import read_correlations
 from backend.storage.writer import (
     save_indicators,

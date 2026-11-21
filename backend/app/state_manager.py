@@ -30,6 +30,16 @@ class StateManager:
     def __init__(self):
         self.state = self._load_state()
 
+    def set_updated(self, timeframe: Timeframe):
+        """
+        Обновляет время последнего обновления таймфрейма.
+        """
+        now = datetime.now().replace(second=0, microsecond=0)
+        self.state[timeframe.value] = now.isoformat()
+        self._save_state()
+
+        logger.info(f"Сохранено время обновления таймфрейма {timeframe.label}: {now}")
+
     def resolve_timeframes_to_update(self) -> list[Timeframe]:
         """
         Возвращает список таймфреймов, которые требуют обновления.
@@ -52,16 +62,6 @@ class StateManager:
                 to_update.append(tf)
 
         return to_update
-    
-    def set_updated(self, timeframe: Timeframe):
-        """
-        Обновляет время последнего обновления таймфрейма.
-        """
-        now = datetime.now().replace(second=0, microsecond=0)
-        self.state[timeframe.value] = now.isoformat()
-        self._save_state()
-
-        logger.info(f"Сохранено время обновления таймфрейма {timeframe.label}: {now}")
 
     def cleanup_stale_signals(self):
         """

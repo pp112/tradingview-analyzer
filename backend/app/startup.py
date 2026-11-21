@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from backend.config import get_logger
-from backend.storage.state_manager import StateManager
+from backend.app.state_manager import StateManager
 from backend.app.updater import Updater
 from backend.models import Timeframe
 from backend.utils import load_data

@@ -1449,6 +1449,7 @@ corr-last-child {
   gap: 8px;
   color: var(--text2);
   font-size: 0.83rem;
+  line-height: 18px;
 }
 
 .sbm-close {
@@ -1694,6 +1695,7 @@ corr-last-child {
   align-items: center;
   gap: 12px;
   margin-left: 3px;
+  cursor: pointer;
 }
 
 .sbm-switch {
