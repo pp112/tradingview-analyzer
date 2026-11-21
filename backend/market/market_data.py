@@ -27,7 +27,6 @@ class MarketDataClient:
 
     def __init__(self):
         self.http_client = TradingViewHttpClient()
-        self.ws_client = TradingViewWebSocket()
         
     async def fetch_all_historical_candles(self, timeframe: Timeframe) -> pd.DataFrame:
         """

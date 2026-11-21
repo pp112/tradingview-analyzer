@@ -38,15 +38,16 @@ class Updater:
     - сохранение результатов
     """
     def __init__(
-        self, 
+        self,
+        market_client: MarketDataClient,
         client: ExchangeClient, 
         broadcaster: Broadcaster,
         state_manager: StateManager,
     ):
+        self.market_client = market_client
         self.client = client
         self.broadcaster = broadcaster
         self.state_manager = state_manager
-        self.market_client = MarketDataClient()
         self.price_volume_monitor = PriceVolumeMonitor()
 
     async def update_timeframe(self, timeframe: Timeframe):
