@@ -2,11 +2,11 @@ from sqlmodel import Session
 
 from backend.events.broadcaster import Broadcaster
 from backend.exchanges.base import ExchangeClient
+from backend.market import fetch_all_historical_candles
 from backend.processing.price_volume_calculator import calculate_price_volume_changes
 from backend.storage.database import engine
 from backend.processing.linked_indicator_values import extract_linked_indicator_values
 from backend.models import Timeframe
-from backend.market import MarketDataClient
 from backend.processing import (
     process_indicators, 
     calculate_correlations,
@@ -40,12 +40,10 @@ class Updater:
     """
     def __init__(
         self,
-        market_client: MarketDataClient,
         client: ExchangeClient, 
         broadcaster: Broadcaster,
         state_manager: StateManager,
     ):
-        self.market_client = market_client
         self.client = client
         self.broadcaster = broadcaster
         self.state_manager = state_manager
@@ -56,7 +54,7 @@ class Updater:
         """
         logger.info(f"{timeframe.label}: Старт пайплайна")
 
-        df_candles = await self.market_client.fetch_all_historical_candles(timeframe)
+        df_candles = await fetch_all_historical_candles(timeframe)
 
         if df_candles.empty:
             logger.error(

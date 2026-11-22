@@ -34,7 +34,6 @@ def setup_logging():
     )
 
     # ── Хэндлеры ──────────────────────────────────────────────────────────────
-
     # Консоль
     console_handler = RichHandler(
         console=console,
@@ -65,17 +64,15 @@ def setup_logging():
     indicator_service_file_handler.setFormatter(file_formatter)
 
     # ── Root логгер ───────────────────────────────────────────────────────────
-
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     root_logger.addHandler(console_handler)
     root_logger.addHandler(app_file_handler)
 
     # ── Отдельные логгеры ─────────────────────────────────────────────────────
-
     # Отключаем шумные логгеры загрузки данных
-    logging.getLogger("market.market_data").disabled = True
-    logging.getLogger("market.websocket_client").disabled = True
+    logging.getLogger("backend.market.market_data").disabled = True
+    logging.getLogger("backend.market.websocket_client").disabled = True
 
     # приглушаем APScheduler
     logging.getLogger("apscheduler").setLevel(logging.WARNING)

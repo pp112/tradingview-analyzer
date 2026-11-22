@@ -12,7 +12,6 @@ from backend.events.broadcaster import Broadcaster
 from backend.exchange_portfolio.service import PortfolioService
 from backend.exchanges.base import ExchangeApiError
 from backend.exchanges.client_factory import create_bybit_client
-from backend.market.market_data import MarketDataClient
 from backend.storage.database import init_db
 from backend.app.state_manager import StateManager
 
@@ -31,8 +30,7 @@ class App:
         broadcaster = Broadcaster()
         client = create_bybit_client()
         state_manager = StateManager()
-        market_client = MarketDataClient()
-        updater = Updater(market_client, client, broadcaster, state_manager)
+        updater = Updater(client, broadcaster, state_manager)
         portfolio_service = PortfolioService(
             client, 
             on_updated=lambda: broadcaster.portfolio_updated(),
