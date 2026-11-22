@@ -1,6 +1,4 @@
 import asyncio
-import json
-from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +22,13 @@ from backend.schemas.portfolio import OrderResponse, PositionResponse, Portfolio
 from backend.schemas.linked_values import CurrentIndicatorValueResponse
 from backend.schemas.initial_data import InitialDataResponse
 from backend.schemas.common import ActionResponse
+from backend.storage.paths import (
+    LINKED_VALUES_FILE, 
+    PRICE_VOLUME_FILE,
+    SIGNALS_DIR,
+    signals_file,
+)
+from backend.storage.writer import read_json
 
 
 logger = get_logger(__name__, "[API]")
@@ -31,8 +36,6 @@ logger = get_logger(__name__, "[API]")
 
 app = FastAPI()
 
-
-BASE_DIR = Path("backend/data/values")
 
 SIGNALS_ADAPTER = TypeAdapter(list[SignalResponse])
 PRICE_VOLUME_ADAPTER = TypeAdapter(list[PriceVolumeResponse])
@@ -95,7 +98,7 @@ def get_signals(tf: str):
     Возвращает сигналы для указанного таймфрейма из JSON файла.
     """
     logger.info(f"Запрос сигналов: {tf}")
-    path = BASE_DIR / "signals" / f"signals_{tf}.json"
+    path = signals_file(tf)
     json_data = path.read_text(encoding="utf-8")
     return SIGNALS_ADAPTER.validate_json(json_data)
     
@@ -106,8 +109,9 @@ def get_price_volume():
     Возвращает последние изменения цен и объёмов.
     """
     logger.info("Запрос изменений цен и объёмов")
-    path = BASE_DIR / "price_vol_changes" / "price_vol_changes.json"
-    json_data = path.read_text(encoding="utf-8")
+    if not PRICE_VOLUME_FILE.exists():
+        return []
+    json_data = PRICE_VOLUME_FILE.read_text(encoding="utf-8")
     return PRICE_VOLUME_ADAPTER.validate_json(json_data)
     
 
@@ -120,23 +124,21 @@ def get_initial_data():
     """
     signals: dict[str, list[SignalResponse]] = {}
 
-    signals_dir = BASE_DIR / "signals"
-    for file_path in signals_dir.glob("signals_*.json"):
+    for file_path in SIGNALS_DIR.glob("signals_*.json"):
         tf_label = file_path.stem.removeprefix("signals_")
         json_data = file_path.read_text(encoding="utf-8")
         signals[tf_label] = SIGNALS_ADAPTER.validate_json(json_data)
 
-    price_changes = None
-    price_changes_path = BASE_DIR / "price_vol_changes" / "price_vol_changes.json"
-    if price_changes_path.exists():
-        json_data = price_changes_path.read_text(encoding="utf-8")
+    price_changes = []
+    if PRICE_VOLUME_FILE.exists():
+        json_data = PRICE_VOLUME_FILE.read_text(encoding="utf-8")
         price_changes = PRICE_VOLUME_ADAPTER.validate_json(json_data)
 
     return InitialDataResponse(signals=signals, price_changes=price_changes)
 
 
 @app.get("/portfolio", response_model=PortfolioResponse)
-async def get_positions_orders(service: PortfolioService = Depends(get_portfolio_service)):
+async def get_portfolio(service: PortfolioService = Depends(get_portfolio_service)):
     """
     Возвращает открытые ордера и позиции.
     """
@@ -146,7 +148,6 @@ async def get_positions_orders(service: PortfolioService = Depends(get_portfolio
         return PortfolioResponse(
             positions=[], orders=[], balance=None, updated_at=None
         )
-
     return PortfolioResponse(
         orders=[
             OrderResponse.model_validate(order, from_attributes=True)
@@ -171,7 +172,6 @@ async def cancel_order(
     """
     orders = await client.get_orders()
     order = next((o for o in orders if o.exchange_order_id == exchange_order_id), None)
-
     if order is None:
         raise HTTPException(status_code=404, detail="Ордер не найден")
 
@@ -192,7 +192,6 @@ async def close_position(
     """
     positions = await client.get_positions()
     position = next((p for p in positions if p.symbol == symbol), None)
-
     if position is None:
         raise HTTPException(status_code=404, detail="Позиция не найдена")
 
@@ -204,18 +203,12 @@ async def close_position(
 
 
 @app.get("/linked-signal-values", response_model=list[CurrentIndicatorValueResponse])
-async def get_linked_signal_values(tf: str):
+def get_linked_signal_values(tf: str):
     """
     Возвращает текущие значения индикаторов для привязанных сигналов
     указанного таймфрейма.
     """
-    path = BASE_DIR / "linked_values" / "linked_values.json"
-    if not path.exists():
-        return []
-
-    with path.open(encoding="utf-8") as f:
-        data = json.load(f)
-
+    data = read_json(LINKED_VALUES_FILE, default={})
     return LINKED_VALUES_ADAPTER.validate_python(data.get(tf, []))
 
 

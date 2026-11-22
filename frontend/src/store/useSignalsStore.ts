@@ -6,7 +6,7 @@ type ConnectionStatus = "connecting" | "connected" | "error";
 
 interface SignalsState {
   signals: Partial<Record<Timeframe, Signal[]>>;
-  priceVolume: PriceVolumeData | null;
+  priceVolume: PriceVolumeData;
   connectionStatus: ConnectionStatus;
 
   setSignals: (timeframe: Timeframe, data: Signal[]) => void;
@@ -17,7 +17,7 @@ interface SignalsState {
 
 export const useSignalsStore = create<SignalsState>((set) => ({
   signals: {},
-  priceVolume: null,
+  priceVolume: [],
   connectionStatus: "connecting",
 
   setSignals: (timeframe, data) =>

@@ -2,18 +2,24 @@ import json
 from pathlib import Path
 
 import pandas as pd
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
+from rich.progress import (
+    Progress, 
+    SpinnerColumn, 
+    TextColumn, 
+    BarColumn, 
+    TimeRemainingColumn,
+)
 from backend.config.logging import console
 
 from backend.models import Timeframe
+from backend.storage.paths import historical_data_file
 
 
 def load_data(timeframe: Timeframe) -> pd.DataFrame:
     """
     Загружает исторические данные из parquet файла в DataFrame для указанного таймфрейма.
     """
-    path = Path("backend/data/historical_data") / f"historical_data_{timeframe.label}.parquet"
-    return pd.read_parquet(path)
+    return pd.read_parquet(historical_data_file(timeframe.label, "parquet"))
 
 
 def filter_by_symbol(symbol: str, df: pd.DataFrame) -> pd.DataFrame:
@@ -51,12 +57,3 @@ def create_progress() -> Progress:
         TimeRemainingColumn(),
         console=console
     )
-
-
-def read_correlations() -> dict[str, float]:
-    """
-    Возвращает значения корреляций из файла.
-    """
-    path = Path("backend/data/values/correlations/correlations.json")
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)

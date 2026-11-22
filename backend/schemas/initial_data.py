@@ -5,4 +5,4 @@ from backend.schemas.price_volume import PriceVolumeResponse
 
 class InitialDataResponse(ApiModel):
     signals: dict[str, list[SignalResponse]]
-    price_changes: list[PriceVolumeResponse] | None
+    price_changes: list[PriceVolumeResponse]

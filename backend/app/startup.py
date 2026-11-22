@@ -1,9 +1,8 @@
-from pathlib import Path
-
 from backend.config import get_logger
 from backend.app.state_manager import StateManager
 from backend.app.updater import Updater
 from backend.models import Timeframe
+from backend.storage.paths import SIGNALS_DIR
 from backend.utils import load_data
 
 logger = get_logger(__name__, "[STARTUP]")
@@ -26,8 +25,7 @@ class StartupUpdater:
         """
         Обновляет данные
         """
-        signals_dir = Path("backend/data/values/signals")
-        has_signal_files = signals_dir.exists() and any(signals_dir.glob("signals_*.json"))
+        has_signal_files = SIGNALS_DIR.exists() and any(SIGNALS_DIR.glob("signals_*.json"))
 
         if has_signal_files:
             logger.info("Очистка устаревших файлов сигналов")

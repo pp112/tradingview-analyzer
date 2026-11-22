@@ -47,14 +47,13 @@ function formatValue(
 
 export function MoversCard({ title, variant }: MoversCardProps) {
   const priceVolume = useSignalsStore((s) => s.priceVolume);
-
-  const entries = priceVolume ? getSortedEntries(priceVolume, variant) : [];
+  const entries = getSortedEntries(priceVolume, variant);
 
   return (
     <div className="card movers-card">
       <div className="card-header">{title}</div>
       <div className="mover-list">
-        {priceVolume === null ? (
+        {priceVolume.length === 0 ? (
           <div className="corr-loading">Ожидание данных...</div>
         ) : (
           entries.map((entry, i) => {

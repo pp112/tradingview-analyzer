@@ -61,5 +61,5 @@ export type SSEMessage =
 
 export type InitialDataResponse = {
   signals: Partial<Record<Timeframe, Signal[]>>;
-  priceChanges: PriceVolumeData | null;
+  priceChanges: PriceVolumeData;
 };

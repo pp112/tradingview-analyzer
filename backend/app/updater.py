@@ -13,8 +13,9 @@ from backend.processing import (
     check_and_auto_close,
 )
 from backend.app.state_manager import StateManager
-from backend.utils import read_correlations
+from backend.storage.paths import CORRELATIONS_FILE
 from backend.storage.writer import (
+    read_json,
     save_indicators,
     save_linked_values,
     save_price_volume_changes,
@@ -71,7 +72,7 @@ class Updater:
             correlations = calculate_correlations(df_candles)
             save_correlations(correlations)
         else:
-            correlations = read_correlations()
+            correlations = read_json(CORRELATIONS_FILE, default={})
 
         indicators, signals = process_indicators(
             df_candles, correlations, timeframe

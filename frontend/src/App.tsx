@@ -22,9 +22,7 @@ export default function App() {
     fetchInitialData()
       .then((data) => {
         setAllSignals(data.signals);
-        if (data.priceChanges) {
-          setPriceVolume(data.priceChanges);
-        }
+        setPriceVolume(data.priceChanges);
         setConnectionStatus("connected");
       })
       .catch((err) => {
