@@ -7,6 +7,7 @@ import pandas as pd
 
 from backend.models import Timeframe, Signal
 from backend.models.linked_values import CurrentIndicatorValue
+from backend.models.price_volume import PriceVolume
 
 
 BASE_PATH = Path("backend/data")
@@ -120,5 +121,17 @@ def save_linked_values(values: list[CurrentIndicatorValue], timeframe: Timeframe
 
     data[timeframe.label] = [v.model_dump(mode="json") for v in values]
 
+    with file_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+
+def save_price_volume_changes(changes: list[PriceVolume]):
+    """
+    Сохраняет изменения цен и объёмов в json.
+    """
+    path = BASE_PATH / "values" / "price_vol_changes"
+    ensure_dir(path)
+    file_path = path / "price_vol_changes.json"
+    data = [c.model_dump(mode="json") for c in changes]
     with file_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)

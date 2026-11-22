@@ -2,12 +2,12 @@ from sqlmodel import Session
 
 from backend.events.broadcaster import Broadcaster
 from backend.exchanges.base import ExchangeClient
+from backend.processing.price_volume_calculator import calculate_price_volume_changes
 from backend.storage.database import engine
 from backend.processing.linked_indicator_values import extract_linked_indicator_values
 from backend.models import Timeframe
 from backend.market import MarketDataClient
 from backend.processing import (
-    PriceVolumeMonitor, 
     process_indicators, 
     calculate_correlations,
     check_and_auto_close,
@@ -17,6 +17,7 @@ from backend.utils import read_correlations
 from backend.storage.writer import (
     save_indicators,
     save_linked_values,
+    save_price_volume_changes,
     save_signals,
     save_correlations,
     save_market_data
@@ -48,7 +49,6 @@ class Updater:
         self.client = client
         self.broadcaster = broadcaster
         self.state_manager = state_manager
-        self.price_volume_monitor = PriceVolumeMonitor()
 
     async def update_timeframe(self, timeframe: Timeframe):
         """
@@ -101,5 +101,7 @@ class Updater:
         logger.info(f"{timeframe.label}: Обновление завершено")
 
     async def update_price_volume(self, df):
-        self.price_volume_monitor.calculate_and_save(df)
+        logger.info("Расчёт изменений цен и объёмов")
+        changes = calculate_price_volume_changes(df)
+        save_price_volume_changes(changes)
         await self.broadcaster.price_volume_updated()
