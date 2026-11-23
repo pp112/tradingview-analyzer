@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+import backend.processing.crossovers as crossover_service
 from backend.models import Timeframe
 from backend.models.signal import Direction
-from backend.processing import crossovers as crossover_service 
 from backend.processing import indicator_service, signal_strength
 from backend.utils import filter_by_symbol
 

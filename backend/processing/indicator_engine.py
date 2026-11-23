@@ -1,6 +1,7 @@
 import pandas as pd
 
-from backend.processing import calculate_indicators, generate_signals
+from backend.processing.indicator_calculator import calculate_indicators
+from backend.processing.signal_generator import generate_signals
 from backend.models import Timeframe, Signal
 from backend.config import get_logger
 

@@ -1,18 +1,16 @@
 from sqlmodel import Session
 
+from backend.app.state_manager import StateManager
 from backend.events.broadcaster import Broadcaster
 from backend.exchanges.base import ExchangeClient
-from backend.market import fetch_all_historical_candles
 from backend.processing.price_volume_calculator import calculate_price_volume_changes
-from backend.storage.database import engine
 from backend.processing.linked_indicator_values import extract_linked_indicator_values
+from backend.processing.indicator_engine import process_indicators
+from backend.processing.correlation_calculator import calculate_correlations
+from backend.processing.auto_close import check_and_auto_close
+from backend.market import fetch_all_historical_candles
 from backend.models import Timeframe
-from backend.processing import (
-    process_indicators, 
-    calculate_correlations,
-    check_and_auto_close,
-)
-from backend.app.state_manager import StateManager
+from backend.storage.database import engine
 from backend.storage.paths import CORRELATIONS_FILE
 from backend.storage.writer import (
     read_json,
