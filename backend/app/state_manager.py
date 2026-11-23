@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from backend.app.schedule import UPDATE_SCHEDULE
 from backend.models import Timeframe
 from backend.config import get_logger
 from backend.storage.paths import PRICE_VOLUME_FILE, STATE_FILE, signals_file
@@ -42,7 +43,7 @@ class StateManager:
         now = datetime.now()
         to_update = []
 
-        for tf, interval in self.TIMEFRAME_INTERVALS.items():
+        for tf, schedule in UPDATE_SCHEDULE.items():
             last_update = self._get_last_update(tf)
             if last_update is None:
                 logger.info(f"Нужно обновить {tf.label} (нет данных последнего обновления)")
@@ -50,7 +51,7 @@ class StateManager:
                 continue
 
             delta = now - last_update
-            if delta >= interval:
+            if delta >= schedule.interval:
                 pretty_delta = str(delta).split(".")[0]
                 logger.info(f"Нужно обновить {tf.label} (прошло {pretty_delta})")
                 to_update.append(tf)

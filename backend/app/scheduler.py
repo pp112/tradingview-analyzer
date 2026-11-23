@@ -2,6 +2,7 @@ import asyncio
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from backend.app.schedule import UPDATE_SCHEDULE
 from backend.config import get_logger
 from backend.exchange_portfolio.service import PortfolioService
 from backend.exchanges.base import ExchangeApiError
@@ -26,11 +27,10 @@ class Scheduler:
     def start(self):
         logger.info("Запуск планировщика")
 
-        self.scheduler.add_job(self._run_update, "cron", minute="1,16,31,46", args=[Timeframe.M15])
-        self.scheduler.add_job(self._run_update, "cron", minute="1,31", args=[Timeframe.M30])
-        self.scheduler.add_job(self._run_update, "cron", minute=1, args=[Timeframe.H1])
-        self.scheduler.add_job(self._run_update, "cron", hour="*/4", minute=1, args=[Timeframe.H4])
-        self.scheduler.add_job(self._run_update, "cron", hour=0, minute=1, args=[Timeframe.D1])
+        for timeframe, schedule in UPDATE_SCHEDULE.items():
+            self.scheduler.add_job(
+                self._run_update, "cron", args=[timeframe], **schedule.cron
+            )
         self.scheduler.add_job(self._run_sync_portfolio, "interval", seconds=5)
 
         self.scheduler.start()
