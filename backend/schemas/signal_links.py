@@ -1,11 +1,3 @@
-"""
-Pydantic-схемы API для привязки сигналов к позициям и ордерам.
-
-Используются в backend.api.signal_links для:
-- валидации входящих запросов;
-- формирования ответов API;
-"""
-
 from datetime import datetime
 from typing import Annotated, Literal, Union
 

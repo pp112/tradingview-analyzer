@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { fetchLinkedSinglaValues, fetchSignalLinks } from "../api/signalLinks";
+import { fetchLinkedSignalValues, fetchSignalLinks } from "../api/signalLinks";
 import { useSignalLinksStore } from "../store/useSignalLinksStore";
 import type { Timeframe } from "../types/signal";
 
@@ -22,14 +22,14 @@ export function useSignalLinks() {
         await Promise.all(
           Array.from(timeframes).map(async (tf) => {
             try {
-              const values = await fetchLinkedSinglaValues(tf);
+              const values = await fetchLinkedSignalValues(tf);
               if (values.length > 0) {
                 setCurrentValues(values, tf);
               }
             } catch (err) {
               console.error(`Ошибка загрузки текущих значений для ${tf}:`, err);
             }
-          })
+          }),
         );
       })
       .catch((err) => {

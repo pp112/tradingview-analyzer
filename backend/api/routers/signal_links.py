@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import TypeAdapter
 from sqlmodel import Session
 
+from backend.schemas.linked_values import CurrentIndicatorValueResponse
 from backend.signal_links.service import (
     SignalLinkService, 
     SignalLinkNotFoundError,
@@ -23,9 +25,13 @@ from backend.schemas.signal_links import (
     ValueCloseConditionResponse,
 )
 from backend.schemas.common import ActionResponse
+from backend.storage.paths import LINKED_VALUES_FILE
+from backend.storage.writer import read_json
 
 
-router = APIRouter(prefix="/links")
+router = APIRouter(prefix="/links", tags=["signal links"])
+
+LINKED_VALUES_ADAPTER = TypeAdapter(list[CurrentIndicatorValueResponse])
 
 
 def _make_snapshot_response(snapshot: SignalSnapshot) -> SignalSnapshotResponse:
@@ -41,7 +47,9 @@ def _make_snapshot_response(snapshot: SignalSnapshot) -> SignalSnapshotResponse:
     )
 
 
-def _make_condition_response(condition: CloseCondition | None) -> CloseConditionResponse | None:
+def _make_condition_response(
+    condition: CloseCondition | None,
+) -> CloseConditionResponse | None:
     """
     Преобразует SQLModel-объект в Pydantic-схему для API-ответа.
     """
@@ -105,8 +113,21 @@ def get_signal_links(session: Session = Depends(get_session)):
     )
 
 
+@router.get("/values", response_model=list[CurrentIndicatorValueResponse])
+def get_linked_signal_values(tf: str):
+    """
+    Возвращает текущие значения индикаторов для привязанных сигналов
+    указанного таймфрейма.
+    """
+    data = read_json(LINKED_VALUES_FILE, default={})
+    return LINKED_VALUES_ADAPTER.validate_python(data.get(tf, []))
+
+
 @router.post("/positions", response_model=PositionSignalLinkResponse)
-def link_signal_to_position(req: LinkPositionSignalRequest, session: Session = Depends(get_session)):
+def link_signal_to_position(
+    req: LinkPositionSignalRequest, 
+    session: Session = Depends(get_session),
+):
     """
     Привязывает сигнал к позиции и сохраняет данные в БД.
     """
@@ -152,7 +173,10 @@ def unlink_signal_from_position(link_id: int, session: Session = Depends(get_ses
 
 
 @router.post("/orders", response_model=OrderSignalLinkResponse)
-def link_signal_to_order(req: LinkOrderSignalRequest, session: Session = Depends(get_session)):
+def link_signal_to_order(
+    req: LinkOrderSignalRequest, 
+    session: Session = Depends(get_session)
+):
     """
     Привязывает сигнал к открытому ордеру и сохраняет данные в БД.
     """

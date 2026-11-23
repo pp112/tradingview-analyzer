@@ -3,7 +3,7 @@ import signal
 
 import uvicorn
 
-from backend.api.api import app as fastapi_app
+from backend.api.app import app as fastapi_app
 from backend.app.updater import Updater
 from backend.config import setup_logging, get_logger, console
 from backend.app.startup import StartupUpdater

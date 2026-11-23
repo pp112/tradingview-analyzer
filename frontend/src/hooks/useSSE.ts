@@ -4,7 +4,7 @@ import { fetchSignals } from "../api/signals";
 import { useSignalsStore } from "../store/useSignalsStore";
 import { fetchPriceVolume } from "../api/priceVolume";
 import type { Timeframe } from "../types/signal";
-import { fetchLinkedSinglaValues, fetchSignalLinks } from "../api/signalLinks";
+import { fetchLinkedSignalValues, fetchSignalLinks } from "../api/signalLinks";
 import { useSignalLinksStore } from "../store/useSignalLinksStore";
 import { fetchPortfolio } from "../api/portfolio";
 import { usePortfolioStore } from "../store/usePortfolioStore";
@@ -20,10 +20,12 @@ export function useSSE() {
           console.error("Ошибка получения сигналов через SSE:", err);
         }
         try {
-          const linkedValues = await fetchLinkedSinglaValues(timeframe);
+          const linkedValues = await fetchLinkedSignalValues(timeframe);
           if (linkedValues.length > 0) {
-            useSignalLinksStore.getState().setCurrentValues(linkedValues, timeframe);
-          } 
+            useSignalLinksStore
+              .getState()
+              .setCurrentValues(linkedValues, timeframe);
+          }
         } catch (err) {
           console.error("Ошибка получения текущих значений индикаторов:", err);
         }
@@ -42,9 +44,9 @@ export function useSSE() {
             fetchPortfolio(),
             fetchSignalLinks(),
           ]);
-      
+
           usePortfolioStore.getState().setPortfolio(portfolio);
-      
+
           const linksStore = useSignalLinksStore.getState();
           linksStore.setPositionLinks(signalLinks.positions);
           linksStore.setOrderLinks(signalLinks.orders);
